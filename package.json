@@ -6,7 +6,8 @@
   "main": "src/eslint.js",
   "exports": {
     "./eslint": "./src/eslint.js",
-    "./prettier": "./src/prettier.js"
+    "./prettier": "./src/prettier.js",
+    "./tsconfig": "./src/tsconfig.base.json"
   },
   "files": [
     "src/",
