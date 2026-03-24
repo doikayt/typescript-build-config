@@ -5,7 +5,8 @@
   "type": "module",
   "main": "src/eslint.js",
   "exports": {
-    "./eslint": "./src/eslint.js"
+    "./eslint": "./src/eslint.js",
+    "./prettier": "./src/prettier.js"
   },
   "files": [
     "src/",
