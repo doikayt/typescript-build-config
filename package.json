@@ -14,7 +14,8 @@
     "README.md"
   ],
   "scripts": {
-    "prepack": "echo no build step required"
+    "prepack": "echo no build step required",
+    "postinstall": "node src/postinstall.js"
   },
   "publishConfig": {
     "access": "public"
