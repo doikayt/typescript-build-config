@@ -11,9 +11,9 @@ projects, avoiding drift between repos over time.
 
 ## Current Contents
 
-### ESLint Config
+    - ESLint Config
+    - Prettier Config
 
-A flat ESLint config for TypeScript projects using `@typescript-eslint`.
 
 
 **Requirements:**
@@ -23,6 +23,7 @@ Install dependencies
 ```bash
 npm install --save-dev @datalackey/typescript-build-config
 npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser
+npm install --save-dev prettier
 ```
 
 

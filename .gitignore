@@ -1,1 +1,10 @@
-node_modules/
+.idea/
+
+**/node_modules/
+**/dist/
+test/**/dist
+coverage
+.nx/
+
+.env
+
