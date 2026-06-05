@@ -1,6 +1,6 @@
 {
   "name": "@datalackey/typescript-build-config",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Shared build configuration for TypeScript projects — ESLint, and future tsconfig/Prettier presets",
   "type": "module",
   "main": "src/eslint.js",
@@ -39,4 +39,3 @@
     "url": "git+ssh://git@github.com/datalackey/typescript-build-config.git"
   }
 }
-
