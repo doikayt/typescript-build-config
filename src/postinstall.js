@@ -9,7 +9,7 @@ const projectRoot = process.env.INIT_CWD ?? process.cwd();
 const srcDir = new URL('top-level', import.meta.url).pathname;
 
 const files = [
-  { src: '.gitignore',           dest: '.gitignore' },
+  { src: 'gitignore',           dest: '.gitignore' },
   { src: 'tsconfig.json',        dest: 'tsconfig.json' },
   { src: 'tsconfig.test.json',   dest: 'tsconfig.test.json' },
   { src: 'tsconfig.eslint.json', dest: 'tsconfig.eslint.json' },
