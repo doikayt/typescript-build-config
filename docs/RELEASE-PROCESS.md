@@ -186,7 +186,10 @@ why. It is generated automatically from the conventional commit subjects that dr
 ## Rules
 
 - Version numbers must never be edited manually.
-- Version ranges of depended-on sibling packages must never be manually adjusted.
+- In multi-package workspaces: version ranges of dependencies on sibling packages —
+  published or private alike — must never be manually adjusted; `changeset version`
+  maintains them (see
+  [Coordinated (Sideways) Version Bumps](#coordinated-sideways-version-bumps)).
 - `npm publish` must never be run by hand — leave publishing to CI.
 - All releases must originate from committed changesets (handwritten or auto-generated).
 
