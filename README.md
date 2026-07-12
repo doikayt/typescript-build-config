@@ -46,6 +46,63 @@ versions of these tools may produce peer dependency conflicts.
 - NPM token diagnostic workflow (`.github/workflows/verify-npm-token.yml`) — see
   [Troubleshooting Publish Auth](docs/RELEASE-PROCESS.md#troubleshooting-publish-auth)
 
+## Delivery Model
+
+This package standardizes downstream repos through three delivery channels — script and
+config artifacts that *implement* the common policy, and a canonical document that
+*states* it:
+
+```
+        ┌─────────────────────────────────────────────────┐
+        │      @datalackey/typescript-build-config        │
+        │                                                 │
+        │  presets     src/eslint.js  prettier  tsconfig  │
+        │  stubs       src/top-level/*                    │
+        │  pipeline    src/pipeline/*                     │
+        │  policy      docs/RELEASE-PROCESS.md            │
+        └─────────┬───────────────┬───────────────┬───────┘
+                  │               │               │
+   1 REFERENCED   │  2 COPIED     │  3 LINKED,    │
+     IN PLACE     │    ON INSTALL │  NEVER COPIED │
+                  │               │               │
+ presets stay in  │ postinstall   │ cited by URL  │
+ node_modules —   │ seeds stubs + │ only; one     │
+ updates flow     │ pipeline once;│ canonical     │
+ with npm update  │ consumer owns │ copy — drift  │
+                  │ them; drift ⇒ │ is impossible │
+                  │ diff warning  │               │
+                  ▼               ▼               ▼
+        ┌─────────────────────────────────────────────────┐
+        │                  consumer repo                  │
+        │                                                 │
+        │  seeded stubs:  eslint.config.js  tsconfig.json │
+        │       │         prettier.config.js  …           │
+        │       └────extends────► presets living in       │
+        │                         node_modules  (chan. 1) │
+        │  owned pipeline:  .github/workflows/release.yml │
+        │                   scripts/auto-changeset.sh     │
+        │  CONTRIBUTING.md ─cites URL─► RELEASE-PROCESS.md│
+        └─────────────────────────────────────────────────┘
+```
+
+**Terms:**
+
+- **Presets** — the real configuration content: the ESLint rules (`src/eslint.js`),
+  Prettier options, and base tsconfig this package exports. They stay inside
+  `node_modules` and are never copied — which is what makes them ecosystem-wide levers:
+  change a lint rule once here, publish, and every downstream repo receives the new rule
+  on its next `npm update`, with no per-repo edits.
+- **Stubs** — thin files seeded once into the consumer's project root by the postinstall
+  script (`eslint.config.js`, `tsconfig.json`, …). Their only job is to `extends`/import
+  the presets — channel 2 planting a pointer to channel 1.
+- **Owned pipeline** — the release workflow and scripts, copied on install. "Owned" by
+  the **consumer repo**: it may edit its copies, upstream never overwrites them, and
+  postinstall prints a diff warning when a copy drifts from the canonical template.
+- **Policy** — the release process itself, stated once in
+  [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md). Consumers reference it by URL from
+  their own contributor docs (as the consumer box shows) — never copied, so it cannot
+  drift.
+
 ## Release Pipeline
 
 On install, the postinstall script copies the release pipeline files into your
