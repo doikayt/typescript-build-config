@@ -1,5 +1,15 @@
 # @datalackey/typescript-build-config
 
+## 0.0.26
+
+### Patch Changes
+
+- - feat: require handwritten changeset for major releases
+  - feat: distribute verify-npm-token.yml diagnostic workflow
+  - feat: distribute pipeline files via postinstall
+  - feat: add Changesets automated publish pipeline and Node 22 upgrade
+  - fix: pin @typescript-eslint peer deps to ^8.57.1 to avoid ts-api-utils crash on TS 5.4
+
 ## 0.0.25
 
 ### Patch Changes
