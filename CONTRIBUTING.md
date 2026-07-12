@@ -9,7 +9,7 @@ npm ci
 npm test    # policy enforcement, template/live-copy sync, postinstall behavior
 ```
 
-The suite (in `tests/`) exercises the distributed templates themselves: the auto-changeset
+The suite (in `tests/`) exercises the templates shipped to consumer repos: the auto-changeset
 policy (patch automation, breaking-change enforcement), drift between `src/pipeline/`
 templates and this repo's live copies, and postinstall's copy/skip/diff-warn behavior. CI
 runs it via `npm test --if-present` before any release.

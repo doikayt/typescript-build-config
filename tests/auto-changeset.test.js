@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Exercises the distributed template (src/pipeline/auto-changeset.sh) after the same
+// Exercises the consumer-installed template (src/pipeline/auto-changeset.sh) after the same
 // __PACKAGE_NAME__ substitution postinstall.js performs, so a green run here validates
 // the exact artifact consumer repos receive.
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Each distributed template under src/pipeline/ has a live twin in this repo (this repo
+// Each consumer-installed template under src/pipeline/ has a live twin in this repo (this repo
 // runs the same pipeline it distributes — see CONTRIBUTING.md, "Adding New Pipeline
 // Files"). These tests fail on drift between a template and its twin.
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

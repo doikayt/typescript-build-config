@@ -74,12 +74,13 @@ Evaluate the following options and end with a single recommendation:
 1. **Adopt the postinstall distribution.** Install `@datalackey/typescript-build-config` as a
    devDependency of the `javascript/` workspace so its postinstall manages the pipeline files
    (copy when absent, skip when identical, diff-warn when diverged). Check the blockers:
-   - The distributed `auto-changeset.sh` template substitutes a single
+   - The postinstall-distributed `auto-changeset.sh` template substitutes a single
      `PACKAGES=("__PACKAGE_NAME__")` from the consumer's `package.json` name. build-tools
      needs a five-package array. Does the template need multi-package parameterization
      upstream first (e.g. derive the array from the workspace globs or the `fixed` group in
      `.changeset/config.json`)?
-   - The distributed `release.yml` assumes repo root as working directory and no build step;
+   - The postinstall-distributed `release.yml` assumes repo root as working directory and no
+     build step;
      build-tools needs `working-directory: javascript`, an NX build, and the smoke test.
      Would the copy immediately diff-warn forever, defeating the purpose?
 

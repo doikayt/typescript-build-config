@@ -192,7 +192,7 @@ why. It is generated automatically from the conventional commit subjects that dr
 
 ## Troubleshooting Publish Auth
 
-The distributed pipeline includes a small diagnostic workflow,
+The pipeline files installed by this package include a small diagnostic workflow,
 `.github/workflows/verify-npm-token.yml`, for checking npm publish credentials without
 performing a release.
 
@@ -232,4 +232,4 @@ Enforce it by listing all publishable packages in a `fixed` group in
 "fixed": [["@scope/pkg-a", "@scope/pkg-b", "@scope/pkg-c"]]
 ```
 
-Single-package repos — the default for the distributed template — leave `fixed: []`.
+Single-package repos — the default for the installed template — leave `fixed: []`.

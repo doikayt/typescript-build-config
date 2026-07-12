@@ -9,7 +9,8 @@ TypeScript projects maintained under the `@datalackey` scope. The goal is a
 single source of truth for settings that should be held constant across
 projects, avoiding drift between repos over time. Beyond configuration, it
 also encapsulates the common build **policy** and release **workflow logic**
-— the distributed pipeline files and the canonical release process in
+— the pipeline files it installs into each consumer repo and the canonical
+release process in
 [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md) — for reuse by every
 current and future project that depends on this base package.
 
