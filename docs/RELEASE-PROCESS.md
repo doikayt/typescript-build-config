@@ -2,14 +2,26 @@
 
 This document is the canonical statement of the release policy promoted by
 `@datalackey/typescript-build-config` and implemented by the pipeline files it distributes
-(`.github/workflows/release.yml`, `.changeset/config.json`, `scripts/auto-changeset.sh`,
-`.github/workflows/verify-npm-token.yml`).
+(consumer-repo destination → template source):
+
+- [`.github/workflows/release.yml`](../src/pipeline/release.yml)
+- [`.changeset/config.json`](../src/pipeline/changeset-config.json)
+- [`scripts/auto-changeset.sh`](../src/pipeline/auto-changeset.sh)
+- [`.github/workflows/verify-npm-token.yml`](../src/pipeline/verify-npm-token.yml)
 
 It applies to every repository that installs this package. Repos with extra machinery (e.g.
 monorepos with NX orchestration or post-publish smoke tests) layer their specifics on top of
 this policy — they should link here rather than restate it.
 
 ## How the Automated Release Pipeline Works
+
+The release job only runs after the CI job passes. The CI job runs
+`npm test --if-present`: if the repo defines a `test` script, it must pass before anything
+can be released; repos without one are not blocked (the
+[`--if-present` flag](https://docs.npmjs.com/cli/commands/npm-run-script) makes npm exit
+successfully when the script is absent). This lets a single workflow template serve every
+consumer unchanged: a repo opts into the test gate simply by defining a `test` script, and
+is not penalised before it has one.
 
 On every push to `main` that passes CI, the release job runs three steps:
 
@@ -19,7 +31,9 @@ If no handwritten `.changeset/*.md` file exists, the script scans `git log` sinc
 release tag and derives a semver bump from conventional commit prefixes (see
 [Versioning Tiers](#versioning-tiers)). It writes a changeset file that `changeset version`
 then consumes. If no releasable commits are found (`fix:`, `feat:`, `perf:`), the script exits
-cleanly and no release is produced.
+cleanly and no release is produced. If a breaking-change marker is found without a
+handwritten changeset, the script fails the release job (see
+[Versioning Tiers](#versioning-tiers)).
 
 ### 2. Version bump + publish
 
@@ -56,14 +70,16 @@ Semver version numbers follow the format **MAJOR.MINOR.PATCH** (e.g. `1.4.2`):
 | `fix:` or `fix(scope):` | patch | `fix(parser): handle headings after HTML blocks` |
 | `perf:` or `perf(scope):` | patch | `perf: cache results across files` |
 | `feat:` or `feat(scope):` | patch | `feat: add --quiet flag` |
-| `feat!:` or `feat(scope)!:` | **major** | `feat!: remove deprecated --output flag` |
-| `BREAKING CHANGE` in commit body | **major** | any prefix + `BREAKING CHANGE: ...` in body |
+| `feat!:` or `feat(scope)!:` | **release job fails** | `feat!: remove deprecated --output flag` |
+| `BREAKING CHANGE` in body | **release job fails** | any prefix + `BREAKING CHANGE: ...` in body |
 | `chore:`, `ci:`, `docs:`, `refactor:`, `style:`, `test:`, `build:` | none | no release triggered |
 
-> **Note:** Automated releases are intentionally conservative — `feat:` maps to patch, not
-> minor. Use `npx changeset` before pushing to explicitly declare a minor or major bump.
-
-The highest bump level found across all commits since the last release tag wins.
+> **Note:** Automated releases are intentionally conservative — the auto path only ever
+> produces **patch** releases. Minor and major bumps require a handwritten changeset
+> (`npx changeset` before pushing). A breaking-change marker (`!` prefix or
+> `BREAKING CHANGE` in a commit body) with no handwritten changeset **fails the release
+> job** on every push until a changeset — real (declaring the bump) or empty (suppressing
+> the release) — is committed. Commits and CI tests are unaffected; only publishing halts.
 
 ## Forcing a Specific Bump Level
 
