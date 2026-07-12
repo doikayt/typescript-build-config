@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.0
+
+### Minor Changes
+
+- fa42ac4: test of minor and what happens
+
 ## 0.0.30
 
 ### Patch Changes
