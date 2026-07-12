@@ -1,6 +1,6 @@
 {
   "name": "@datalackey/typescript-build-config",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Shared build configuration for TypeScript projects — ESLint, and future tsconfig/Prettier presets",
   "_comments": {
     "exports": "This block lists the config files that will be extended by files in in src/toplevel - which are copied to consuming project root folder. An example: eslint.config.js imports from '@datalackey/typescript-build-config/eslint'.",
@@ -41,5 +41,9 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/datalackey/typescript-build-config.git"
+  },
+  "peerDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1"
   }
 }
