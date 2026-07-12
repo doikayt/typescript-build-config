@@ -34,6 +34,32 @@ This package intentionally lists `eslint`, `prettier`, and the `@typescript-esli
       These configs extend the content of what is installed under node_modules.
 
 
+## Publishing
+
+Releases are automated via Changesets and GitHub Actions. On every push to `main`:
+
+1. `scripts/auto-changeset.sh` scans commits since the last tag and maps conventional
+   commit prefixes to a bump level — `fix:` / `feat:` / `perf:` → patch,
+   `feat!:` / `BREAKING CHANGE` → major. `chore:` / `docs:` / `ci:` etc. produce
+   no release.
+2. `npx changeset version` bumps `package.json` and writes `CHANGELOG.md`.
+3. The version commit is pushed back to `main` with `[skip ci]` to avoid a loop.
+4. `npx changeset publish` publishes to npm using the `NPM` org-level secret.
+
+**For a patch release** — just push a `fix:` commit to `main`. The workflow handles
+the rest.
+
+**For a minor release** — run `npx changeset` locally, commit the generated
+`.changeset/*.md` file, then push. The auto-generation step is skipped when a
+handwritten changeset is present.
+
+**Manual publish (emergency):**
+
+```bash
+npm login          # authenticate to npm as a @datalackey scope member
+npm publish
+```
+
 ## License
 
 MIT
