@@ -80,9 +80,12 @@ Quick reference:
 **For a patch release** — push a `fix:` commit to `main`. The workflow handles
 the rest.
 
-**For a minor release** — run `npx changeset` locally, commit the generated
-`.changeset/*.md` file, then push. The auto-generation step is skipped when a
-handwritten changeset is present.
+**For a minor or major release** — run `npx changeset` locally, choose the
+bump level at the prompt, commit the generated `.changeset/*.md` file, then
+push. The auto-generation step is skipped when a handwritten changeset is
+present. For majors this is mandatory: a breaking-change commit (`feat!:` or
+`BREAKING CHANGE` in the body) with no handwritten changeset fails the
+release job until one is committed.
 
 **Manual publish (emergency):** trigger the workflow manually via
 **GitHub Actions → CI / Release → Run workflow** on the `main` branch.
