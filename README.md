@@ -94,7 +94,8 @@ config artifacts that *implement* the common policy, and a canonical document th
   on its next `npm update`, with no per-repo edits.
 - **Stubs** — thin files seeded once into the consumer's project root by the postinstall
   script (`eslint.config.js`, `tsconfig.json`, …). Their only job is to `extends`/import
-  the presets — channel 2 planting a pointer to channel 1.
+  the presets: channel 2 seeds these static, copied-once files, and they point back at
+  the evolving content that channel 1 keeps current in `node_modules`.
 - **Owned pipeline** — the release workflow and scripts, copied on install. "Owned" by
   the **consumer repo**: it may edit its copies, upstream never overwrites them, and
   postinstall prints a diff warning when a copy drifts from the canonical template.
