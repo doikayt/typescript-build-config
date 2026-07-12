@@ -21,6 +21,16 @@ policy for multi-package workspaces.
 Do the following two tasks. Task 1 is a concrete edit; task 2 is an investigation whose
 deliverable is a written recommendation, not code changes.
 
+**Task 0 — urgent bug check (do first).** `changeset publish` creates release tags only in
+the runner's local clone; they reach origin only if the workflow explicitly runs
+`git push --tags` afterward. `javascript-ci.yml` has no such step. Verify with
+`git ls-remote --tags origin`: if tags are stale or missing, every release has been
+scanning an ever-growing commit range (auto-changeset derives its range from the newest
+tag), releasing on every push and re-listing old commits in changelogs.
+typescript-build-config hit exactly this and fixed it with a "Push release tags" step
+(`git push --tags`) after the publish step — apply the same fix, and backfill a tag on the
+latest release commit so the next scan range starts clean.
+
 ## Task 1 — De-duplicate `javascript/docs/CONTRIBUTING.md`
 
 Replace the sections that are now canonical in RELEASE-PROCESS.md with short stubs (2–4

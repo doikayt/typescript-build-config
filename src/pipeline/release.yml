@@ -61,3 +61,5 @@ jobs:
         run: npx changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+      - name: Push release tags
+        run: git push --tags

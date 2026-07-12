@@ -40,7 +40,9 @@ handwritten changeset, the script fails the release job (see
 `changeset version` reads the changeset file, bumps the package version, updates
 `CHANGELOG.md`, and deletes the changeset file. The version bump is committed back to `main`
 with `[skip ci]` to prevent a recursive CI trigger. `changeset publish` then publishes to npm
-and creates a `v<x.y.z>` git tag.
+and creates a `v<x.y.z>` git tag, which a dedicated final step pushes to origin —
+`changeset publish` itself only tags the runner's local clone, and the tag is what defines
+the scan range for the next release.
 
 ### 3. Optional repo-specific extensions
 
