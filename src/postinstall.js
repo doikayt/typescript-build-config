@@ -53,6 +53,7 @@ const pipelineFiles = [
   { src: 'release.yml',           dest: '.github/workflows/release.yml' },
   { src: 'changeset-config.json', dest: '.changeset/config.json' },
   { src: 'auto-changeset.sh',     dest: 'scripts/auto-changeset.sh' },
+  { src: 'verify-npm-token.yml',  dest: '.github/workflows/verify-npm-token.yml' },
 ];
 
 for (const { src, dest } of pipelineFiles) {
