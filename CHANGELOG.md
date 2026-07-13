@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.5
+
+### Patch Changes
+
+- - feat: require npm run ci as the mandatory release CI gate
+
 ## 0.1.4
 
 ### Patch Changes
