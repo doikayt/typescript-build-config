@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.7
+
+### Patch Changes
+
+- - feat: add optional post-publish hook to release workflow
+
 ## 0.1.6
 
 ### Patch Changes
