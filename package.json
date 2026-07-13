@@ -20,6 +20,7 @@
   "scripts": {
     "prepack": "echo no build step required",
     "postinstall": "node src/postinstall.js",
+    "update-all-format": "prettier --write src/",
     "ci": "node --test",
     "test": "node --test"
   },

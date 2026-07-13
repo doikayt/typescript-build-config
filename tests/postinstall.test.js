@@ -63,3 +63,33 @@ test('diverged pipeline file is preserved and produces a diff warning', () => {
   assert.match(res.stderr, /release\.yml differs from canonical version/);
   assert.equal(readFileSync(target, 'utf8'), before, 'local copy must not be overwritten');
 });
+
+test('update-all-format in package.json scripts suppresses the warning', () => {
+  const dir = makeConsumer();
+  writeFileSync(
+    join(dir, 'package.json'),
+    JSON.stringify({ name: PKG, version: '0.0.1', scripts: { 'update-all-format': 'prettier --write src/' } }),
+  );
+  const res = run(dir);
+  assert.equal(res.status, 0, res.stderr);
+  assert.doesNotMatch(res.stderr, /Missing target: update-all-format/);
+});
+
+test('update-all-format in project.json targets suppresses the warning', () => {
+  const dir = makeConsumer();
+  writeFileSync(
+    join(dir, 'project.json'),
+    JSON.stringify({ targets: { 'update-all-format': { executor: 'nx:run-commands' } } }),
+  );
+  const res = run(dir);
+  assert.equal(res.status, 0, res.stderr);
+  assert.doesNotMatch(res.stderr, /Missing target: update-all-format/);
+});
+
+test('missing update-all-format in both package.json and project.json prints a warning, exit 0', () => {
+  const dir = makeConsumer();
+  const res = run(dir);
+  assert.equal(res.status, 0);
+  assert.match(res.stderr, /Missing target: update-all-format/);
+  assert.match(res.stderr, /update-all-format/);
+});

@@ -86,4 +86,27 @@ for (const { src, dest } of pipelineFiles) {
   }
 }
 
+// --- update-all-format convention check ---
+
+let hasUpdateAllFormat = !!projectPkg.scripts?.['update-all-format'];
+
+if (!hasUpdateAllFormat) {
+  const projectJsonPath = resolve(projectRoot, 'project.json');
+  if (existsSync(projectJsonPath)) {
+    try {
+      const projectJson = JSON.parse(readFileSync(projectJsonPath, 'utf8'));
+      if (projectJson.targets?.['update-all-format']) hasUpdateAllFormat = true;
+    } catch {
+      // malformed project.json — treat as absent
+    }
+  }
+}
+
+if (!hasUpdateAllFormat) {
+  console.warn(`${PREFIX} Missing target: update-all-format`);
+  console.warn(`Add to package.json scripts:`);
+  console.warn(`  "update-all-format": "npm run format && npm run update-markdown-docs"`);
+  console.warn(`Or add an NX target with the same name.`);
+}
+
 console.log(`${PREFIX} Postinstall complete.`);

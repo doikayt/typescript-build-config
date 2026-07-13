@@ -161,6 +161,36 @@ toolchain the project uses internally.
 `npm run ci` is your local "simulate CI" command. A passing `npm run ci`
 locally means the release CI job will pass.
 
+## The `update-all-format` Target — Required Convention
+
+Every project that installs this package **must** define an `update-all-format`
+entry point — either a `package.json` script or an NX `project.json` target.
+This is the single command for "reformat everything before reviewing a diff":
+run it before committing to keep diffs clean and reviewable.
+
+The plugin enforces the **name only**, not the content. What it invokes is up
+to the project:
+
+```json
+{ "scripts": { "update-all-format": "prettier --write src/ && npm run update-markdown-docs" } }
+```
+
+Or as an NX target:
+
+```json
+{ "targets": { "update-all-format": { "executor": "nx:run-commands", "options": { "command": "prettier --write src/" } } } }
+```
+
+If neither is found, `postinstall` prints a warning (non-fatal) on every
+`npm install` / `npm update` until the target is added.
+
+### NX projects
+
+NX projects may define the target in `project.json` instead of `package.json`
+scripts — the postinstall check recognises both. There is no shim requirement
+for `update-all-format` (unlike `ci`), because no external tooling calls it
+directly.
+
 ## Publishing
 
 Releases are automated via Changesets and GitHub Actions. The full policy —
