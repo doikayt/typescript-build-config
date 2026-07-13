@@ -4,15 +4,15 @@ Shared build configuration presets for TypeScript-based projects.
 
 ## Purpose
 
-This package centralises common build tooling configuration across all
+This package centralises common build tooling configuration and release policy across all
 TypeScript projects maintained under the `@datalackey` scope. The goal is a
-single source of truth for settings that should be held constant across
-projects, avoiding drift between repos over time. Beyond configuration, it
-also encapsulates the common build **policy** and release **workflow logic**
-— the pipeline files it installs into each consumer repo and the canonical
-release process in
-[docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md) — for reuse by every
-current and future project that depends on this base package.
+single source of truth for such settings that should be held constant across
+projects, avoiding drift between repos over time. 
+The plugin encapsulates common build **policy** and release **workflow logic**
+via the pipeline files it installs into each consumer repo and the canonical release process in
+[docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md).
+
+
 
 ## Installation
 
@@ -160,6 +160,10 @@ toolchain the project uses internally.
 
 `npm run ci` is your local "simulate CI" command. A passing `npm run ci`
 locally means the release CI job will pass.
+
+INVARIANT:  any project that depends on this base project should guarantee that if a developer
+invokes the 'npm run ci' successfully, then commits everything in their workspace, and pushes 
+to git, then the subsequent build should pass.
 
 ## The `update-all-format` Target — Required Convention
 
