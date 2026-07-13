@@ -124,6 +124,43 @@ The release pipeline requires an `NPM` secret stored at the GitHub organisation
 level. All repos under the org inherit it automatically — no per-repo secret
 configuration is needed.
 
+## The `ci` Script — Required Convention
+
+Every project that installs this package **must** define a `ci` script in its
+`package.json`. The release workflow calls `npm run ci` as its CI gate. A
+project without a `ci` script will fail the CI job — which is the correct
+signal that the convention has not been met.
+
+This package does not mandate a build orchestrator. Projects may use plain npm
+scripts, NX, or any other toolchain — the only requirement is that
+`package.json` exposes a `ci` entry point that the release workflow can call
+uniformly.
+
+The `ci` script is the single entry point for "everything that must pass before
+a release". What it calls internally is up to the project:
+
+```json
+{ "scripts": { "ci": "npm run check-docs && vitest run && playwright test" } }
+```
+
+### NX projects: the shim requirement
+
+NX-based projects must still provide the `package.json` `ci` entry as a thin
+shim, even if it only delegates to NX targets:
+
+```json
+{ "scripts": { "ci": "nx run-many --target=ci --all" } }
+```
+
+The release workflow is NX-agnostic — it calls `npm run ci`, never NX directly.
+The shim is the contract that connects this universal workflow to whatever
+toolchain the project uses internally.
+
+### Local use
+
+`npm run ci` is your local "simulate CI" command. A passing `npm run ci`
+locally means the release CI job will pass.
+
 ## Publishing
 
 Releases are automated via Changesets and GitHub Actions. The full policy —
