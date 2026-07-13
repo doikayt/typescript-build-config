@@ -44,11 +44,26 @@ and creates a `v<x.y.z>` git tag, which a dedicated final step pushes to origin 
 `changeset publish` itself only tags the runner's local clone, and the tag is what defines
 the scan range for the next release.
 
-### 3. Optional repo-specific extensions
+### 3. Post-publish hook (optional)
 
-Individual repos may append further stages — for example, a post-publish smoke test that
-installs the just-published version from the npm registry and exercises it end to end. Such
-stages are owned by the consuming repo, not by this policy.
+After tags are pushed, the workflow checks whether the consuming repo defines a
+`post-publish` script in its `package.json`. If it does, `npm run post-publish`
+is called; if not, the step prints a skip message and exits cleanly — no workflow
+drift is needed either way.
+
+Use this hook for steps that must follow a successful publish: waiting for
+registry propagation, running a smoke test against the just-published version,
+or sending a release notification. Example:
+
+```json
+"scripts": {
+  "post-publish": "node scripts/smoke-test.js"
+}
+```
+
+The hook runs only when the `Publish` step succeeds — it is skipped on
+version-bump commits (which carry `[skip ci]`) and when no changesets triggered
+a publish.
 
 ## Versioning Tiers
 
