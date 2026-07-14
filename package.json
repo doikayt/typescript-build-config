@@ -1,6 +1,6 @@
 {
   "name": "@doikayt/typescript-build-config",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Shared build configuration for TypeScript projects — ESLint, and future tsconfig/Prettier presets",
   "_comments": {
     "exports": "This block lists the config files that will be extended by files in in src/toplevel - which are copied to consuming project root folder. An example: eslint.config.js imports from '@doikayt/typescript-build-config/eslint'.",

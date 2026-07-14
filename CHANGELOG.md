@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.10
+
+### Patch Changes
+
+- - fix: swap @datalackey/update-markdown-toc for @doikayt/update-markdown-toc
+
 ## 0.1.9
 
 ### Patch Changes
