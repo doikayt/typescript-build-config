@@ -66,7 +66,8 @@ versions of these tools may produce peer dependency conflicts.
   discovers the system Chromium on quirky NixOS; `definePlaywrightConfig()` wraps `defineConfig` and
   merges the result in. Transparent no-op on platforms where Playwright's bundled browser works.
   `@playwright/test` is an **optional peer dependency** — it is not installed automatically.
-  Any project that uses this export must declare it explicitly in its own `devDependencies`:
+  Any project that imports from `@doikayt/typescript-build-config/playwright` must declare it
+  explicitly in its own `devDependencies`:
 
   ```bash
   npm install --save-dev @playwright/test
