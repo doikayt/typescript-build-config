@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.12
+
+### Patch Changes
+
+- - fix: just force the build to publish
+
 ## 0.1.11
 
 ### Patch Changes
