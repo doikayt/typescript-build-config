@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.15
+
+### Patch Changes
+
+- - feat: add init demo scaffold and build/publish wiring
+
 ## 0.1.14
 
 ### Patch Changes
