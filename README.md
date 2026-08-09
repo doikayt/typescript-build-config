@@ -290,11 +290,27 @@ remote CI job will pass.
 
 #### NX projects
 
-NX-based projects must still expose `ci` as a thin shim in `package.json`, even
-if it only delegates to NX targets:
+`package.json` is the source of truth — it is always present, and the release
+workflow calls `npm run ci` directly. So an NX project keeps the **real** `ci`
+command in `package.json`, exactly like any other project — it does *not*
+delegate package.json to NX. If you want NX orchestration, add NX targets that
+delegate **to** npm, never the reverse:
 
 ```json
-{ "scripts": { "ci": "nx run-many --target=ci --all" } }
+// package.json — the real command lives here
+{ "scripts": { "ci": "npm run check-all-format && npm run test" } }
+```
+
+```json
+// project.json (optional) — an NX target delegates to the npm script
+{
+  "targets": {
+    "ci": {
+      "executor": "nx:run-commands",
+      "options": { "command": "npm run ci" }
+    }
+  }
+}
 ```
 
 The release workflow is NX-agnostic — it calls `npm run ci`, never NX directly.

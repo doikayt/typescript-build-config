@@ -59,21 +59,21 @@ manually (or runs `init` deliberately if they want the full set).
 ## `init` behavior
 
 - **Interactive.** Prompts, with sensible defaults, rather than requiring flags.
-- **Detect orchestrator.** `nx.json` / `project.json` present → NX; else plain
-  npm. If ambiguous, prompt.
 - **Idempotent.** Only writes a script if it is absent; never overwrites a
   customized one. Re-running is safe.
 - **Never installs under the hood.** It edits `devDependencies` and tells the
   user to run `npm install`. No `npm install -D` shelled out, no "install now?"
   prompt.
-- **Single source of truth = `package.json` scripts.** For NX projects, the NX
-  `project.json` targets chain to `npm run <x>`; the release workflow calls
-  `npm run ci`, never NX directly.
+- **Single source of truth = `package.json` scripts.** The real commands always
+  live in `package.json` (it is always present, and the release workflow calls
+  `npm run ci` directly). `init` writes the **same** script set regardless of
+  orchestrator, so it needs no NX branch and no npm-vs-NX prompt. NX users who
+  want orchestration add targets that delegate **to** `npm run <x>` themselves —
+  never the reverse.
 
 ### Prompts
 
-1. **Orchestrator** (only if ambiguous): npm or NX.
-2. **UI project needing Playwright?**
+1. **UI project needing Playwright?**
    - **No** (console utility): no Playwright at all.
    - **Yes** (UI): full Playwright setup — see
      [Playwright / e2e (UI projects)](#playwright--e2e-ui-projects) below.
@@ -191,10 +191,20 @@ package's [`package.json`](../package.json).
 ### NX chaining
 
 NX projects still expose everything as `package.json` scripts (the source of
-truth). `project.json` targets, if present, delegate to them:
+truth — the real commands live there). `project.json` targets, if present,
+delegate **to** the npm scripts — never the reverse, so the release workflow's
+`npm run ci` always works:
 
 ```json
-{ "scripts": { "ci": "nx run-many --target=ci --all" } }
+// project.json — an NX target delegates to the npm script
+{
+  "targets": {
+    "ci": {
+      "executor": "nx:run-commands",
+      "options": { "command": "npm run ci" }
+    }
+  }
+}
 ```
 
 ## Enforcement roadmap
