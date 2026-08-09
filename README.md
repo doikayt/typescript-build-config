@@ -5,7 +5,7 @@ Shared build configuration presets for TypeScript-based projects.
 <!-- TOC:START -->
 - [@doikayt/typescript-build-config](#doikayttypescript-build-config)
   - [Purpose](#purpose)
-  - [Team shell aliases](#team-shell-aliases)
+  - [Quick start](#quick-start)
   - [Design Goals](#design-goals)
     - [What each component is for](#what-each-component-is-for)
   - [Installation](#installation)
@@ -25,6 +25,7 @@ Shared build configuration presets for TypeScript-based projects.
       - [NX projects](#nx-projects)
     - [The `update-all-format` target](#the-update-all-format-target)
   - [Publishing](#publishing)
+  - [Team shell aliases](#team-shell-aliases)
   - [For Maintainers](#for-maintainers)
     - [Clone and install](#clone-and-install)
     - [Run the full CI suite](#run-the-full-ci-suite)
@@ -41,30 +42,39 @@ The plugin encapsulates common build **policy** and release **workflow logic**
 via the pipeline files it installs into each consumer repo and the canonical release process in
 [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md).
 
-## Team shell aliases
+## Quick start
 
-**New here? Do this first.** This repo doubles as the team's base setup. After
-cloning it, install the shared shell aliases — a **required** onboarding step, so
-everyone creates and scaffolds repos the same way:
+From a fresh machine to a pushed, scaffolded repo. Steps are minimal here — each
+links to the section that explains _what_ and _why_.
+
+**1. One-time machine setup.** Clone this base repo and install the shared team
+[shell aliases](#team-shell-aliases):
 
 ```bash
 git clone git@github.com:doikayt/typescript-build-config.git
 cd typescript-build-config
-./shell/install.sh          # adds a `source` line to ~/.zshrc / ~/.bashrc (idempotent)
-exec $SHELL                 # reload — or: source shell/aliases.sh
+./shell/install.sh          # adds `source shell/aliases.sh` to your rc (idempotent)
+exec $SHELL                 # reload
 ```
 
-Manual alternative: add `source <clone-path>/shell/aliases.sh` to your shell rc.
+**2. Create a new project.** One command creates the GitHub repo, scaffolds it
+(build config + a runnable demo), and pushes it — choose `lib` (published) or
+`app` (private, the default); see [library vs app](#usage) and
+[Packaging concepts](docs/packaging-concepts.md):
 
-Aliases provided ([`shell/aliases.sh`](shell/aliases.sh)) — require `gh`
-(authenticated) and `node`/`npm`:
+```bash
+dk-scaffold my-project lib
+```
 
-| Alias | What it does |
-| --- | --- |
-| `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
-| `dk-new` | `npm init -y` + `@doikayt` scope. |
-| `dk-init` | Scaffold the build config into the current project. |
-| `dk-scaffold <name> [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). |
+Or do it by hand / in an **existing** project — the same steps `dk-scaffold`
+runs ([Installation](#installation) and [Usage](#usage) explain each):
+
+```bash
+npx @doikayt/typescript-build-config new                  # npm init -y + @doikayt scope
+npm install --save-dev @doikayt/typescript-build-config   # postinstall seeds configs + pipeline
+npx @doikayt/typescript-build-config init                 # scripts, deps, publish config, demo
+npm install                                               # fetch declared devDependencies
+```
 
 ## Design Goals
 
@@ -529,6 +539,19 @@ release job until one is committed.
 
 **Manual publish (emergency):** trigger the workflow manually via
 **GitHub Actions → CI / Release → Run workflow** on the `main` branch.
+
+## Team shell aliases
+
+Installed by [Quick start](#quick-start) step 1 (or manually: add
+`source <clone-path>/shell/aliases.sh` to your shell rc). They require `gh`
+(authenticated) and `node`/`npm`.
+
+| Alias | What it does |
+| --- | --- |
+| `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
+| `dk-new` | `npm init -y` + `@doikayt` scope. |
+| `dk-init` | Scaffold the build config into the current project. |
+| `dk-scaffold <name> [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). |
 
 ## For Maintainers
 
