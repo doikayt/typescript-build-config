@@ -186,6 +186,18 @@ exits 0. No error about the package being private.
 to npm**; a `v0.0.x` tag appears. Confirm the package page on npmjs.com shows
 your version with only `dist/` files.
 
+**Clean up (avoid cluttering npm):** delete the test publish within **72 hours** —
+on the package page
+[npmjs.com/package/@doikayt/verify-lib](https://www.npmjs.com/package/@doikayt/verify-lib)
+→ **Settings → Unpublish package**, or from the CLI:
+
+```bash
+npm unpublish @doikayt/verify-lib --force
+```
+
+After 72 h npm restricts unpublishing (see
+[Testing publish without cluttering npm](#testing-publish-without-cluttering-npm)).
+
 ---
 
 ## Scenario B — App / CLI (never publishes)

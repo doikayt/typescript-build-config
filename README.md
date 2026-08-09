@@ -13,6 +13,7 @@ Shared build configuration presets for TypeScript-based projects.
     - [Console / CLI project](#console--cli-project)
     - [UI / web project (with Playwright e2e)](#ui--web-project-with-playwright-e2e)
     - [Existing project](#existing-project)
+    - [Trying it out (demo + scratch repo)](#trying-it-out-demo--scratch-repo)
   - [Dependency Strategy](#dependency-strategy)
   - [Current Contents](#current-contents)
   - [Delivery Model](#delivery-model)
@@ -172,6 +173,22 @@ Skip `init` if you prefer. On install, `postinstall` warns about any missing
 required targets (`ci`, `update-all-format`) until you add them — either by
 running `init` to adopt the full canonical set, or by defining the two scripts
 by hand (see [Conventions](#conventions-every-project-must-adhere-to)).
+
+### Trying it out (demo + scratch repo)
+
+Answer **yes** to the demo prompt and `init` seeds a minimal starter — a `src/`
+module, a `README` with doc-generator markers, and a `project.json` — so a
+brand-new project builds, tests, and (for a library) publishes on push.
+
+To exercise a scaffold end-to-end without standing up a repo, push it to the
+shared throwaway repo
+**[`doikayt/scratch-pad`](https://github.com/doikayt/scratch-pad)** (force-overwrite
+each run). The full procedure — for both a library and an app, with what to look
+for at each step — is in [docs/e2e-verification.md](docs/e2e-verification.md):
+
+- [Pushing to the scratch repo](docs/e2e-verification.md#pushing-to-a-reusable-scratch-repo)
+- [Testing publish without cluttering npm](docs/e2e-verification.md#testing-publish-without-cluttering-npm)
+  — dry-run / verdaccio, and deleting a real test publish afterward.
 
 ## Dependency Strategy
 
