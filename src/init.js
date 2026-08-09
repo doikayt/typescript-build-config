@@ -42,39 +42,71 @@ function dirIsEmpty(dir) {
   return !existsSync(dir) || readdirSync(dir).length === 0;
 }
 
-// Default interactive prompt. Injectable so runInit is testable without stdin.
-async function askYesNo(question) {
+// Default interactive prompt. Buffers input lines as they arrive and lets each
+// question pull the next one, so it works with both a live terminal and piped /
+// non-interactive stdin (scripts, CI). `rl.question` alone drops lines that
+// arrive before the next call — with a pipe every line lands at once, which made
+// init silently no-op. On EOF, unanswered prompts default to No. Injectable, so
+// runInit stays testable without stdin.
+function createAskYesNo() {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
-  try {
-    const answer = await new Promise((res) => rl.question(question, res));
-    return /^y(es)?$/i.test(answer.trim());
-  } finally {
-    rl.close();
-  }
+  const lines = []; // input lines not yet consumed by a prompt
+  const waiters = []; // prompt resolvers waiting for the next line
+  let closed = false;
+  rl.on("line", (line) => {
+    const waiter = waiters.shift();
+    if (waiter) waiter(line);
+    else lines.push(line);
+  });
+  rl.on("close", () => {
+    closed = true;
+    while (waiters.length) waiters.shift()("");
+  });
+  const ask = (question) =>
+    new Promise((res) => {
+      process.stdout.write(question);
+      const answer = (line) => res(/^y(es)?$/i.test(line.trim()));
+      if (lines.length) answer(lines.shift());
+      else if (closed) answer("");
+      else waiters.push(answer);
+    });
+  ask.close = () => rl.close();
+  return ask;
 }
 
 export async function runInit({
   cwd = process.cwd(),
-  prompt = askYesNo,
+  prompt,
   resolveDevVersions = resolveVersions,
   log = console.log,
 } = {}) {
+  // One readline interface for all prompts (see createAskYesNo); close it even
+  // on error so a leftover interface never keeps the process alive.
+  const ownAsk = prompt ? null : createAskYesNo();
+  const ask = prompt ?? ownAsk;
+  try {
+    return await collectAndScaffold({ cwd, ask, resolveDevVersions, log });
+  } finally {
+    ownAsk?.close();
+  }
+}
+
+async function collectAndScaffold({ cwd, ask, resolveDevVersions, log }) {
   const pkgPath = resolve(cwd, "package.json");
   const raw = readFileSync(pkgPath, "utf8");
 
   // Collect every answer up front, before doing any work or printing next
   // steps, so the flow reads: ask everything → act → report.
-  const ui = await prompt(
+  const ui = await ask(
     "Is this a UI project that needs Playwright (e2e)? Default is No. [y/N] ",
   );
 
-  const library = await prompt(
-    "Is this a publishable library (published to npm)?\n" +
-      "For apps/CLIs: answer No.\n" +
-      "These are marked private so they are never published. [y/N] ",
+  const library = await ask(
+    "Is this a publishable library (published to npm)? Default is No\n" +
+      "  — a non-library (an app/CLI) is marked private so it is never published. [y/N] ",
   );
 
-  const wantDemo = await prompt(
+  const wantDemo = await ask(
     "Scaffold a starter demo (minimal src module + README + project.json) so\n" +
       "you can build, test, and release immediately? Default is No; existing\n" +
       "files are never overwritten. [y/N] ",

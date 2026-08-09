@@ -70,7 +70,7 @@ these so you never leave test packages on npm:
 ### A1. Scaffold
 
 ```bash
-mkdir /tmp/verify-lib && cd /tmp/verify-lib
+rm -rf /tmp/verify-lib && mkdir /tmp/verify-lib && cd /tmp/verify-lib
 npm init -y
 npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
 npx @doikayt/typescript-build-config init
@@ -83,9 +83,13 @@ npm install
 **Look for** in `package.json`:
 
 - `"type": "module"`, and **no** `"private"` key
-- `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"exports"` → `dist`,
-  `"files": ["dist"]` — note `main` is `dist/index.js`, **not** the `index.js`
-  that `npm init -y` seeded; `init` replaces that placeholder
+- `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"files": ["dist"]`,
+  and an `exports` map (not just the string `"dist"`):
+  ```json
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } }
+  ```
+  Note `main` is `dist/index.js`, **not** the `index.js` that `npm init -y`
+  seeded — `init` replaces that placeholder.
 - `"scripts".test` is `"vitest run"` — **not** npm's
   `echo "Error: no test specified"` stub (`init` replaces that too)
 - scripts include `build`, `prepack`, `ci`, `test`, `update-all-format`
@@ -139,7 +143,7 @@ your version with only `dist/` files.
 ### B1. Scaffold
 
 ```bash
-mkdir /tmp/verify-app && cd /tmp/verify-app
+rm -rf /tmp/verify-app && mkdir /tmp/verify-app && cd /tmp/verify-app
 npm init -y
 npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
 npx @doikayt/typescript-build-config init
