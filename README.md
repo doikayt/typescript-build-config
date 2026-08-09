@@ -184,10 +184,10 @@ To exercise a scaffold end-to-end without standing up a repo, push it to the
 shared throwaway repo
 **[`doikayt/scratch-pad`](https://github.com/doikayt/scratch-pad)** (force-overwrite
 each run). The full procedure — for both a library and an app, with what to look
-for at each step — is in [docs/e2e-verification.md](docs/e2e-verification.md):
+for at each step — is in [docs/verification-runbook.md](docs/verification-runbook.md):
 
-- [Pushing to the scratch repo](docs/e2e-verification.md#pushing-to-a-reusable-scratch-repo)
-- [Testing publish without cluttering npm](docs/e2e-verification.md#testing-publish-without-cluttering-npm)
+- [Pushing to the scratch repo](docs/verification-runbook.md#pushing-to-a-reusable-scratch-repo)
+- [Testing publish without cluttering npm](docs/verification-runbook.md#testing-publish-without-cluttering-npm)
   — dry-run / verdaccio, and deleting a real test publish afterward.
 
 ## Dependency Strategy
@@ -526,7 +526,7 @@ npm run update-all-format && npm run ci
 
 To verify end-to-end that `init` scaffolds and ships both a library and an app —
 by hand, with what to look for at each step — follow
-[docs/e2e-verification.md](docs/e2e-verification.md).
+[docs/verification-runbook.md](docs/verification-runbook.md).
 
 ## License
 
