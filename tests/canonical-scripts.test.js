@@ -45,11 +45,12 @@ test("canonicalScripts: UI project adds test:e2e and folds it into ci", () => {
   }
 });
 
-test("devDependencyNames: console project includes typescript for the build", () => {
+test("devDependencyNames: console project includes typescript + changesets", () => {
   assert.deepEqual(devDependencyNames({ ui: false }), [
     "vitest",
     "@doikayt/autogen-markdown-doc",
     "typescript",
+    "@changesets/cli",
   ]);
 });
 
@@ -58,6 +59,7 @@ test("devDependencyNames: UI project adds @playwright/test", () => {
     "vitest",
     "@doikayt/autogen-markdown-doc",
     "typescript",
+    "@changesets/cli",
     "@playwright/test",
   ]);
 });

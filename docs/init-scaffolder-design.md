@@ -140,6 +140,7 @@ Notes:
 - `vitest` (always)
 - `@doikayt/autogen-markdown-doc` (always — `update/check-markdown-docs` need it)
 - `typescript` (always — the `build` script runs `tsc`)
+- `@changesets/cli` (always — `release.yml` runs `npx changeset version` / `publish`)
 - `@playwright/test` (UI projects only)
 
 `init` also sets top-level publish fields non-destructively. `type: "module"` is

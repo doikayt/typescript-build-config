@@ -142,8 +142,9 @@ npm install                                            # fetch the declared devD
 
 `init` writes the canonical scripts (`ci`, `build`, `test`, `update-all-format`,
 `check-all-format`, and their sub-tasks), declares `vitest` +
-`@doikayt/autogen-markdown-doc` + `typescript`, and seeds a commented
-`vitest.config.ts`. Answering the "publishable library?" prompt sets the publish
+`@doikayt/autogen-markdown-doc` + `typescript` + `@changesets/cli` (the release
+pipeline needs it), and seeds a commented `vitest.config.ts`. Answering the
+"publishable library?" prompt sets the publish
 config — `private` for an app, or `prepack` + the `dist/`-based fields for a
 library (see [The canonical script set](#the-canonical-script-set)).
 

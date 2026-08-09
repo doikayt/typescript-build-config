@@ -31,7 +31,16 @@ export function canonicalScripts({ ui = false, library = false } = {}) {
 }
 
 export function devDependencyNames({ ui = false } = {}) {
-  const names = ["vitest", "@doikayt/autogen-markdown-doc", "typescript"];
+  // @changesets/cli is required by the release pipeline (release.yml runs
+  // `npx changeset version` / `publish`), so every consumer needs it installed —
+  // otherwise `npx changeset` can't resolve the `changeset` bin and the release
+  // job fails with "could not determine executable to run".
+  const names = [
+    "vitest",
+    "@doikayt/autogen-markdown-doc",
+    "typescript",
+    "@changesets/cli",
+  ];
   if (ui) names.push("@playwright/test");
   return names;
 }
