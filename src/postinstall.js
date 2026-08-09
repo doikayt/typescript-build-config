@@ -101,7 +101,7 @@ for (const { src, dest } of pipelineFiles) {
 
 // --- Asset files: seeded into docs/assets/, same per-file copy/warn as pipeline ---
 
-const assetDir = new URL("../assets", import.meta.url).pathname;
+const assetDir = new URL("../image-assets", import.meta.url).pathname;
 
 const assetFiles = [
   { src: "doikayt-logo.png", dest: "docs/assets/doikayt-logo.png" },
@@ -125,7 +125,7 @@ for (const { src, dest } of assetFiles) {
 
   console.warn(
     `${PREFIX} WARNING: ${dest} differs from canonical version — skipping. ` +
-      `To resync: cp node_modules/@doikayt/typescript-build-config/assets/${src} ${dest}`,
+      `To resync: cp node_modules/@doikayt/typescript-build-config/image-assets/${src} ${dest}`,
   );
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# One-time setup: add a line sourcing shell/aliases.sh to your shell rc, so the
-# doikayt team aliases (mkrepo, dk-new, dk-init, dk-scaffold) are always loaded.
-# Idempotent — safe to re-run. Usage: ./shell/install.sh
+# One-time setup: add a line sourcing shell-assets/aliases.sh to your shell rc,
+# so the doikayt team aliases (mkrepo, dk-new, dk-init, dk-scaffold) always load.
+# Idempotent — safe to re-run. Usage: ./shell-assets/install.sh
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
