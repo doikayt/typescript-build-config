@@ -66,13 +66,18 @@ export async function runInit({
     "Is this a UI project that needs Playwright (e2e)? [y/N] ",
   );
 
-  const scripts = canonicalScripts({ ui });
+  const library = await prompt(
+    "Is this a publishable library (published to npm)? Apps/CLIs answer No and\n" +
+      "are marked private so they are never published. [y/N] ",
+  );
+
+  const scripts = canonicalScripts({ ui, library });
   const devDependencies = resolveDevVersions(devDependencyNames({ ui }));
 
   const { text, added, skipped } = applyToPackageJson(raw, {
     scripts,
     devDependencies,
-    fields: packageFields(),
+    fields: packageFields({ library }),
   });
   writeFileSync(pkgPath, text);
 
@@ -111,7 +116,7 @@ export async function runInit({
 async function maybeScaffoldDemo({ cwd, prompt, log }) {
   const wantDemo = await prompt(
     "Scaffold a starter demo (minimal src module + README + project.json) so you\n" +
-      "can build, test, and publish immediately? Existing files are never\n" +
+      "can build, test, and release immediately? Existing files are never\n" +
       "overwritten. [y/N] ",
   );
   if (!wantDemo) {

@@ -38,5 +38,5 @@ Mermaid diagrams inline from the fenced blocks.
 npm install                 # fetch the dev deps init declared
 npm test                    # the seeded vitest test passes
 npm run update-all-format   # fills the doc blocks above
-git commit -am "feat: initial version" && git push   # feat:/fix: trigger a publish
+git commit -am "feat: initial version" && git push   # feat:/fix: cut a release (npm publish if a library)
 ```

@@ -111,33 +111,41 @@ small single-purpose scripts, and the check side mirrors the write side:
 | --- | --- |
 | `ci` | The release gate: `check-all-format` then `test` (plus `test:e2e` for UI). |
 | `build` | Compile TypeScript to `dist/` (`tsc`). |
-| `prepack` | Runs `build` before packing, so `changeset publish` ships compiled `dist/`. |
 | `test` | Unit / integration tests (`vitest run`). |
 | `test:e2e` | End-to-end tests (`playwright test`) — UI projects only. |
+| `prepack` | Runs `build` before packing, so `changeset publish` ships compiled `dist/` — **libraries only**. |
 | `update-all-format` | Reformat everything: code + markdown docs (write). |
 | `check-all-format` | Verify formatting: code + markdown docs (used by `ci`). |
 | `update-code-formatting` / `check-code-formatting` | Prettier write / check. |
 | `update-markdown-docs` / `check-markdown-docs` | Regenerate / verify generated markdown (TOC, UML, …). |
 
-Alongside the scripts, `init` sets the publish config a fresh package needs —
-`type: "module"`, `main` / `types` / `exports` pointing at `dist/index.js`, and
-`files: ["dist"]` — each only if you have not already set it. Combined with
-`prepack`, a brand-new project builds and publishes a compiled, typed ESM
-package on push with no extra wiring.
+`init` also asks whether the project is a **publishable library**, which sets the
+publish config accordingly (non-destructively):
+
+- **Library** — `main` / `types` / `exports` → `dist/index.js`, `files: ["dist"]`,
+  and `prepack`, so it publishes a compiled, typed ESM package on push.
+- **App / CLI** (the default) — marked `private: true`, so a release versions and
+  tags it but never publishes to npm.
+
+`type: "module"` and `build` are set either way. New to these terms (compiled
+`dist/`, publish fields, library vs app)? See
+[Packaging concepts](docs/packaging-concepts.md) for the background.
 
 ### Console / CLI project
 
 ```bash
 npm init -y                                            # if starting fresh
 npm install --save-dev @doikayt/typescript-build-config
-npx @doikayt/typescript-build-config init             # answer "n" to the Playwright prompt
+npx @doikayt/typescript-build-config init             # answer "n" to Playwright; "n" (app) or "y" (library)
 npm install                                            # fetch the declared devDependencies
 ```
 
 `init` writes the canonical scripts (`ci`, `build`, `test`, `update-all-format`,
-`check-all-format`, `prepack`, and their sub-tasks), sets the `dist/`-based
-publish config, declares `vitest` + `@doikayt/autogen-markdown-doc` +
-`typescript`, and seeds a commented `vitest.config.ts`.
+`check-all-format`, and their sub-tasks), declares `vitest` +
+`@doikayt/autogen-markdown-doc` + `typescript`, and seeds a commented
+`vitest.config.ts`. Answering the "publishable library?" prompt sets the publish
+config — `private` for an app, or `prepack` + the `dist/`-based fields for a
+library (see [The canonical script set](#the-canonical-script-set)).
 
 ### UI / web project (with Playwright e2e)
 

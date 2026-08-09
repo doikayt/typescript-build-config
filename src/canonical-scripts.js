@@ -1,10 +1,11 @@
 // The canonical npm-script set init writes into every consumer. package.json is
 // the single source of truth (it is always present); NX projects, if any, add
-// thin targets that delegate to `npm run <x>` — never the reverse. So this set
-// is identical regardless of orchestrator; only the UI/console distinction
-// changes it (Playwright e2e).
+// thin targets that delegate to `npm run <x>` — never the reverse. Two axes vary
+// the set: UI/console (Playwright e2e) and library/app. `build` is universal
+// (both archetypes compile); only a publishable library adds `prepack`, which
+// builds dist/ at publish time so `changeset publish` ships compiled output.
 
-export function canonicalScripts({ ui = false } = {}) {
+export function canonicalScripts({ ui = false, library = false } = {}) {
   const ci = ui
     ? "npm run check-all-format && npm run test && npm run test:e2e"
     : "npm run check-all-format && npm run test";
@@ -21,12 +22,10 @@ export function canonicalScripts({ ui = false } = {}) {
       "npm run check-code-formatting && npm run check-markdown-docs",
     "check-code-formatting": "prettier --check src/",
     "check-markdown-docs": "autogen-markdown-doc check",
-    // Build at publish time so `changeset publish` ships compiled dist/ without
-    // the release workflow needing a build step.
-    prepack: "npm run build",
   };
 
   if (ui) scripts["test:e2e"] = "doikayt-playwright-install && playwright test";
+  if (library) scripts.prepack = "npm run build";
 
   return scripts;
 }
@@ -37,21 +36,26 @@ export function devDependencyNames({ ui = false } = {}) {
   return names;
 }
 
-// Top-level package.json fields init sets (non-destructively) so a fresh project
-// builds to dist/ and publishes a compiled, importable ESM package. Assumes the
-// canonical src/index.ts entry point; a consumer that wants a different shape
-// sets these first and init leaves them untouched.
-export function packageFields() {
-  return {
-    type: "module",
-    main: "dist/index.js",
-    types: "dist/index.d.ts",
-    exports: {
+// Top-level package.json fields init sets (non-destructively). `type: "module"`
+// is universal. A publishable **library** also gets the dist/-based entry points
+// (main/types/exports) and the tarball allow-list (files), assuming the canonical
+// src/index.ts entry. An **app** is instead marked `private` so `changeset
+// publish` never publishes it — its release is a version bump + tag only. Either
+// way, fields a consumer already set are left untouched by the caller.
+export function packageFields({ library = false } = {}) {
+  const fields = { type: "module" };
+  if (library) {
+    fields.main = "dist/index.js";
+    fields.types = "dist/index.d.ts";
+    fields.exports = {
       ".": {
         types: "./dist/index.d.ts",
         default: "./dist/index.js",
       },
-    },
-    files: ["dist"],
-  };
+    };
+    fields.files = ["dist"];
+  } else {
+    fields.private = true;
+  }
+  return fields;
 }

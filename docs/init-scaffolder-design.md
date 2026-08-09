@@ -72,10 +72,17 @@ manually (or runs `init` deliberately if they want the full set).
 
 ### Prompts
 
+Two orthogonal axes, each a yes/no prompt:
+
 1. **UI project needing Playwright?**
    - **No** (console utility): no Playwright at all.
    - **Yes** (UI): full Playwright setup — see
      [Playwright / e2e (UI projects)](#playwright--e2e-ui-projects) below.
+2. **Publishable library?** (default **No**)
+   - **No** (app / CLI): marked `private` so a release versions + tags but never
+     publishes to npm.
+   - **Yes** (library): gets `prepack` and the `dist/`-based publish fields.
+   - Background: [Packaging concepts](packaging-concepts.md).
 
 ## Canonical script set
 
@@ -99,7 +106,6 @@ the write and check commands can never drift out of sync:
     "ci":                     "npm run check-all-format && npm run test",
 
     "build":                  "tsc",
-    "prepack":                "npm run build",
 
     "test":                   "vitest run",
     "test:e2e":               "doikayt-playwright-install && playwright test",
@@ -117,9 +123,13 @@ the write and check commands can never drift out of sync:
 
 Notes:
 
+- `build` (`tsc`) is universal — a library compiles `dist/` to publish, an app to
+  run/deploy.
 - `test` is **first-class** so both `ci` and the reflexive `npm test` use it.
 - `test:e2e` and the `&& npm run test:e2e` in `ci` are added **only** for UI
   projects.
+- `prepack` (`npm run build`) is added **only** for libraries, so `changeset
+  publish` ships a fresh `dist/`.
 - `test` defaults to **vitest** (the standard). See the dogfooding note below.
 - `update/check-markdown-docs` use
   [`@doikayt/autogen-markdown-doc`](https://github.com/doikayt/build-tools/tree/main/javascript/autogen-markdown-doc)
@@ -132,9 +142,11 @@ Notes:
 - `typescript` (always — the `build` script runs `tsc`)
 - `@playwright/test` (UI projects only)
 
-`init` also sets the publish config non-destructively — `type: "module"`,
-`main` / `types` / `exports` at `dist/index.js`, and `files: ["dist"]` — so with
-`prepack` a fresh project builds and publishes a compiled, typed ESM package.
+`init` also sets top-level publish fields non-destructively. `type: "module"` is
+universal. A **library** additionally gets `main` / `types` / `exports` at
+`dist/index.js` and `files: ["dist"]` (so, with `prepack`, it publishes a
+compiled typed ESM package); an **app** gets `private: true` instead. See
+[Packaging concepts](packaging-concepts.md).
 
 Declared as edits to `devDependencies`; the user runs `npm install` to fetch
 them.

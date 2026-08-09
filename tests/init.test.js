@@ -32,13 +32,15 @@ const silent = () => {};
 // questions independently. Defaults demo to No so tests never shell out unless
 // they opt in explicitly.
 const answers =
-  ({ ui = false, demo = false } = {}) =>
+  ({ ui = false, demo = false, library = false } = {}) =>
   async (question) =>
     /demo/i.test(question)
       ? demo
-      : /ui project|playwright/i.test(question)
-        ? ui
-        : false;
+      : /publishable library/i.test(question)
+        ? library
+        : /ui project|playwright/i.test(question)
+          ? ui
+          : false;
 
 test("console project: writes canonical scripts + devDeps, no e2e", async () => {
   const dir = makeConsumer();
@@ -57,7 +59,7 @@ test("console project: writes canonical scripts + devDeps, no e2e", async () => 
   assert.equal(pkg.devDependencies["@playwright/test"], undefined);
 });
 
-test("init wires build + publish config so a fresh package can ship", async () => {
+test("init (default app): universal build, marked private, no library fields", async () => {
   const dir = makeConsumer();
   await runInit({
     cwd: dir,
@@ -66,21 +68,40 @@ test("init wires build + publish config so a fresh package can ship", async () =
     log: silent,
   });
   const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-  assert.equal(pkg.scripts.build, "tsc");
-  assert.equal(pkg.scripts.prepack, "npm run build");
+  assert.equal(pkg.scripts.build, "tsc"); // build is universal
   assert.equal(pkg.devDependencies.typescript, "^9.9.9");
+  assert.equal(pkg.type, "module");
+  assert.equal(pkg.private, true);
+  // apps don't publish: no prepack, no library entry points
+  assert.equal(pkg.scripts.prepack, undefined);
+  assert.equal(pkg.main, undefined);
+  assert.equal(pkg.exports, undefined);
+  assert.equal(pkg.files, undefined);
+});
+
+test("init (library): adds prepack + dist publish fields, not private", async () => {
+  const dir = makeConsumer();
+  await runInit({
+    cwd: dir,
+    prompt: answers({ library: true }),
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.scripts.prepack, "npm run build");
   assert.equal(pkg.type, "module");
   assert.equal(pkg.main, "dist/index.js");
   assert.equal(pkg.types, "dist/index.d.ts");
   assert.deepEqual(pkg.files, ["dist"]);
   assert.equal(pkg.exports["."].default, "./dist/index.js");
+  assert.equal(pkg.private, undefined);
 });
 
-test("init never clobbers publish fields a consumer already set", async () => {
+test("init never clobbers publish fields a library consumer already set", async () => {
   const dir = makeConsumer({ type: "commonjs", main: "lib/entry.js" });
   await runInit({
     cwd: dir,
-    prompt: async () => false,
+    prompt: answers({ library: true }),
     resolveDevVersions: fakeVersions,
     log: silent,
   });

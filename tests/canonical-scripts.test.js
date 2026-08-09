@@ -18,11 +18,17 @@ const BASE = {
     "npm run check-code-formatting && npm run check-markdown-docs",
   "check-code-formatting": "prettier --check src/",
   "check-markdown-docs": "autogen-markdown-doc check",
-  prepack: "npm run build",
 };
 
-test("canonicalScripts: console project has no e2e and a plain ci", () => {
+test("canonicalScripts: console app has no e2e, no prepack, and a plain ci", () => {
   assert.deepEqual(canonicalScripts({ ui: false }), BASE);
+});
+
+test("canonicalScripts: a library adds prepack; an app does not", () => {
+  assert.equal(canonicalScripts({ library: true }).prepack, "npm run build");
+  assert.equal(canonicalScripts({ library: false }).prepack, undefined);
+  // build is universal — present either way
+  assert.equal(canonicalScripts({ library: false }).build, "tsc");
 });
 
 test("canonicalScripts: UI project adds test:e2e and folds it into ci", () => {
@@ -56,12 +62,23 @@ test("devDependencyNames: UI project adds @playwright/test", () => {
   ]);
 });
 
-test("packageFields: ESM publish config pointing at the built dist/index", () => {
-  const f = packageFields();
+test("packageFields: a library gets ESM publish config at the built dist/index", () => {
+  const f = packageFields({ library: true });
   assert.equal(f.type, "module");
   assert.equal(f.main, "dist/index.js");
   assert.equal(f.types, "dist/index.d.ts");
   assert.deepEqual(f.files, ["dist"]);
   assert.equal(f.exports["."].default, "./dist/index.js");
   assert.equal(f.exports["."].types, "./dist/index.d.ts");
+  assert.equal(f.private, undefined);
+});
+
+test("packageFields: an app is private ESM with no library entry points", () => {
+  const f = packageFields({ library: false });
+  assert.equal(f.type, "module");
+  assert.equal(f.private, true);
+  assert.equal(f.main, undefined);
+  assert.equal(f.types, undefined);
+  assert.equal(f.exports, undefined);
+  assert.equal(f.files, undefined);
 });
