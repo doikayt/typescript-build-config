@@ -83,9 +83,10 @@ is _why_.)
 | **Assets** — `assets/*` seeded into `docs/assets/` | Shared brand logos with no per-repo copies to maintain | Minimal setup |
 | **Shell aliases** — `shell/aliases.sh`, cloned + sourced (never shipped to npm) | One standard way for the team to create and scaffold repos (`mkrepo`, `dk-*`) | Consistency |
 
-The two goals map onto two lifecycle phases — **delivery** (getting canonical
-artifacts into a consuming repo) and **enforcement** (keeping that repo conformant over
-time). Each has its own top-level section below.
+The two goals map onto two lifecycle phases — **[delivery](#delivery-model)**
+(getting canonical artifacts into a consuming repo) and
+**[enforcement](#enforcement-model)** (keeping that repo conformant over time).
+Each has its own top-level section below.
 
 ## Installation
 
