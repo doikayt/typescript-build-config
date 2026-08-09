@@ -75,13 +75,24 @@ manually (or runs `init` deliberately if they want the full set).
 1. **Orchestrator** (only if ambiguous): npm or NX.
 2. **UI project needing Playwright?**
    - **No** (console utility): no Playwright at all.
-   - **Yes** (UI): add `@playwright/test` to devDeps, seed a minimal Playwright
-     config, add a `test:e2e` script, and fold `playwright test` into `ci`.
+   - **Yes** (UI): full Playwright setup — see
+     [Playwright / e2e (UI projects)](#playwright--e2e-ui-projects) below.
 
 ## Canonical script set
 
-`init` writes the full, granular set. Aggregates chain to a write/check pair so
-the two sides stay symmetric:
+`init` writes the full set below. It is deliberately fine-grained: each task is
+its own small, single-purpose script (for example `update-code-formatting` runs
+only Prettier), and the higher-level scripts just call those smaller ones instead
+of inlining commands.
+
+The set has two mirrored sides:
+
+- a **write** side (`update-*`) that reformats files in place, and
+- a **check** side (`check-*`, used by `ci`) that verifies them without changing
+  anything.
+
+Both sides call the same underlying tasks (code formatting, markdown docs), so
+the write and check commands can never drift out of sync:
 
 ```json
 {
@@ -89,7 +100,7 @@ the two sides stay symmetric:
     "ci":                     "npm run check-all-format && npm run test",
 
     "test":                   "vitest run",
-    "test:e2e":               "playwright test",
+    "test:e2e":               "playwright install chromium && playwright test",
 
     "update-all-format":      "npm run update-code-formatting && npm run update-markdown-docs",
     "update-code-formatting": "prettier --write src/",
@@ -120,6 +131,51 @@ Notes:
 
 Declared as edits to `devDependencies`; the user runs `npm install` to fetch
 them.
+
+## Playwright / e2e (UI projects)
+
+Playwright applies to **UI projects only** — console utilities get none of this.
+
+**e2e stays in the `ci` gate.** For a UI project, `init` folds
+`&& npm run test:e2e` into `ci`, so the release gate is honest: `npm run ci`
+green means unit *and* e2e passed. This is a deliberate choice — flaky e2e is
+treated as a bug to fix, not a reason to move tests off the release path. A
+larger, deliberately slower/flakier suite (`e2e++`) can live in its own script
+and a separate CI job, kept out of the release `ci` gate.
+
+**Browsers are not npm dependencies.** `npm install` fetches the
+`@playwright/test` library, but the browser binaries are downloaded separately
+by `playwright install`. So the browser install is **baked into the `test:e2e`
+script** rather than left to `npm install`:
+
+```json
+"test:e2e": "playwright install chromium && playwright test"
+```
+
+`playwright install` is idempotent and cached, so after the first run it is a
+fast no-op. This makes browsers appear automatically in every environment with
+no extra manual step — locally (first `npm run test:e2e`) and on the CI runner
+(via `npm run ci` → `npm run test:e2e`). Crucially, it keeps
+[`release.yml`](../src/pipeline/release.yml) uniform: the shared workflow never
+has to learn about Playwright — it still just runs `npm run ci`.
+
+**App bring-up lives in the Playwright config, not the workflow.** The seeded
+config uses Playwright's `webServer` option to start the app and wait for it
+before tests run, so no workflow step is needed to launch a server.
+
+**NixOS dev machines** use the package's
+[`nixChromiumLaunchOptions()`](../src/playwright.js) to point Playwright at the
+*system* Chromium via `executablePath`, so `playwright install` is effectively
+bypassed on Nix. `definePlaywrightConfig()` abstracts this, so one config works
+on NixOS locally and Ubuntu in CI.
+
+**OPEN ISSUE — `--with-deps`.** On GitHub's `ubuntu-latest`, Chromium sometimes
+needs OS-level libraries that only `playwright install --with-deps` pulls — but
+`--with-deps` requires root (fine on CI, wrong for a dev laptop) and is
+Linux-only. Baking `--with-deps` into the cross-platform `test:e2e` script is
+therefore not safe. Not yet decided how to reconcile: options include keeping
+the script as `playwright install chromium` and letting CI add the OS deps
+separately, or a CI-only install step. Deferred.
 
 ### NX chaining
 
