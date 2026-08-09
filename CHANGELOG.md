@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.14
+
+### Patch Changes
+
+- - feat: ship init scaffolder with usage docs
+  - feat: add doikayt-playwright-install wrapper bin
+
 ## 0.1.13
 
 ### Patch Changes
