@@ -65,6 +65,48 @@ these so you never leave test packages on npm:
 
 ---
 
+## Pushing to a reusable scratch repo
+
+The full-pipeline steps (A4 / B4) push to a real GitHub repo to watch
+`release.yml` run. Rather than a new repo each run, keep **one throwaway repo**
+(e.g. `doikayt/scratch-pad`) and overwrite it each time with a force push.
+
+From the scaffolded project directory:
+
+```bash
+# green CI needs generated docs + a lockfile
+npm install                       # writes package-lock.json (CI's `npm ci` needs it)
+npm run update-all-format         # fills README markers so check-markdown-docs passes
+
+git init && git branch -M main
+git add -A
+git status                        # confirm node_modules/ is NOT staged (.gitignore covers it)
+git commit -m "chore: scratch-pad test scaffold"   # chore: = CI runs, nothing publishes;
+                                                    # use feat: to test the publish path
+
+git remote add origin git@github.com:doikayt/scratch-pad.git   # set-url if origin exists
+git push -u origin main --force   # first push: sets upstream + overwrites the scratch repo
+```
+
+Notes:
+
+- **The first push must be explicit.** A pull-first alias (e.g. `gp`) fails with
+  _"no tracking information for the current branch"_ — `main` has no upstream yet,
+  and it would try to rebase onto the scratch repo's old history. Run
+  `git push -u origin main --force` once; afterward `main` tracks `origin/main`
+  and `gp` works.
+- **`--force` is required** because your scaffold and the existing scratch repo
+  have unrelated histories (a normal push is rejected as non-fast-forward). It
+  overwrites the scratch repo — which is the point.
+- **`git remote -v` prints nothing** → no remote is set; run the `git remote add`
+  line above (or `git remote set-url origin …` if one already points elsewhere).
+- **`chore:` vs `feat:`** — `chore:` lands the code and runs CI but publishes
+  nothing (no `NPM` secret needed); `feat:` / `fix:` trigger the release job.
+- **Never commit `node_modules/`** — the seeded `.gitignore` covers it; the
+  `git status` check is your guard.
+
+---
+
 ## Scenario A — Library (publishes to npm)
 
 ### A1. Scaffold
@@ -126,10 +168,12 @@ exits 0. No error about the package being private.
 
 ### A4. Full publish via the pipeline — **optional, writes to npm**
 
-1. Set a unique `"name"` in `package.json` (a scope you control).
-2. `git init && git add -A && git commit -m "feat: initial library"`.
-3. Create the GitHub repo, add the `NPM` secret, push to `main`.
-4. Watch the **Actions** run (`CI / Release`).
+1. Set a unique `"name"` in `package.json` (a scope you control) and make sure the
+   repo's `NPM` secret is set.
+2. Push to your scratch repo per
+   [Pushing to a reusable scratch repo](#pushing-to-a-reusable-scratch-repo) —
+   but commit with **`feat:`** so the release job fires.
+3. Watch the **Actions** run (`CI / Release`).
 
 **Look for:** the `ci` job passes; the `release` job runs `changeset version`
 (bumps to a patch), commits `chore: release`, then `changeset publish` **uploads
@@ -184,7 +228,9 @@ npm publish --dry-run
 
 ### B4. Full pipeline — **optional**
 
-Same push-to-GitHub flow as A4, but:
+Same push flow —
+[Pushing to a reusable scratch repo](#pushing-to-a-reusable-scratch-repo), commit
+with **`feat:`** — but:
 
 **Look for:** the `release` job still runs `changeset version` and pushes the
 `chore: release` commit and tag — but `changeset publish` **skips** the private
