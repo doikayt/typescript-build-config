@@ -138,8 +138,21 @@ for (const { src, dest } of assetFiles) {
   );
 }
 
-// --- update-all-format convention check ---
+// --- Convention checks: ci + update-all-format ---
 
+const missingTargets = [];
+
+// ci: package.json scripts only — NX projects must expose it as a thin shim
+// there, since the release workflow calls `npm run ci`, never NX directly.
+if (!projectPkg.scripts?.["ci"]) {
+  missingTargets.push({
+    name: "ci",
+    hint: '  "ci": "npm run check-all-format && npm run test"',
+    nxNote: false,
+  });
+}
+
+// update-all-format: package.json script OR NX project.json target.
 let hasUpdateAllFormat = !!projectPkg.scripts?.["update-all-format"];
 
 if (!hasUpdateAllFormat) {
@@ -155,12 +168,18 @@ if (!hasUpdateAllFormat) {
 }
 
 if (!hasUpdateAllFormat) {
-  console.warn(`${PREFIX} Missing target: update-all-format`);
+  missingTargets.push({
+    name: "update-all-format",
+    hint: '  "update-all-format": "npm run update-code-formatting && npm run update-markdown-docs"',
+    nxNote: true,
+  });
+}
+
+for (const { name, hint, nxNote } of missingTargets) {
+  console.warn(`${PREFIX} Missing target: ${name}`);
   console.warn(`Add to package.json scripts:`);
-  console.warn(
-    `  "update-all-format": "npm run format && npm run update-markdown-docs"`,
-  );
-  console.warn(`Or add an NX target with the same name.`);
+  console.warn(hint);
+  if (nxNote) console.warn(`Or add an NX target with the same name.`);
 }
 
 console.log(`${PREFIX} Postinstall complete.`);
