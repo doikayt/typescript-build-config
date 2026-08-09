@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.19
+
+### Patch Changes
+
+- - fix: declare @changesets/cli so the release pipeline can run
+
 ## 0.1.18
 
 ### Patch Changes
