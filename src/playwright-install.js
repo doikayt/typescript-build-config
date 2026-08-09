@@ -30,6 +30,11 @@ export function run({ env = process.env, platform = process.platform } = {}) {
   return result.status ?? 1;
 }
 
+// This file is both an importable module (unit tests import the pure functions)
+// and an executable bin. Guard the CLI action so `run()` — which shells out to
+// `playwright install` — fires only when the file is run directly, never on
+// import. When launched via the npm `.bin/doikayt-playwright-install` shim,
+// argv[1] is a symlink, so realpath both sides before comparing.
 function invokedDirectly() {
   const entry = process.argv[1];
   if (!entry) return false;
