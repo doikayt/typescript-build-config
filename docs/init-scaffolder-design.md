@@ -100,7 +100,7 @@ the write and check commands can never drift out of sync:
     "ci":                     "npm run check-all-format && npm run test",
 
     "test":                   "vitest run",
-    "test:e2e":               "playwright install chromium && playwright test",
+    "test:e2e":               "doikayt-playwright-install && playwright test",
 
     "update-all-format":      "npm run update-code-formatting && npm run update-markdown-docs",
     "update-code-formatting": "prettier --write src/",
@@ -146,13 +146,13 @@ and a separate CI job, kept out of the release `ci` gate.
 **Browsers are not npm dependencies.** `npm install` fetches the
 `@playwright/test` library, but the browser binaries are downloaded separately
 by `playwright install`. So the browser install is **baked into the `test:e2e`
-script** rather than left to `npm install`:
+script** rather than left to `npm install`, via a wrapper this package ships:
 
 ```json
-"test:e2e": "playwright install chromium && playwright test"
+"test:e2e": "doikayt-playwright-install && playwright test"
 ```
 
-`playwright install` is idempotent and cached, so after the first run it is a
+The browser install is idempotent and cached, so after the first run it is a
 fast no-op. This makes browsers appear automatically in every environment with
 no extra manual step — locally (first `npm run test:e2e`) and on the CI runner
 (via `npm run ci` → `npm run test:e2e`). Crucially, it keeps
@@ -169,13 +169,24 @@ before tests run, so no workflow step is needed to launch a server.
 bypassed on Nix. `definePlaywrightConfig()` abstracts this, so one config works
 on NixOS locally and Ubuntu in CI.
 
-**OPEN ISSUE — `--with-deps`.** On GitHub's `ubuntu-latest`, Chromium sometimes
+### The `doikayt-playwright-install` wrapper
+
+`--with-deps` is the wrinkle: on GitHub's `ubuntu-latest`, Chromium sometimes
 needs OS-level libraries that only `playwright install --with-deps` pulls — but
 `--with-deps` requires root (fine on CI, wrong for a dev laptop) and is
-Linux-only. Baking `--with-deps` into the cross-platform `test:e2e` script is
-therefore not safe. Not yet decided how to reconcile: options include keeping
-the script as `playwright install chromium` and letting CI add the OS deps
-separately, or a CI-only install step. Deferred.
+Linux-only, so it can't be baked into a cross-platform script directly.
+
+**Resolution:** the package ships a small env-gated bin, `doikayt-playwright-install`,
+that chooses the right form at runtime:
+
+- **CI on Linux** (`process.env.CI` and `process.platform === "linux"`):
+  `playwright install --with-deps chromium`
+- **everywhere else** (dev laptops, NixOS, macOS): `playwright install chromium`
+
+This keeps `test:e2e` a single cross-platform script, needs no root locally,
+installs OS deps only where it's both safe and necessary, and leaves
+`release.yml` uniform. It's a ~10-line Node script exposed as a `bin` in this
+package's [`package.json`](../package.json).
 
 ### NX chaining
 
