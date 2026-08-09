@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.21
+
+### Patch Changes
+
+- - feat: add team shell aliases + installer (base dev setup)
+  - feat: add 'new' subcommand — scoped npm init
+
 ## 0.1.20
 
 ### Patch Changes
