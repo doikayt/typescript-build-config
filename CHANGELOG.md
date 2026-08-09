@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.13
+
+### Patch Changes
+
+- - feat: warn on missing ci target in postinstall convention check
+
 ## 0.1.12
 
 ### Patch Changes
