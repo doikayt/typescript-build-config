@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.16
+
+### Patch Changes
+
+- - feat: gate publish config behind a library/app init prompt
+
 ## 0.1.15
 
 ### Patch Changes
