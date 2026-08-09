@@ -8,6 +8,10 @@ Shared build configuration presets for TypeScript-based projects.
   - [Design Goals](#design-goals)
     - [What each component is for](#what-each-component-is-for)
   - [Installation](#installation)
+  - [Usage](#usage)
+    - [Console / CLI project](#console--cli-project)
+    - [UI / web project (with Playwright e2e)](#ui--web-project-with-playwright-e2e)
+    - [Existing project](#existing-project)
   - [Dependency Strategy](#dependency-strategy)
   - [Current Contents](#current-contents)
   - [Delivery Model](#delivery-model)
@@ -83,6 +87,49 @@ npm install --save-dev @doikayt/typescript-build-config
 The postinstall script copies starter config files into your project root and
 sets up the release pipeline (see below).
 
+## Usage
+
+After installing, run the `init` scaffolder to write the canonical npm-script
+set and declare the dev dependencies those scripts need. `init` is interactive
+and **idempotent** — it only adds what is missing and never overwrites a script
+or config you already have, so it is safe to re-run.
+
+### Console / CLI project
+
+```bash
+npm init -y                                            # if starting fresh
+npm install --save-dev @doikayt/typescript-build-config
+npx @doikayt/typescript-build-config init             # answer "n" to the Playwright prompt
+npm install                                            # fetch the declared devDependencies
+```
+
+`init` writes the canonical scripts (`ci`, `test`, `update-all-format`,
+`check-all-format`, and their sub-tasks), declares `vitest` +
+`@doikayt/autogen-markdown-doc`, and seeds a commented `vitest.config.ts`.
+
+### UI / web project (with Playwright e2e)
+
+```bash
+npm init -y
+npm install --save-dev @doikayt/typescript-build-config
+npx @doikayt/typescript-build-config init             # answer "y" to the Playwright prompt
+npm install
+# then fill in the TODOs in the generated playwright.config.ts (webServer, baseURL)
+```
+
+Answering **yes** to the Playwright prompt additionally: adds a `test:e2e`
+script and folds it into `ci` (so the release gate runs e2e), declares
+`@playwright/test`, and seeds a `playwright.config.ts` template. Browsers are
+installed on demand by the bundled `doikayt-playwright-install` wrapper the
+`test:e2e` script calls — no manual `playwright install` step, locally or in CI.
+
+### Existing project
+
+Skip `init` if you prefer. On install, `postinstall` warns about any missing
+required targets (`ci`, `update-all-format`) until you add them — either by
+running `init` to adopt the full canonical set, or by defining the two scripts
+by hand (see [Conventions](#conventions-every-project-must-adhere-to)).
+
 ## Dependency Strategy
 
 `eslint` and `prettier` are listed as `dependencies` and are pulled in
@@ -95,6 +142,11 @@ versions of these tools may produce peer dependency conflicts.
 
 ## Current Contents
 
+- `init` scaffolder CLI (`npx @doikayt/typescript-build-config init`) — writes
+  the canonical npm-script set, declares dev dependencies, and seeds config
+  templates (see [Usage](#usage))
+- `doikayt-playwright-install` bin — env-gated Playwright browser installer used
+  by a UI project's `test:e2e` script (adds `--with-deps` only on CI+Linux)
 - ESLint config
 - Prettier config
 - TypeScript config (`tsconfig.json`, `tsconfig.test.json`, `tsconfig.eslint.json`)

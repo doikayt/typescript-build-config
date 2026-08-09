@@ -1,12 +1,11 @@
 # `init` Scaffolder — Design & Vision
 
-> **STATUS: PLANNED — NOT YET IMPLEMENTED.**
-> This document describes intended future behavior for review at the outset of
-> the work. Nothing here ships today. The current, implemented behavior is
-> described in the [README](../README.md) (see
-> [Delivery Model](../README.md#delivery-model) and
-> [Enforcement Model](../README.md#enforcement-model)). Where the two disagree,
-> the README is authoritative for what exists now; this document is the target.
+> **STATUS: CORE IMPLEMENTED.** The `init` scaffolder ships and is documented
+> for day-to-day use in the [README Usage](../README.md#usage) section — that is
+> authoritative for current behavior. This document is the design rationale and
+> the target for the remaining work. Still **planned, not yet built:** the
+> `check-conventions` hard gate (see [Enforcement roadmap](#enforcement-roadmap))
+> and the dogfooding migration (see [Dogfooding](#dogfooding)).
 
 ## Why
 
