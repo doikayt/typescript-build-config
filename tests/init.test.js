@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, readFileSync } from "fs";
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runInit } from "../src/init.js";
@@ -85,4 +85,44 @@ test("idempotent: a second run changes nothing", async () => {
   await runInit(opts);
   const second = readFileSync(join(dir, "package.json"), "utf8");
   assert.equal(first, second);
+});
+
+test("console project seeds vitest.config.ts but not playwright.config.ts", async () => {
+  const dir = makeConsumer();
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  assert.ok(existsSync(join(dir, "vitest.config.ts")));
+  assert.ok(!existsSync(join(dir, "playwright.config.ts")));
+});
+
+test("UI project seeds both vitest and playwright configs", async () => {
+  const dir = makeConsumer();
+  await runInit({
+    cwd: dir,
+    prompt: async () => true,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  assert.ok(existsSync(join(dir, "vitest.config.ts")));
+  const pw = readFileSync(join(dir, "playwright.config.ts"), "utf8");
+  assert.match(pw, /definePlaywrightConfig/);
+});
+
+test("does not overwrite an existing config file", async () => {
+  const dir = makeConsumer();
+  writeFileSync(join(dir, "vitest.config.ts"), "// mine\n");
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  assert.equal(
+    readFileSync(join(dir, "vitest.config.ts"), "utf8"),
+    "// mine\n",
+  );
 });
