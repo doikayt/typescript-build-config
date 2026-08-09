@@ -123,7 +123,9 @@ small single-purpose scripts, and the check side mirrors the write side:
 publish config accordingly (non-destructively):
 
 - **Library** — `main` / `types` / `exports` → `dist/index.js`, `files: ["dist"]`,
-  and `prepack`, so it publishes a compiled, typed ESM package on push.
+  and `prepack`, so it publishes a compiled, typed ESM package on push. `init`
+  also prompts for the package name (default `@doikayt/<name>`; a bare name is
+  scoped to `@doikayt`, an already-scoped name is kept).
 - **App / CLI** (the default) — marked `private: true`, so a release versions and
   tags it but never publishes to npm.
 

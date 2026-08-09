@@ -97,6 +97,65 @@ test("init (library): adds prepack + dist publish fields, not private", async ()
   assert.equal(pkg.private, undefined);
 });
 
+test("init (library): scopes an unscoped name to @doikayt (Enter = default)", async () => {
+  const dir = makeConsumer({ name: "scratch-pad" });
+  await runInit({
+    cwd: dir,
+    prompt: answers({ library: true }),
+    promptText: async () => "", // accept the suggested default
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.name, "@doikayt/scratch-pad");
+});
+
+test("init (library): a bare typed name is scoped; a scoped one is kept", async () => {
+  const bare = makeConsumer({ name: "scratch-pad" });
+  await runInit({
+    cwd: bare,
+    prompt: answers({ library: true }),
+    promptText: async () => "my-lib",
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  assert.equal(
+    JSON.parse(readFileSync(join(bare, "package.json"), "utf8")).name,
+    "@doikayt/my-lib",
+  );
+
+  const scoped = makeConsumer({ name: "scratch-pad" });
+  await runInit({
+    cwd: scoped,
+    prompt: answers({ library: true }),
+    promptText: async () => "@datalackey/thing",
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  assert.equal(
+    JSON.parse(readFileSync(join(scoped, "package.json"), "utf8")).name,
+    "@datalackey/thing",
+  );
+});
+
+test("init (app): never prompts for a name and leaves it unchanged", async () => {
+  const dir = makeConsumer({ name: "my-app" });
+  let textCalls = 0;
+  await runInit({
+    cwd: dir,
+    prompt: async () => false, // app
+    promptText: async () => {
+      textCalls++;
+      return "";
+    },
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.name, "my-app");
+  assert.equal(textCalls, 0);
+});
+
 test("init replaces npm init -y's placeholder test script and main", async () => {
   // Simulate `npm init -y` output.
   const dir = makeConsumer({

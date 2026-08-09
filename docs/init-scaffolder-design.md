@@ -81,7 +81,9 @@ Two orthogonal axes, each a yes/no prompt:
 2. **Publishable library?** (default **No**)
    - **No** (app / CLI): marked `private` so a release versions + tags but never
      publishes to npm.
-   - **Yes** (library): gets `prepack` and the `dist/`-based publish fields.
+   - **Yes** (library): gets `prepack` and the `dist/`-based publish fields, and a
+     follow-up **package-name** prompt (default `@doikayt/<current-name>`; a bare
+     name is scoped to `@doikayt`, an already-scoped name is kept).
    - Background: [Packaging concepts](packaging-concepts.md).
 
 ## Canonical script set

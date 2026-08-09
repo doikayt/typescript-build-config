@@ -62,21 +62,29 @@ function createAskYesNo() {
     closed = true;
     while (waiters.length) waiters.shift()("");
   });
-  const ask = (question) =>
+  const nextLine = (question) =>
     new Promise((res) => {
       process.stdout.write(question);
-      const answer = (line) => res(/^y(es)?$/i.test(line.trim()));
-      if (lines.length) answer(lines.shift());
-      else if (closed) answer("");
-      else waiters.push(answer);
+      if (lines.length) res(lines.shift());
+      else if (closed) res("");
+      else waiters.push(res);
     });
+  const ask = async (question) =>
+    /^y(es)?$/i.test((await nextLine(question)).trim());
+  ask.text = async (question) => (await nextLine(question)).trim();
   ask.close = () => rl.close();
   return ask;
+}
+
+// Prepend the @doikayt scope unless the name is already scoped.
+function scopeName(name) {
+  return name.startsWith("@") ? name : `@doikayt/${name}`;
 }
 
 export async function runInit({
   cwd = process.cwd(),
   prompt,
+  promptText,
   resolveDevVersions = resolveVersions,
   log = console.log,
 } = {}) {
@@ -84,16 +92,32 @@ export async function runInit({
   // on error so a leftover interface never keeps the process alive.
   const ownAsk = prompt ? null : createAskYesNo();
   const ask = prompt ?? ownAsk;
+  // Free-text prompt (package name). Falls back to "" (accept the default) when a
+  // yes/no prompt is injected without a text one, so tests need not supply it.
+  const askText = promptText ?? ownAsk?.text ?? (async () => "");
   try {
-    return await collectAndScaffold({ cwd, ask, resolveDevVersions, log });
+    return await collectAndScaffold({
+      cwd,
+      ask,
+      askText,
+      resolveDevVersions,
+      log,
+    });
   } finally {
     ownAsk?.close();
   }
 }
 
-async function collectAndScaffold({ cwd, ask, resolveDevVersions, log }) {
+async function collectAndScaffold({
+  cwd,
+  ask,
+  askText,
+  resolveDevVersions,
+  log,
+}) {
   const pkgPath = resolve(cwd, "package.json");
   const raw = readFileSync(pkgPath, "utf8");
+  const currentName = JSON.parse(raw).name;
 
   // Collect every answer up front, before doing any work or printing next
   // steps, so the flow reads: ask everything → act → report.
@@ -106,6 +130,17 @@ async function collectAndScaffold({ cwd, ask, resolveDevVersions, log }) {
       "  No = an app/CLI (marked private, never published). [y/N] ",
   );
 
+  // The package name is what gets published, so ask only for a library. A bare
+  // name gets the @doikayt scope; an already-scoped name is kept.
+  let libraryName;
+  if (library) {
+    const suggested = scopeName(currentName || "package");
+    const entered = await askText(
+      `Package name for publishing? [${suggested}] `,
+    );
+    libraryName = entered ? scopeName(entered) : suggested;
+  }
+
   const wantDemo = await ask(
     "Scaffold a starter demo (minimal src module + README + project.json) so\n" +
       "you can build, test, and release immediately? Default is No; existing\n" +
@@ -115,17 +150,25 @@ async function collectAndScaffold({ cwd, ask, resolveDevVersions, log }) {
   const scripts = canonicalScripts({ ui, library });
   const devDependencies = resolveDevVersions(devDependencyNames({ ui }));
 
+  const fields = packageFields({ library });
+  // `npm init -y` seeds these placeholders; treat them as unset so the canonical
+  // `test` script and (for a library) `main` replace them instead of shadowing.
+  const replaceDefaults = {
+    scripts: { test: 'echo "Error: no test specified" && exit 1' },
+    fields: { main: "index.js" },
+  };
+  if (library) {
+    // The chosen name is a deliberate publish decision, so it replaces whatever
+    // name npm init left in place.
+    fields.name = libraryName;
+    if (currentName != null) replaceDefaults.fields.name = currentName;
+  }
+
   const { text, added, skipped } = applyToPackageJson(raw, {
     scripts,
     devDependencies,
-    fields: packageFields({ library }),
-    // `npm init -y` seeds these placeholders; treat them as unset so the
-    // canonical `test` script and (for a library) `main` replace them instead of
-    // shadowing them.
-    replaceDefaults: {
-      scripts: { test: 'echo "Error: no test specified" && exit 1' },
-      fields: { main: "index.js" },
-    },
+    fields,
+    replaceDefaults,
   });
   writeFileSync(pkgPath, text);
 
