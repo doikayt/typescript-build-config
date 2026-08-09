@@ -69,8 +69,9 @@ export async function runInit({
   );
 
   const library = await prompt(
-    "Is this a publishable library (published to npm)? Default is No — an\n" +
-      "app/CLI, marked private so it is never published. [y/N] ",
+    "Is this a publishable library (published to npm)?\n" +
+      "For apps/CLIs: answer No.\n" +
+      "These are marked private so they are never published. [y/N] ",
   );
 
   const wantDemo = await prompt(
