@@ -118,12 +118,18 @@ npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
 npx @doikayt/typescript-build-config init
 #   Playwright?          → n
 #   Publishable library? → y
+#   Package name?        → <return>   (accepts the default @doikayt/verify-lib)
 #   Scaffold demo?       → y
 npm install
 ```
 
+(The package-name prompt appears only on the library path. Press Enter to accept
+`@doikayt/<dir>`, or type a name — a bare name is scoped to `@doikayt`, a scoped
+one is kept.)
+
 **Look for** in `package.json`:
 
+- `"name"` is `"@doikayt/verify-lib"` (scoped from the package-name prompt)
 - `"type": "module"`, and **no** `"private"` key
 - `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"files": ["dist"]`,
   and an `exports` map (not just the string `"dist"`):
