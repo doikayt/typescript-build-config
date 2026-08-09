@@ -5,6 +5,7 @@ Shared build configuration presets for TypeScript-based projects.
 <!-- TOC:START -->
 - [@doikayt/typescript-build-config](#doikayttypescript-build-config)
   - [Purpose](#purpose)
+  - [Team shell aliases](#team-shell-aliases)
   - [Design Goals](#design-goals)
     - [What each component is for](#what-each-component-is-for)
   - [Installation](#installation)
@@ -24,7 +25,6 @@ Shared build configuration presets for TypeScript-based projects.
       - [NX projects](#nx-projects)
     - [The `update-all-format` target](#the-update-all-format-target)
   - [Publishing](#publishing)
-  - [Team shell aliases](#team-shell-aliases)
   - [For Maintainers](#for-maintainers)
     - [Clone and install](#clone-and-install)
     - [Run the full CI suite](#run-the-full-ci-suite)
@@ -40,6 +40,31 @@ projects, avoiding drift between repos over time.
 The plugin encapsulates common build **policy** and release **workflow logic**
 via the pipeline files it installs into each consumer repo and the canonical release process in
 [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md).
+
+## Team shell aliases
+
+**New here? Do this first.** This repo doubles as the team's base setup. After
+cloning it, install the shared shell aliases — a **required** onboarding step, so
+everyone creates and scaffolds repos the same way:
+
+```bash
+git clone git@github.com:doikayt/typescript-build-config.git
+cd typescript-build-config
+./shell/install.sh          # adds a `source` line to ~/.zshrc / ~/.bashrc (idempotent)
+exec $SHELL                 # reload — or: source shell/aliases.sh
+```
+
+Manual alternative: add `source <clone-path>/shell/aliases.sh` to your shell rc.
+
+Aliases provided ([`shell/aliases.sh`](shell/aliases.sh)) — require `gh`
+(authenticated) and `node`/`npm`:
+
+| Alias | What it does |
+| --- | --- |
+| `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
+| `dk-new` | `npm init -y` + `@doikayt` scope. |
+| `dk-init` | Scaffold the build config into the current project. |
+| `dk-scaffold <name> [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). |
 
 ## Design Goals
 
@@ -504,31 +529,6 @@ release job until one is committed.
 
 **Manual publish (emergency):** trigger the workflow manually via
 **GitHub Actions → CI / Release → Run workflow** on the `main` branch.
-
-## Team shell aliases
-
-This repo doubles as the team's base setup. After cloning it, install the shared
-shell aliases — a **required** onboarding step, so everyone creates and scaffolds
-repos the same way:
-
-```bash
-git clone git@github.com:doikayt/typescript-build-config.git
-cd typescript-build-config
-./shell/install.sh          # adds a `source` line to ~/.zshrc / ~/.bashrc (idempotent)
-exec $SHELL                 # reload — or: source shell/aliases.sh
-```
-
-Manual alternative: add `source <clone-path>/shell/aliases.sh` to your shell rc.
-
-Aliases provided ([`shell/aliases.sh`](shell/aliases.sh)) — require `gh`
-(authenticated) and `node`/`npm`:
-
-| Alias | What it does |
-| --- | --- |
-| `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
-| `dk-new` | `npm init -y` + `@doikayt` scope. |
-| `dk-init` | Scaffold the build config into the current project. |
-| `dk-scaffold <name> [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). |
 
 ## For Maintainers
 
