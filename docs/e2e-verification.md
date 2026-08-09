@@ -1,0 +1,161 @@
+# End-to-end verification: `init` a library and an app
+
+A manual runbook to confirm, hands-on, that this package can scaffold and ship
+both project archetypes. Each step lists the command and **what to look for**.
+
+There are two depths:
+
+- **Local (safe, default)** — proves the build/pack/publish _mechanics_ without
+  writing to npm or GitHub. Uses `npm pack` and `npm publish --dry-run`. Run this
+  every time.
+- **Full pipeline (optional)** — actually pushes to a GitHub repo and lets
+  `release.yml` publish to npm. Only when you want the real thing; it burns a
+  version number and (for a library) a public package name.
+
+## Prerequisites
+
+- Node 22+ and npm.
+- The version of `@doikayt/typescript-build-config` under test must include the
+  **library/app prompt**. Two ways to get it:
+  - **Released:** `npm install --save-dev @doikayt/typescript-build-config@latest`
+    (once this change is published).
+  - **Pre-release (test the working copy):** from this repo, `npm pack` to
+    produce `doikayt-typescript-build-config-<ver>.tgz`, then install that
+    tarball path in the scratch project below. This is how you verify _before_
+    publishing.
+- For the **full** path only: a throwaway GitHub repo and an `NPM` token secret
+  (see [docs/RELEASE-PROCESS.md](RELEASE-PROCESS.md)), plus — for a library — a
+  package name not already taken on npm.
+
+Do each scenario in a fresh empty directory outside this repo.
+
+---
+
+## Scenario A — Library (publishes to npm)
+
+### A1. Scaffold
+
+```bash
+mkdir /tmp/verify-lib && cd /tmp/verify-lib
+npm init -y
+npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
+npx @doikayt/typescript-build-config init
+#   Playwright?          → n
+#   Publishable library? → y
+#   Scaffold demo?       → y
+npm install
+```
+
+**Look for** in `package.json`:
+
+- `"type": "module"`, and **no** `"private"` key
+- `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"exports"` → `dist`,
+  `"files": ["dist"]`
+- scripts include `build`, `prepack`, `ci`, `test`, `update-all-format`
+- devDependencies include `vitest`, `typescript`, `@doikayt/autogen-markdown-doc`
+- `src/` has the demo module (`index.ts`, `math-engine/…`), plus a `README.md`
+  and `project.json`
+
+### A2. Build, test, docs
+
+```bash
+npm test                    # Look for: vitest reports the demo tests passing
+npm run build               # Look for: dist/index.js and dist/index.d.ts created
+node dist/index.js 2>/dev/null; echo "exit $?"   # module has no CLI output; just confirms it loads
+npm run update-all-format   # Look for: README markers filled with Mermaid (graph TD / classDiagram)
+```
+
+### A3. Verify the published artifact — **local, no registry write**
+
+```bash
+npm pack                    # runs prepack → build, then packs
+tar -tzf *.tgz | sort
+```
+
+**Look for:** the tarball contains **only** `package/dist/**` (`.js` + `.d.ts`)
+and `package/package.json` — **no** `src/`, no `.ts`, no test files. That proves
+`prepack` compiled and `files: ["dist"]` scoped the tarball.
+
+```bash
+npm publish --dry-run
+```
+
+**Look for:** it reports what it *would* publish (same `dist/` contents) and
+exits 0. No error about the package being private.
+
+### A4. Full publish via the pipeline — **optional, writes to npm**
+
+1. Set a unique `"name"` in `package.json` (a scope you control).
+2. `git init && git add -A && git commit -m "feat: initial library"`.
+3. Create the GitHub repo, add the `NPM` secret, push to `main`.
+4. Watch the **Actions** run (`CI / Release`).
+
+**Look for:** the `ci` job passes; the `release` job runs `changeset version`
+(bumps to a patch), commits `chore: release`, then `changeset publish` **uploads
+to npm**; a `v0.0.x` tag appears. Confirm the package page on npmjs.com shows
+your version with only `dist/` files.
+
+---
+
+## Scenario B — App / CLI (never publishes)
+
+### B1. Scaffold
+
+```bash
+mkdir /tmp/verify-app && cd /tmp/verify-app
+npm init -y
+npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
+npx @doikayt/typescript-build-config init
+#   Playwright?          → n
+#   Publishable library? → n        (this is the default)
+#   Scaffold demo?       → y
+npm install
+```
+
+**Look for** in `package.json`:
+
+- `"type": "module"` **and** `"private": true`
+- **no** `main` / `types` / `exports` / `files` keys
+- scripts include `build`, `ci`, `test` — but **no** `prepack`
+- devDependencies still include `vitest`, `typescript`,
+  `@doikayt/autogen-markdown-doc`
+
+### B2. Build and test (same as a library — an app still compiles)
+
+```bash
+npm test                    # Look for: demo tests pass
+npm run build               # Look for: dist/ compiled
+npm run update-all-format   # Look for: README diagrams filled
+```
+
+### B3. Verify it will **not** publish — the key check
+
+```bash
+npm publish --dry-run
+```
+
+**Look for:** npm **refuses** with an error like
+`This package has been marked as private`. That's the app archetype working —
+`private: true` makes publishing impossible.
+
+### B4. Full pipeline — **optional**
+
+Same push-to-GitHub flow as A4, but:
+
+**Look for:** the `release` job still runs `changeset version` and pushes the
+`chore: release` commit and tag — but `changeset publish` **skips** the private
+package (log says nothing was published), and **nothing appears on npm**. Release
+= version + tag only, exactly as intended for an app.
+
+---
+
+## Pass criteria at a glance
+
+| Check | Library | App |
+| --- | --- | --- |
+| `package.json` `private` | absent | `true` |
+| `main`/`exports`/`files` | present (→ `dist`) | absent |
+| `prepack` script | present | absent |
+| `npm pack` tarball | only `dist/` | (n/a — not published) |
+| `npm publish --dry-run` | succeeds | refuses (private) |
+| Pipeline release | version + tag + **npm publish** | version + tag, **no publish** |

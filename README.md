@@ -504,6 +504,10 @@ To auto-fix formatting before verifying:
 npm run update-all-format && npm run ci
 ```
 
+To verify end-to-end that `init` scaffolds and ships both a library and an app —
+by hand, with what to look for at each step — follow
+[docs/e2e-verification.md](docs/e2e-verification.md).
+
 ## License
 
 MIT
