@@ -22,6 +22,19 @@ export function detectIndent(text) {
   return m ? m[1] : "  ";
 }
 
+/**
+ * Merge scripts / devDependencies into package.json text, adding only absent
+ * keys and preserving the file's indentation and trailing-newline style. Does
+ * not touch disk — returns the new text plus a report of what changed.
+ *
+ * @param {string} rawText - current package.json contents
+ * @param {{scripts?: Record<string,string>, devDependencies?: Record<string,string>}} additions
+ * @returns {{
+ *   text: string,
+ *   added: { scripts: string[], devDependencies: string[] },
+ *   skipped: { scripts: string[], devDependencies: string[] }
+ * }} new file text, plus keys added vs. skipped (already present)
+ */
 export function applyToPackageJson(
   rawText,
   { scripts = {}, devDependencies = {} } = {},
