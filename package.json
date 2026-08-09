@@ -15,6 +15,7 @@
     "./playwright": "./src/playwright.js"
   },
   "bin": {
+    "typescript-build-config": "src/cli.js",
     "doikayt-playwright-install": "src/playwright-install.js"
   },
   "files": [
