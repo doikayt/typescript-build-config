@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.18
+
+### Patch Changes
+
+- - fix: make init's prompts work with piped/non-interactive stdin
+
 ## 0.1.17
 
 ### Patch Changes
