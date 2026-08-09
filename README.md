@@ -81,6 +81,7 @@ is _why_.)
 | **`ci` gate** — `release.yml` runs `npm run ci` | Fail-closed enforcement: a repo that ignores the convention cannot release | Consistency (hard teeth) |
 | **Policy doc** — `docs/RELEASE-PROCESS.md`, linked never copied | One canonical release policy, impossible to drift | Consistency |
 | **Assets** — `assets/*` seeded into `docs/assets/` | Shared brand logos with no per-repo copies to maintain | Minimal setup |
+| **Shell aliases** — `shell/aliases.sh`, cloned + sourced (never shipped to npm) | One standard way for the team to create and scaffold repos (`mkrepo`, `dk-*`) | Consistency |
 
 The two goals map onto two lifecycle phases — **delivery** (getting canonical
 artifacts into a consuming repo) and **enforcement** (keeping that repo conformant over
@@ -319,6 +320,16 @@ components.
   [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md). Consumers reference it by URL from
   their own contributor docs (as the consumer box shows) — never copied, so it cannot
   drift.
+
+**Beyond consumer repos — the shell aliases.** The five components above all reach
+a _consuming repo_ through npm (channels 1–3). The team
+[shell aliases](#team-shell-aliases) are the exception: they target the
+_developer's machine_, not a repo, through a fourth channel — **cloned and
+sourced** (`git clone` this repo + `source shell/aliases.sh`, via
+`shell/install.sh`). npm never touches them and they never land in a consumer's
+`package.json` or tree. Same goal (a standard way to create repos), different
+destination — which is why they sit outside the five-components / three-channels
+model rather than as a sixth row in it.
 
 ## Enforcement Model
 
