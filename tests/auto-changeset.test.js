@@ -6,9 +6,9 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Exercises the consumer-installed template (src/pipeline/auto-changeset.sh) after the same
-// __PACKAGE_NAME__ substitution postinstall.js performs, so a green run here validates
-// the exact artifact consumer repos receive.
+// Exercises the consumer-installed template (src/pipeline/auto-changeset.sh) verbatim — it
+// reads the package name from package.json at runtime — so a green run here validates the
+// exact artifact consumer repos receive.
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TEMPLATE = readFileSync(join(repoRoot, 'src/pipeline/auto-changeset.sh'), 'utf8');
 const PKG = '@doikayt/fake-consumer';
@@ -23,11 +23,15 @@ function makeFixture() {
   git(dir, 'config', 'user.email', 'test@example.com');
   git(dir, 'config', 'user.name', 'Test');
   git(dir, 'config', 'commit.gpgsign', 'false');
+  // The script reads the package name from package.json at runtime.
+  writeFileSync(
+    join(dir, 'package.json'),
+    JSON.stringify({ name: PKG, version: '0.0.0' }) + '\n'
+  );
   mkdirSync(join(dir, '.changeset'));
   writeFileSync(join(dir, '.changeset', 'README.md'), '# Changesets\n');
   mkdirSync(join(dir, 'scripts'));
-  const script = TEMPLATE.replace('PACKAGES=("__PACKAGE_NAME__")', `PACKAGES=("${PKG}")`);
-  writeFileSync(join(dir, 'scripts', 'auto-changeset.sh'), script);
+  writeFileSync(join(dir, 'scripts', 'auto-changeset.sh'), TEMPLATE);
   return dir;
 }
 

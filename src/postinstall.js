@@ -61,8 +61,6 @@ if (alreadyExist.length > 0) {
 
 // --- Pipeline files: per-file copy/warn/diff ---
 
-const projectName = projectPkg.name;
-
 const pipelineFiles = [
   { src: "release.yml", dest: ".github/workflows/release.yml" },
   { src: "changeset-config.json", dest: ".changeset/config.json" },
@@ -77,14 +75,7 @@ for (const { src, dest } of pipelineFiles) {
   const srcPath = resolve(pipelineDir, src);
   const destPath = resolve(projectRoot, dest);
 
-  let canonical = readFileSync(srcPath, "utf8");
-
-  if (src === "auto-changeset.sh") {
-    canonical = canonical.replace(
-      'PACKAGES=("__PACKAGE_NAME__")',
-      `PACKAGES=("${projectName}")`,
-    );
-  }
+  const canonical = readFileSync(srcPath, "utf8");
 
   if (!existsSync(destPath)) {
     mkdirSync(dirname(destPath), { recursive: true });

@@ -337,8 +337,8 @@ rely on it.
 ## Release Pipeline
 
 On install, the postinstall script copies the release pipeline files into your
-project automatically. The package name in `auto-changeset.sh` is substituted
-from your project's `package.json` at install time.
+project automatically. `auto-changeset.sh` reads the package name from your
+`package.json` at runtime, so renaming the package needs no pipeline edits.
 
 On `npm update`, the behavior per file is:
 

@@ -16,16 +16,7 @@ const pairs = [
     live: '.github/workflows/verify-npm-token.yml',
   },
   { template: 'src/pipeline/changeset-config.json', live: '.changeset/config.json' },
-  {
-    template: 'src/pipeline/auto-changeset.sh',
-    live: 'scripts/auto-changeset.sh',
-    // The live copy differs only by the postinstall package-name substitution.
-    substitute: (s) =>
-      s.replace(
-        'PACKAGES=("__PACKAGE_NAME__")',
-        'PACKAGES=("@doikayt/typescript-build-config")'
-      ),
-  },
+  { template: 'src/pipeline/auto-changeset.sh', live: 'scripts/auto-changeset.sh' },
 ];
 
 for (const { template, live, substitute } of pairs) {

@@ -33,7 +33,7 @@ function run(dir) {
   });
 }
 
-test("fresh install copies config and pipeline files, substituting the package name", () => {
+test("fresh install copies config and pipeline files verbatim", () => {
   const dir = makeConsumer();
   const res = run(dir);
   assert.equal(res.status, 0, res.stderr);
@@ -54,7 +54,10 @@ test("fresh install copies config and pipeline files, substituting the package n
     join(dir, "scripts", "auto-changeset.sh"),
     "utf8",
   );
-  assert.match(script, new RegExp(`PACKAGES=\\("${PKG}"\\)`));
+  // Copied verbatim: the name is read from package.json at runtime, not baked in.
+  assert.ok(
+    script.includes(`PACKAGES=("$(node -p "require('./package.json').name")")`),
+  );
   assert.doesNotMatch(script, /__PACKAGE_NAME__/);
 });
 

@@ -15,7 +15,9 @@
 set -euo pipefail
 
 CHANGESET_DIR=".changeset"
-PACKAGES=("@doikayt/typescript-build-config")
+# Read the package name from package.json at runtime, so it stays correct even if
+# the project is renamed after install — package.json is the single source of truth.
+PACKAGES=("$(node -p "require('./package.json').name")")
 
 # Skip if a manually-authored changeset already exists
 EXISTING=$(find "$CHANGESET_DIR" -name "*.md" ! -name "README.md" | wc -l)
