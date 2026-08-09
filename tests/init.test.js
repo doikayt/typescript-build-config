@@ -97,6 +97,36 @@ test("init (library): adds prepack + dist publish fields, not private", async ()
   assert.equal(pkg.private, undefined);
 });
 
+test("init replaces npm init -y's placeholder test script and main", async () => {
+  // Simulate `npm init -y` output.
+  const dir = makeConsumer({
+    main: "index.js",
+    scripts: { test: 'echo "Error: no test specified" && exit 1' },
+  });
+  await runInit({
+    cwd: dir,
+    prompt: answers({ library: true }),
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.scripts.test, "vitest run"); // not the echo stub
+  assert.equal(pkg.main, "dist/index.js"); // not index.js
+});
+
+test("init drops npm's placeholder main for an app (no library entry)", async () => {
+  const dir = makeConsumer({ main: "index.js" });
+  await runInit({
+    cwd: dir,
+    prompt: async () => false, // app
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.main, undefined);
+  assert.equal(pkg.scripts.test, "vitest run");
+});
+
 test("init never clobbers publish fields a library consumer already set", async () => {
   const dir = makeConsumer({ type: "commonjs", main: "lib/entry.js" });
   await runInit({

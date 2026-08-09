@@ -62,6 +62,54 @@ test("applyToPackageJson sets absent top-level fields but never clobbers them", 
   assert.deepEqual(skipped.fields, ["type"]);
 });
 
+test("applyToPackageJson: replaceDefaults lets a canonical value replace an npm placeholder", () => {
+  const raw =
+    JSON.stringify(
+      {
+        name: "x",
+        main: "index.js",
+        scripts: { test: 'echo "Error: no test specified" && exit 1' },
+      },
+      null,
+      2,
+    ) + "\n";
+  const { text, added } = applyToPackageJson(raw, {
+    scripts: { test: "vitest run" },
+    fields: { main: "dist/index.js" },
+    replaceDefaults: {
+      scripts: { test: 'echo "Error: no test specified" && exit 1' },
+      fields: { main: "index.js" },
+    },
+  });
+  const pkg = JSON.parse(text);
+  assert.equal(pkg.scripts.test, "vitest run");
+  assert.equal(pkg.main, "dist/index.js");
+  assert.ok(added.scripts.includes("test"));
+  assert.ok(added.fields.includes("main"));
+});
+
+test("applyToPackageJson: replaceDefaults leaves a non-placeholder value alone", () => {
+  const raw =
+    JSON.stringify(
+      { name: "x", main: "lib/entry.js", scripts: { test: "jest" } },
+      null,
+      2,
+    ) + "\n";
+  const { text, skipped } = applyToPackageJson(raw, {
+    scripts: { test: "vitest run" },
+    fields: { main: "dist/index.js" },
+    replaceDefaults: {
+      scripts: { test: 'echo "Error: no test specified" && exit 1' },
+      fields: { main: "index.js" },
+    },
+  });
+  const pkg = JSON.parse(text);
+  assert.equal(pkg.scripts.test, "jest"); // real script kept
+  assert.equal(pkg.main, "lib/entry.js"); // real main kept
+  assert.ok(skipped.scripts.includes("test"));
+  assert.ok(skipped.fields.includes("main"));
+});
+
 test("applyToPackageJson preserves tab indentation", () => {
   const raw = '{\n\t"name": "x"\n}\n';
   const { text } = applyToPackageJson(raw, { scripts: { ci: "npm test" } });

@@ -62,13 +62,21 @@ export async function runInit({
   const pkgPath = resolve(cwd, "package.json");
   const raw = readFileSync(pkgPath, "utf8");
 
+  // Collect every answer up front, before doing any work or printing next
+  // steps, so the flow reads: ask everything → act → report.
   const ui = await prompt(
-    "Is this a UI project that needs Playwright (e2e)? [y/N] ",
+    "Is this a UI project that needs Playwright (e2e)? Default is No. [y/N] ",
   );
 
   const library = await prompt(
     "Is this a publishable library (published to npm)? Default is No — an\n" +
       "app/CLI, marked private so it is never published. [y/N] ",
+  );
+
+  const wantDemo = await prompt(
+    "Scaffold a starter demo (minimal src module + README + project.json) so\n" +
+      "you can build, test, and release immediately? Default is No; existing\n" +
+      "files are never overwritten. [y/N] ",
   );
 
   const scripts = canonicalScripts({ ui, library });
@@ -78,6 +86,13 @@ export async function runInit({
     scripts,
     devDependencies,
     fields: packageFields({ library }),
+    // `npm init -y` seeds these placeholders; treat them as unset so the
+    // canonical `test` script and (for a library) `main` replace them instead of
+    // shadowing them.
+    replaceDefaults: {
+      scripts: { test: 'echo "Error: no test specified" && exit 1' },
+      fields: { main: "index.js" },
+    },
   });
   writeFileSync(pkgPath, text);
 
@@ -90,6 +105,16 @@ export async function runInit({
     (result === "seeded" ? seededConfigs : keptConfigs).push(name);
   }
 
+  const demo = wantDemo
+    ? scaffoldDemo({ cwd })
+    : {
+        scaffolded: false,
+        reason: "declined",
+        wrote: [],
+        skipped: [],
+        paths: [],
+      };
+
   const report = (label, keys) => {
     if (keys.length) log(`${label}: ${keys.join(", ")}`);
   };
@@ -101,28 +126,28 @@ export async function runInit({
   report("Kept existing package fields", skipped.fields);
   report("Seeded config files", seededConfigs);
   report("Kept existing config files", keptConfigs);
-  log("");
-  log("Next: run `npm install` to fetch the newly declared devDependencies.");
+  report("Demo seeded", demo.wrote);
+  report("Demo kept existing", demo.skipped);
 
-  const demo = await maybeScaffoldDemo({ cwd, prompt, log });
+  log("");
+  if (demo.scaffolded) {
+    log(
+      "Next: `npm install`, then `npm test` and `npm run update-all-format`, " +
+        "then commit and push to cut a release.",
+    );
+    log(`To remove the starter files later: rm -r ${demo.paths.join(" ")}`);
+  } else {
+    log("Next: run `npm install` to fetch the newly declared devDependencies.");
+  }
 
   return { added, skipped, seededConfigs, keptConfigs, demo };
 }
 
-// Opt-in starter scaffold for a new project. Seeds a minimal src/ module, a
-// README with doc-generator markers, and a project.json — each independently and
-// only when its slot is empty, so nothing a consumer already has is overwritten.
-// It writes files only; the user runs npm install / test / push themselves.
-async function maybeScaffoldDemo({ cwd, prompt, log }) {
-  const wantDemo = await prompt(
-    "Scaffold a starter demo (minimal src module + README + project.json) so you\n" +
-      "can build, test, and release immediately? Existing files are never\n" +
-      "overwritten. [y/N] ",
-  );
-  if (!wantDemo) {
-    return { scaffolded: false, reason: "declined", wrote: [], skipped: [] };
-  }
-
+// Seed a minimal starter into a new project: a src/ module, a README with
+// doc-generator markers, and a project.json — each independently and only when
+// its slot is empty, so nothing a consumer already has is overwritten. Writes
+// files only and returns what it did; the caller reports and prints next steps.
+function scaffoldDemo({ cwd }) {
   const demoTemplate = resolve(templatesDir, "demo");
   const wrote = [];
   const skipped = [];
@@ -150,14 +175,6 @@ async function maybeScaffoldDemo({ cwd, prompt, log }) {
       wrote.push(name);
       paths.push(name);
     }
-  }
-
-  log("");
-  if (wrote.length) log(`Demo: seeded ${wrote.join(", ")}.`);
-  if (skipped.length) log(`Demo: kept existing ${skipped.join(", ")}.`);
-  if (paths.length) {
-    log(`To remove the starter files later: rm -r ${paths.join(" ")}`);
-    log("Then: npm install → npm test → npm run update-all-format → push.");
   }
 
   return { scaffolded: paths.length > 0, reason: null, wrote, skipped, paths };

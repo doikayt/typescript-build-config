@@ -38,13 +38,32 @@ export function detectIndent(text) {
  *   added: { scripts: string[], devDependencies: string[], fields: string[] },
  *   skipped: { scripts: string[], devDependencies: string[], fields: string[] }
  * }} new file text, plus keys added vs. skipped (already present)
+ *
+ * `replaceDefaults` names placeholder values that `npm init -y` inserts (e.g.
+ * `scripts.test: 'echo "Error: no test specified" && exit 1'`, `main: "index.js"`).
+ * A key whose current value exactly equals its placeholder is treated as unset,
+ * so a canonical value can replace it instead of being skipped as "present".
  */
 export function applyToPackageJson(
   rawText,
-  { scripts = {}, devDependencies = {}, fields = {} } = {},
+  {
+    scripts = {},
+    devDependencies = {},
+    fields = {},
+    replaceDefaults = {},
+  } = {},
 ) {
   const pkg = JSON.parse(rawText);
   const indent = detectIndent(rawText);
+
+  const stripDefaults = (obj, defaults = {}) => {
+    if (!obj) return;
+    for (const [key, placeholder] of Object.entries(defaults)) {
+      if (obj[key] === placeholder) delete obj[key];
+    }
+  };
+  stripDefaults(pkg, replaceDefaults.fields);
+  stripDefaults(pkg.scripts, replaceDefaults.scripts);
 
   const s = mergeAbsent(pkg.scripts, scripts);
   const d = mergeAbsent(pkg.devDependencies, devDependencies);

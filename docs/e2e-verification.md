@@ -84,11 +84,14 @@ npm install
 
 - `"type": "module"`, and **no** `"private"` key
 - `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"exports"` → `dist`,
-  `"files": ["dist"]`
+  `"files": ["dist"]` — note `main` is `dist/index.js`, **not** the `index.js`
+  that `npm init -y` seeded; `init` replaces that placeholder
+- `"scripts".test` is `"vitest run"` — **not** npm's
+  `echo "Error: no test specified"` stub (`init` replaces that too)
 - scripts include `build`, `prepack`, `ci`, `test`, `update-all-format`
 - devDependencies include `vitest`, `typescript`, `@doikayt/autogen-markdown-doc`
-- `src/` has the demo module (`index.ts`, `math-engine/…`), plus a `README.md`
-  and `project.json`
+- `src/` has the demo module (`index.ts`, `math-engine/…`, incl. `MathEngine.test.ts`),
+  plus a `README.md` and `project.json`
 
 ### A2. Build, test, docs
 
@@ -149,7 +152,10 @@ npm install
 **Look for** in `package.json`:
 
 - `"type": "module"` **and** `"private": true`
-- **no** `main` / `types` / `exports` / `files` keys
+- **no** `main` / `types` / `exports` / `files` keys — `init` even drops the
+  placeholder `main: "index.js"` that `npm init -y` seeded (an app has no entry
+  point to publish)
+- `"scripts".test` is `"vitest run"`, not npm's `echo` stub
 - scripts include `build`, `ci`, `test` — but **no** `prepack`
 - devDependencies still include `vitest`, `typescript`,
   `@doikayt/autogen-markdown-doc`
