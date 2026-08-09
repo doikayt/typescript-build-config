@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# doikayt shell tools — standard team aliases for creating and scaffolding repos.
+# Source this from your shell rc (see the README, "Team shell aliases").
+
+# --- config (override via env if needed) ---
+: "${DOIKAYT_ORG:=doikayt}"
+: "${DOIKAYT_TBC:=@doikayt/typescript-build-config}"
+
+# ---------------------------------------------------------------------------
+# mkrepo <name> : create a public repo in the org (guards against duplicates).
+# ---------------------------------------------------------------------------
+mkrepo() {
+    if [ -z "$1" ]; then
+        echo "❌ Usage: mkrepo <repo-name>"
+        return 1
+    fi
+
+    local REPO_NAME="$1"
+    local FULL_REPO_NAME="${DOIKAYT_ORG}/${REPO_NAME}"
+
+    if ! command -v gh &> /dev/null; then
+        echo "❌ GitHub CLI 'gh' is not installed (https://cli.github.com/)."
+        return 1
+    fi
+    if ! gh auth status &> /dev/null; then
+        echo "❌ Not authenticated with gh — run 'gh auth login' first."
+        return 1
+    fi
+
+    echo "🔍 Checking if '${FULL_REPO_NAME}' already exists..."
+    if gh repo view "${FULL_REPO_NAME}" &> /dev/null; then
+        echo "❌ Repository '${FULL_REPO_NAME}' already exists:"
+        echo "   https://github.com/${FULL_REPO_NAME}"
+        return 1
+    fi
+
+    echo "🚀 Creating public repository '${FULL_REPO_NAME}'..."
+    # Note: newer gh (2.x) removed --confirm; passing a name is non-interactive.
+    if ! gh repo create "${FULL_REPO_NAME}" --public; then
+        echo "❌ Failed to create repository."
+        return 1
+    fi
+
+    echo "✅ Created https://github.com/${FULL_REPO_NAME}"
+    echo "   Clone: git@github.com:${FULL_REPO_NAME}.git"
+}
+
+# ---------------------------------------------------------------------------
+# Thin wrappers over the @doikayt/typescript-build-config CLI.
+# ---------------------------------------------------------------------------
+
+# dk-new : `npm init -y` + @doikayt scope on the package name.
+dk-new() { npx "$DOIKAYT_TBC" new "$@"; }
+
+# dk-init : scaffold the shared build config into the current project.
+dk-init() { npx "$DOIKAYT_TBC" init "$@"; }
+
+# ---------------------------------------------------------------------------
+# dk-scaffold <name> [lib|app] : create the repo, scaffold a project, push.
+# Defaults to an app (private). Answers init non-interactively.
+# ---------------------------------------------------------------------------
+dk-scaffold() {
+    local name="$1" kind="${2:-app}"
+    if [ -z "$name" ]; then
+        echo "❌ Usage: dk-scaffold <name> [lib|app]"
+        return 1
+    fi
+
+    mkrepo "$name" || return 1
+    mkdir "$name" && cd "$name" || return 1
+
+    dk-new
+    npm install --save-dev "$DOIKAYT_TBC"
+
+    # init prompts: UI? / publishable library? / (name, library only) / demo?
+    if [ "$kind" = "lib" ]; then
+        printf 'n\ny\n\ny\n' | dk-init   # ui=n, library=y, name=<default>, demo=y
+    else
+        printf 'n\nn\ny\n' | dk-init     # ui=n, library=n, demo=y
+    fi
+
+    npm install
+    npm run update-all-format
+
+    git init && git branch -M main
+    git add -A && git commit -m "chore: scaffold"
+    git remote add origin "git@github.com:${DOIKAYT_ORG}/${name}.git"
+    git push -u origin main
+
+    echo "✅ Scaffolded ${DOIKAYT_ORG}/${name} (${kind})"
+}
