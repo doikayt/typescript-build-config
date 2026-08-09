@@ -67,8 +67,8 @@ export async function runInit({
   );
 
   const library = await prompt(
-    "Is this a publishable library (published to npm)? Apps/CLIs answer No and\n" +
-      "are marked private so they are never published. [y/N] ",
+    "Is this a publishable library (published to npm)? Default is No — an\n" +
+      "app/CLI, marked private so it is never published. [y/N] ",
   );
 
   const scripts = canonicalScripts({ ui, library });
