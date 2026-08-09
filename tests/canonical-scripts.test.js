@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import {
   canonicalScripts,
   devDependencyNames,
+  packageFields,
 } from "../src/canonical-scripts.js";
 
 const BASE = {
   ci: "npm run check-all-format && npm run test",
+  build: "tsc",
   test: "vitest run",
   "update-all-format":
     "npm run update-code-formatting && npm run update-markdown-docs",
@@ -16,6 +18,7 @@ const BASE = {
     "npm run check-code-formatting && npm run check-markdown-docs",
   "check-code-formatting": "prettier --check src/",
   "check-markdown-docs": "autogen-markdown-doc check",
+  prepack: "npm run build",
 };
 
 test("canonicalScripts: console project has no e2e and a plain ci", () => {
@@ -36,10 +39,11 @@ test("canonicalScripts: UI project adds test:e2e and folds it into ci", () => {
   }
 });
 
-test("devDependencyNames: console project", () => {
+test("devDependencyNames: console project includes typescript for the build", () => {
   assert.deepEqual(devDependencyNames({ ui: false }), [
     "vitest",
     "@doikayt/autogen-markdown-doc",
+    "typescript",
   ]);
 });
 
@@ -47,6 +51,17 @@ test("devDependencyNames: UI project adds @playwright/test", () => {
   assert.deepEqual(devDependencyNames({ ui: true }), [
     "vitest",
     "@doikayt/autogen-markdown-doc",
+    "typescript",
     "@playwright/test",
   ]);
+});
+
+test("packageFields: ESM publish config pointing at the built dist/index", () => {
+  const f = packageFields();
+  assert.equal(f.type, "module");
+  assert.equal(f.main, "dist/index.js");
+  assert.equal(f.types, "dist/index.d.ts");
+  assert.deepEqual(f.files, ["dist"]);
+  assert.equal(f.exports["."].default, "./dist/index.js");
+  assert.equal(f.exports["."].types, "./dist/index.d.ts");
 });

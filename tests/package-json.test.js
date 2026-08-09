@@ -49,6 +49,19 @@ test("applyToPackageJson creates devDependencies when absent", () => {
   assert.deepEqual(added.devDependencies, ["vitest"]);
 });
 
+test("applyToPackageJson sets absent top-level fields but never clobbers them", () => {
+  const raw = JSON.stringify({ name: "x", type: "commonjs" }, null, 2) + "\n";
+  const { text, added, skipped } = applyToPackageJson(raw, {
+    fields: { type: "module", main: "dist/index.js" },
+  });
+  const pkg = JSON.parse(text);
+  // existing type kept, absent main added
+  assert.equal(pkg.type, "commonjs");
+  assert.equal(pkg.main, "dist/index.js");
+  assert.deepEqual(added.fields, ["main"]);
+  assert.deepEqual(skipped.fields, ["type"]);
+});
+
 test("applyToPackageJson preserves tab indentation", () => {
   const raw = '{\n\t"name": "x"\n}\n';
   const { text } = applyToPackageJson(raw, { scripts: { ci: "npm test" } });

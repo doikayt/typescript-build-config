@@ -1,0 +1,4 @@
+# The demo template is shipped source, not this repo's own code. Its config
+# files reference @doikayt/typescript-build-config, which is not installed inside
+# a template, so the host repo's prettier must not descend into it.
+src/templates/demo/

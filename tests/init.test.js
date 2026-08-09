@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  existsSync,
+} from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runInit } from "../src/init.js";
@@ -22,6 +28,18 @@ const fakeVersions = (names) =>
   Object.fromEntries(names.map((n) => [n, "^9.9.9"]));
 const silent = () => {};
 
+// Prompt keyed on the question text so a test can answer the UI and demo
+// questions independently. Defaults demo to No so tests never shell out unless
+// they opt in explicitly.
+const answers =
+  ({ ui = false, demo = false } = {}) =>
+  async (question) =>
+    /demo/i.test(question)
+      ? demo
+      : /ui project|playwright/i.test(question)
+        ? ui
+        : false;
+
 test("console project: writes canonical scripts + devDeps, no e2e", async () => {
   const dir = makeConsumer();
   await runInit({
@@ -39,11 +57,43 @@ test("console project: writes canonical scripts + devDeps, no e2e", async () => 
   assert.equal(pkg.devDependencies["@playwright/test"], undefined);
 });
 
+test("init wires build + publish config so a fresh package can ship", async () => {
+  const dir = makeConsumer();
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.scripts.build, "tsc");
+  assert.equal(pkg.scripts.prepack, "npm run build");
+  assert.equal(pkg.devDependencies.typescript, "^9.9.9");
+  assert.equal(pkg.type, "module");
+  assert.equal(pkg.main, "dist/index.js");
+  assert.equal(pkg.types, "dist/index.d.ts");
+  assert.deepEqual(pkg.files, ["dist"]);
+  assert.equal(pkg.exports["."].default, "./dist/index.js");
+});
+
+test("init never clobbers publish fields a consumer already set", async () => {
+  const dir = makeConsumer({ type: "commonjs", main: "lib/entry.js" });
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.type, "commonjs");
+  assert.equal(pkg.main, "lib/entry.js");
+});
+
 test("UI project: adds test:e2e, folds into ci, declares @playwright/test", async () => {
   const dir = makeConsumer();
   await runInit({
     cwd: dir,
-    prompt: async () => true,
+    prompt: answers({ ui: true }),
     resolveDevVersions: fakeVersions,
     log: silent,
   });
@@ -103,7 +153,7 @@ test("UI project seeds both vitest and playwright configs", async () => {
   const dir = makeConsumer();
   await runInit({
     cwd: dir,
-    prompt: async () => true,
+    prompt: answers({ ui: true }),
     resolveDevVersions: fakeVersions,
     log: silent,
   });
@@ -125,4 +175,67 @@ test("does not overwrite an existing config file", async () => {
     readFileSync(join(dir, "vitest.config.ts"), "utf8"),
     "// mine\n",
   );
+});
+
+test("demo declined (default): seeds nothing", async () => {
+  const dir = makeConsumer();
+  const res = await runInit({
+    cwd: dir,
+    prompt: answers({}),
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  assert.equal(existsSync(join(dir, "src")), false);
+  assert.equal(existsSync(join(dir, "README.md")), false);
+  assert.equal(existsSync(join(dir, "project.json")), false);
+  assert.equal(res.demo.scaffolded, false);
+  assert.equal(res.demo.reason, "declined");
+});
+
+test("demo opt-in on an empty project: seeds src module, README, project.json", async () => {
+  const dir = makeConsumer();
+  const res = await runInit({
+    cwd: dir,
+    prompt: answers({ demo: true }),
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  // src module copied recursively into src/, entry + component present.
+  assert.ok(existsSync(join(dir, "src", "index.ts")));
+  assert.ok(existsSync(join(dir, "src", "math-engine", "MathEngine.ts")));
+  assert.ok(existsSync(join(dir, "src", "math-engine", "_COMPONENT_INFO.md")));
+  // README with doc-generator markers + project.json seeded at the root.
+  const readme = readFileSync(join(dir, "README.md"), "utf8");
+  assert.match(readme, /<!-- UML:component-details:START -->/);
+  assert.match(readme, /<!-- NX_GRAPH:START -->/);
+  assert.ok(existsSync(join(dir, "project.json")));
+  // No demo package.json or config files come along (init already set those up).
+  assert.equal(existsSync(join(dir, "src", "package.json")), false);
+  assert.equal(res.demo.scaffolded, true);
+  assert.deepEqual(res.demo.wrote, [
+    "src/ module",
+    "README.md",
+    "project.json",
+  ]);
+});
+
+test("demo is non-destructive: keeps existing src and README, seeds only the gap", async () => {
+  const dir = makeConsumer();
+  mkdirSync(join(dir, "src"));
+  writeFileSync(join(dir, "src", "app.ts"), "// mine\n");
+  writeFileSync(join(dir, "README.md"), "# mine\n");
+  const res = await runInit({
+    cwd: dir,
+    prompt: answers({ demo: true }),
+    resolveDevVersions: fakeVersions,
+    log: silent,
+  });
+  // Existing src/ and README untouched; no starter component dropped in.
+  assert.equal(readFileSync(join(dir, "src", "app.ts"), "utf8"), "// mine\n");
+  assert.equal(existsSync(join(dir, "src", "math-engine")), false);
+  assert.equal(readFileSync(join(dir, "README.md"), "utf8"), "# mine\n");
+  // Only the missing project.json is seeded.
+  assert.ok(existsSync(join(dir, "project.json")));
+  assert.deepEqual(res.demo.wrote, ["project.json"]);
+  assert.deepEqual(res.demo.skipped, ["src/ (already has files)", "README.md"]);
 });

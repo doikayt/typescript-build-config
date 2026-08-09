@@ -28,24 +28,29 @@ export function detectIndent(text) {
  * not touch disk — returns the new text plus a report of what changed.
  *
  * @param {string} rawText - current package.json contents
- * @param {{scripts?: Record<string,string>, devDependencies?: Record<string,string>}} additions
+ * @param {{
+ *   scripts?: Record<string,string>,
+ *   devDependencies?: Record<string,string>,
+ *   fields?: Record<string,unknown>
+ * }} additions - `fields` are top-level keys (main, type, files, …)
  * @returns {{
  *   text: string,
- *   added: { scripts: string[], devDependencies: string[] },
- *   skipped: { scripts: string[], devDependencies: string[] }
+ *   added: { scripts: string[], devDependencies: string[], fields: string[] },
+ *   skipped: { scripts: string[], devDependencies: string[], fields: string[] }
  * }} new file text, plus keys added vs. skipped (already present)
  */
 export function applyToPackageJson(
   rawText,
-  { scripts = {}, devDependencies = {} } = {},
+  { scripts = {}, devDependencies = {}, fields = {} } = {},
 ) {
   const pkg = JSON.parse(rawText);
   const indent = detectIndent(rawText);
 
   const s = mergeAbsent(pkg.scripts, scripts);
   const d = mergeAbsent(pkg.devDependencies, devDependencies);
+  const f = mergeAbsent(pkg, fields);
 
-  const next = { ...pkg };
+  const next = { ...f.merged };
   if (Object.keys(s.merged).length) next.scripts = s.merged;
   if (Object.keys(d.merged).length) next.devDependencies = d.merged;
 
@@ -54,7 +59,11 @@ export function applyToPackageJson(
 
   return {
     text,
-    added: { scripts: s.added, devDependencies: d.added },
-    skipped: { scripts: s.skipped, devDependencies: d.skipped },
+    added: { scripts: s.added, devDependencies: d.added, fields: f.added },
+    skipped: {
+      scripts: s.skipped,
+      devDependencies: d.skipped,
+      fields: f.skipped,
+    },
   };
 }

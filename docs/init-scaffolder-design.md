@@ -98,6 +98,9 @@ the write and check commands can never drift out of sync:
   "scripts": {
     "ci":                     "npm run check-all-format && npm run test",
 
+    "build":                  "tsc",
+    "prepack":                "npm run build",
+
     "test":                   "vitest run",
     "test:e2e":               "doikayt-playwright-install && playwright test",
 
@@ -126,7 +129,12 @@ Notes:
 
 - `vitest` (always)
 - `@doikayt/autogen-markdown-doc` (always — `update/check-markdown-docs` need it)
+- `typescript` (always — the `build` script runs `tsc`)
 - `@playwright/test` (UI projects only)
+
+`init` also sets the publish config non-destructively — `type: "module"`,
+`main` / `types` / `exports` at `dist/index.js`, and `files: ["dist"]` — so with
+`prepack` a fresh project builds and publishes a compiled, typed ESM package.
 
 Declared as edits to `devDependencies`; the user runs `npm install` to fetch
 them.
