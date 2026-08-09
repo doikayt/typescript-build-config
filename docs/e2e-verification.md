@@ -29,6 +29,40 @@ There are two depths:
 
 Do each scenario in a fresh empty directory outside this repo.
 
+## Testing publish without cluttering npm
+
+The scenarios keep routine checks off the public registry (`npm pack`,
+`npm publish --dry-run`). For the **optional full path (A4 / B4)**, prefer one of
+these so you never leave test packages on npm:
+
+- **Local registry (recommended)** — run [verdaccio](https://verdaccio.org), a
+  throwaway npm proxy, and publish to it instead of npm:
+
+  ```bash
+  npx verdaccio &                                # serves http://localhost:4873
+  npm publish --registry http://localhost:4873   # goes to the local registry
+  ```
+
+  Confirm it appears at `http://localhost:4873`, then wipe everything by stopping
+  verdaccio and deleting its storage dir (`~/.config/verdaccio/storage` by
+  default). Nothing ever reaches public npm.
+
+- **Publish to real npm, then unpublish the same day** — if you must hit the real
+  registry with a throwaway `@your-scope/junk`:
+  - Unpublish within **72 hours**; after that npm restricts it (needs no
+    dependents / low downloads, or npm support):
+
+    ```bash
+    npm unpublish @your-scope/junk --force         # the whole package
+    npm unpublish @your-scope/junk@0.0.1           # one version
+    ```
+
+  - A name@version you unpublish is **burned for 24 h** — you can't republish that
+    exact version. Bump the version or use a fresh name between runs.
+  - A public **scoped** publish needs `--access public` (or
+    `publishConfig.access: "public"`); otherwise npm attempts a *private* publish,
+    which requires a paid org.
+
 ---
 
 ## Scenario A — Library (publishes to npm)
