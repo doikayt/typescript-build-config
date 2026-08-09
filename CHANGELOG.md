@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.20
+
+### Patch Changes
+
+- - feat: prompt for a scoped package name on the library path
+  - fix: read package name from package.json at runtime in the release pipeline
+
 ## 0.1.19
 
 ### Patch Changes
