@@ -14,6 +14,9 @@
     "./tsconfig": "./src/tsconfig.base.json",
     "./playwright": "./src/playwright.js"
   },
+  "bin": {
+    "doikayt-playwright-install": "src/playwright-install.js"
+  },
   "files": [
     "src/",
     "src/top-level/.gitignore",
