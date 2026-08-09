@@ -1,8 +1,11 @@
 # Release Process and Policy
 
 This document is the canonical statement of the release policy promoted by
-`@doikayt/typescript-build-config` and implemented by the pipeline files it distributes
-(consumer-repo destination → template source):
+`@doikayt/typescript-build-config` and implemented by the pipeline files it distributes.
+
+Each bullet below is a **link**. The text shows where the file lands in a
+consumer repo (its _destination_); clicking it opens the canonical template it is
+generated from in this package (each template exists under `src/pipeline/`):
 
 - [`.github/workflows/release.yml`](../src/pipeline/release.yml)
 - [`.changeset/config.json`](../src/pipeline/changeset-config.json)
@@ -16,12 +19,16 @@ this policy — they should link here rather than restate it.
 ## How the Automated Release Pipeline Works
 
 The release job only runs after the CI job passes. The CI job runs
-`npm test --if-present`: if the repo defines a `test` script, it must pass before anything
-can be released; repos without one are not blocked (the
-[`--if-present` flag](https://docs.npmjs.com/cli/commands/npm-run-script) makes npm exit
-successfully when the script is absent). This lets a single workflow template serve every
-consumer unchanged: a repo opts into the test gate simply by defining a `test` script, and
-is not penalised before it has one.
+`npm run ci`: every consumer repo must define a `ci` script (see
+[Conventions](../README.md#conventions-every-project-must-adhere-to) in the
+README), and it must pass before anything can be released. This is a
+**fail-closed** gate — a repo with no `ci` script fails the CI job and cannot
+release, which is the correct signal that the convention has not been met.
+
+`ci` is the single entry point for "everything that must pass before a release":
+formatting checks, tests, linting — whatever the repo requires. What it calls
+internally (including any `test` script) is up to the repo; the workflow only
+ever invokes `npm run ci`, so a single template serves every consumer unchanged.
 
 On every push to `main` that passes CI, the release job runs three steps:
 

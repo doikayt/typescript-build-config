@@ -147,7 +147,7 @@ const missingTargets = [];
 if (!projectPkg.scripts?.["ci"]) {
   missingTargets.push({
     name: "ci",
-    hint: '  "ci": "npm run check-all-format && npm run test"',
+    hint: '  "ci": "prettier --check src/ && npm test"',
     nxNote: false,
   });
 }
@@ -170,7 +170,7 @@ if (!hasUpdateAllFormat) {
 if (!hasUpdateAllFormat) {
   missingTargets.push({
     name: "update-all-format",
-    hint: '  "update-all-format": "npm run update-code-formatting && npm run update-markdown-docs"',
+    hint: '  "update-all-format": "prettier --write src/"',
     nxNote: true,
   });
 }

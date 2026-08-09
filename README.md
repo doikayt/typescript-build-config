@@ -5,10 +5,13 @@ Shared build configuration presets for TypeScript-based projects.
 <!-- TOC:START -->
 - [@doikayt/typescript-build-config](#doikayttypescript-build-config)
   - [Purpose](#purpose)
+  - [Design Goals](#design-goals)
+    - [What each component is for](#what-each-component-is-for)
   - [Installation](#installation)
   - [Dependency Strategy](#dependency-strategy)
   - [Current Contents](#current-contents)
   - [Delivery Model](#delivery-model)
+  - [Enforcement Model](#enforcement-model)
   - [Release Pipeline](#release-pipeline)
   - [Conventions Every Project Must Adhere To](#conventions-every-project-must-adhere-to)
     - [The `ci` script](#the-ci-script)
@@ -30,6 +33,46 @@ projects, avoiding drift between repos over time.
 The plugin encapsulates common build **policy** and release **workflow logic**
 via the pipeline files it installs into each consumer repo and the canonical release process in
 [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md).
+
+## Design Goals
+
+Two goals drive every design decision here, and they pull in different
+directions:
+
+1. **Consistency enforcement** — every `@doikayt` TypeScript repo should expose
+   the same command surface (`ci` and `update-all-format`) and share the same
+   lint / format / release policy, so tooling, CI, and contributors can assume
+   an identical shape in any repo.
+2. **Minimal per-project setup** — standing up a new repo, or absorbing a policy
+   change into an old one, should cost as close to zero manual wiring as
+   possible.
+
+They are reconciled by one architectural choice: **a single upstream package
+both _defines_ the conventions and _distributes_ them.** A plain template repo
+would copy conventions once and let them drift; a linter would enforce them but
+set nothing up. This package does both — so the artifact that decides "every
+repo has a `ci` gate" is the same artifact that installs and re-checks it. That
+single source of truth is what keeps the ecosystem coherent as it grows.
+
+### What each component is for
+
+Each thing this package ships exists to serve one or both goals. (See
+[Delivery Model](#delivery-model) for _how_ each is delivered; the table below
+is _why_.)
+
+| Component | Value it delivers | Serves |
+| --- | --- | --- |
+| **Presets** — `src/eslint.js`, Prettier, base tsconfig, living in `node_modules` | One lint / format / TS ruleset; change it once here and every repo picks it up on `npm update` | Consistency |
+| **Stubs** — `src/top-level/*` seeded into the project root | Zero-config entry points that only `extends` the presets | Minimal setup |
+| **Pipeline** — `src/pipeline/*` copied on install | A working release + changeset workflow with no hand-wiring; drift is diff-warned | Both |
+| **Convention checks** — postinstall warns on missing `ci` / `update-all-format` | An install-time nudge toward the shared command surface | Consistency |
+| **`ci` gate** — `release.yml` runs `npm run ci` | Fail-closed enforcement: a repo that ignores the convention cannot release | Consistency (hard teeth) |
+| **Policy doc** — `docs/RELEASE-PROCESS.md`, linked never copied | One canonical release policy, impossible to drift | Consistency |
+| **Assets** — `assets/*` seeded into `docs/assets/` | Shared brand logos with no per-repo copies to maintain | Minimal setup |
+
+The two goals map onto two lifecycle phases — **delivery** (getting canonical
+artifacts into a consuming repo) and **enforcement** (keeping that repo conformant over
+time). Each has its own top-level section below.
 
 ## Installation
 
@@ -87,9 +130,21 @@ versions of these tools may produce peer dependency conflicts.
 
 ## Delivery Model
 
-This package standardizes downstream repos through three delivery channels — script and
-config artifacts that _implement_ the common policy, and a canonical document that
-_states_ it:
+_Phase 1 of 2: getting canonical artifacts **into** a repo. Keeping a repo
+conformant over time is the [Enforcement Model](#enforcement-model)._
+
+This package standardizes downstream repos by delivering **five components through three
+channels** — so as you read the diagram, note that the component count and the channel
+count deliberately differ; several components share a channel. The components are the
+presets, stubs, pipeline, and assets that _implement_ the common policy, plus a canonical
+document that _states_ it. Each reaches the consumer via one of three channels:
+
+1. **Referenced in place** — presets (stay in `node_modules`)
+2. **Copied on install** — stubs, pipeline, assets
+3. **Linked, never copied** — policy
+
+The diagram below numbers those three channels; the terms after it define the five
+components.
 
 ```
         ┌─────────────────────────────────────────────────┐
@@ -150,6 +205,42 @@ _states_ it:
   their own contributor docs (as the consumer box shows) — never copied, so it cannot
   drift.
 
+## Enforcement Model
+
+_Phase 2 of 2: keeping a repo **conformant** over time, once delivery has seeded
+it. Getting artifacts in is the [Delivery Model](#delivery-model) above._
+
+Delivery gets canonical artifacts into a consuming repo; enforcement keeps that repo aligned
+as both it and the upstream evolve. The two phases share machinery:
+**`postinstall` is the workhorse of both** — it _delivers_ on first install
+(copying absent files) and _enforces_ on every subsequent run that rebuilds this
+package into `node_modules` — a fresh `npm install`, an `npm ci` (which always
+rebuilds the whole tree), or an `npm update` that bumps this package — warning on
+drift and on missing conventions. A no-op `npm install` with an unchanged tree
+does not re-trigger it.
+
+Enforcement runs on a spectrum from soft to hard:
+
+- **Soft — install-time warnings (name-level).** On every `npm install` /
+  `npm update`, postinstall warns (non-fatal) when a required target
+  (`ci`, `update-all-format`) is missing, and prints a diff when a copied
+  pipeline or asset file has drifted from its canonical template. See
+  [Release Pipeline](#release-pipeline) for the per-file drift behavior and
+  [Conventions Every Project Must Adhere To](#conventions-every-project-must-adhere-to)
+  for the required targets.
+- **Hard — the fail-closed `ci` gate.** The release workflow runs `npm run ci`;
+  a repo without a working `ci` gate fails the build and cannot publish. This is
+  the only enforcement with real teeth — see
+  [The `ci` script](#the-ci-script).
+
+One deliberate limitation: the soft checks are **name-level only**. They verify
+a `ci` script _exists_, not that it runs anything meaningful — `"ci": "echo ok"`
+satisfies the warning. Guaranteeing that `ci` actually does its job is left to
+the fail-closed pipeline, where a broken gate surfaces as a red build. Put
+differently: delivery is "deep" (full config seeded) while continuous
+enforcement is "shallow" (presence, not behavior) — a gap worth knowing when you
+rely on it.
+
 ## Release Pipeline
 
 On install, the postinstall script copies the release pipeline files into your
@@ -173,8 +264,8 @@ configuration is needed.
 ## Conventions Every Project Must Adhere To
 
 Every project that installs this package must implement two named entry points.
-`postinstall` warns on every `npm install` or `npm update` until each is in
-place.
+`postinstall` warns whenever it re-runs (a fresh `npm install`, an `npm ci`, or
+an `npm update` that bumps this package) until each is in place.
 
 ### The `ci` script
 
@@ -238,8 +329,9 @@ Or as an NX target:
 }
 ```
 
-If neither is found, `postinstall` prints a warning (non-fatal) on every
-`npm install` or `npm update` until the target is added.
+If neither is found, `postinstall` prints a warning (non-fatal) each time it
+re-runs (a fresh `npm install`, an `npm ci`, or an `npm update` that bumps this
+package) until the target is added.
 
 NX projects may define the target in `project.json` instead of `package.json`
 scripts — the postinstall check recognises both. There is no shim requirement
