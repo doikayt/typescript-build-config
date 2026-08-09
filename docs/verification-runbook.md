@@ -113,7 +113,7 @@ Notes:
 
 ```bash
 rm -rf /tmp/verify-lib && mkdir /tmp/verify-lib && cd /tmp/verify-lib
-npm init -y
+npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
 npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
 npx @doikayt/typescript-build-config init
 #   Playwright?          → n
@@ -206,7 +206,7 @@ After 72 h npm restricts unpublishing (see
 
 ```bash
 rm -rf /tmp/verify-app && mkdir /tmp/verify-app && cd /tmp/verify-app
-npm init -y
+npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
 npm install --save-dev @doikayt/typescript-build-config   # or the .tgz path
 npx @doikayt/typescript-build-config init
 #   Playwright?          → n

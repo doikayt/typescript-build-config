@@ -137,7 +137,7 @@ publish config accordingly (non-destructively):
 ### Console / CLI project
 
 ```bash
-npm init -y                                            # if starting fresh
+npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
 npm install --save-dev @doikayt/typescript-build-config
 npx @doikayt/typescript-build-config init             # answer "n" to Playwright; "n" (app) or "y" (library)
 npm install                                            # fetch the declared devDependencies
@@ -154,7 +154,7 @@ library (see [The canonical script set](#the-canonical-script-set)).
 ### UI / web project (with Playwright e2e)
 
 ```bash
-npm init -y
+npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
 npm install --save-dev @doikayt/typescript-build-config
 npx @doikayt/typescript-build-config init             # answer "y" to the Playwright prompt
 npm install
@@ -202,6 +202,8 @@ versions of these tools may produce peer dependency conflicts.
 
 ## Current Contents
 
+- `new` command (`npx @doikayt/typescript-build-config new`) — runs `npm init -y`
+  then scopes the package name to `@doikayt` (an existing scope is kept)
 - `init` scaffolder CLI (`npx @doikayt/typescript-build-config init`) — writes
   the canonical npm-script set, declares dev dependencies, and seeds config
   templates (see [Usage](#usage))

@@ -16,6 +16,7 @@ import {
 } from "./canonical-scripts.js";
 import { applyToPackageJson } from "./package-json.js";
 import { resolveVersions } from "./dep-versions.js";
+import { scopeName } from "./scope-name.js";
 
 const templatesDir = fileURLToPath(new URL("templates/", import.meta.url));
 
@@ -74,11 +75,6 @@ function createAskYesNo() {
   ask.text = async (question) => (await nextLine(question)).trim();
   ask.close = () => rl.close();
   return ask;
-}
-
-// Prepend the @doikayt scope unless the name is already scoped.
-function scopeName(name) {
-  return name.startsWith("@") ? name : `@doikayt/${name}`;
 }
 
 export async function runInit({
