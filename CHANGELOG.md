@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.17
+
+### Patch Changes
+
+- - fix: replace npm init placeholders; reorder init prompts
+  - fix: state the default explicitly in the library/app init prompt
+
 ## 0.1.16
 
 ### Patch Changes
