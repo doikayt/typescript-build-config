@@ -41,7 +41,11 @@ via the pipeline files it installs into each consumer repo and the canonical rel
 
 ## Design Goals
 
-Two goals drive every design decision here, and they pull in different
+The  package housed in this repo is designed to be 'upstream-most' -- i.e., all other
+packages depend on it (possibly transitively) and this package has no other 
+dependencies in this repo.
+
+Two goals drive every design decision made for this package, and they pull in different
 directions:
 
 1. **Consistency enforcement** — every `@doikayt` TypeScript repo should expose
@@ -52,16 +56,17 @@ directions:
    change into an old one, should cost as close to zero manual wiring as
    possible.
 
-They are reconciled by one architectural choice: **a single upstream package
-both _defines_ the conventions and _distributes_ them.** A plain template repo
-would copy conventions once and let them drift; a linter would enforce them but
-set nothing up. This package does both — so the artifact that decides "every
-repo has a `ci` gate" is the same artifact that installs and re-checks it. That
-single source of truth is what keeps the ecosystem coherent as it grows.
+This package reconciles these two via one architectural choice: **it both
+_defines_ the conventions and _distributes_ them.** A plain template repo would
+copy conventions once and let them drift; a linter would enforce them but set
+nothing up. The npm package defined in this repo does both — it is the single
+artifact that decides "every repo has a `ci` gate" and also installs and
+re-checks it. That single source of truth is what keeps the ecosystem coherent
+as it grows.
 
 ### What each component is for
 
-Each thing this package ships exists to serve one or both goals. (See
+Each artifact this package ships exists to serve one or both goals. (See
 [Delivery Model](#delivery-model) for _how_ each is delivered; the table below
 is _why_.)
 
