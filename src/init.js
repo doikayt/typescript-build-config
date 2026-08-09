@@ -102,8 +102,8 @@ async function collectAndScaffold({ cwd, ask, resolveDevVersions, log }) {
   );
 
   const library = await ask(
-    "Is this a publishable library (published to npm)? Default is No\n" +
-      "  — a non-library (an app/CLI) is marked private so it is never published. [y/N] ",
+    "Is this a publishable library (published to npm)? Default is No.\n" +
+      "  No = an app/CLI (marked private, never published). [y/N] ",
   );
 
   const wantDemo = await ask(
