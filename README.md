@@ -9,6 +9,7 @@ Shared build configuration presets for TypeScript-based projects.
     - [What each component is for](#what-each-component-is-for)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [The canonical script set](#the-canonical-script-set)
     - [Console / CLI project](#console--cli-project)
     - [UI / web project (with Playwright e2e)](#ui--web-project-with-playwright-e2e)
     - [Existing project](#existing-project)
@@ -89,10 +90,27 @@ sets up the release pipeline (see below).
 
 ## Usage
 
-After installing, run the `init` scaffolder to write the canonical npm-script
-set and declare the dev dependencies those scripts need. `init` is interactive
-and **idempotent** — it only adds what is missing and never overwrites a script
-or config you already have, so it is safe to re-run.
+After installing, run the `init` scaffolder to write the
+[canonical npm-script set](#the-canonical-script-set) and declare the dev
+dependencies those scripts need. `init` is interactive and **idempotent** — it
+only adds what is missing and never overwrites a script or config you already
+have, so it is safe to re-run.
+
+### The canonical script set
+
+Every project gets the same named scripts, so any repo responds identically to
+`npm run ci`, `npm run update-all-format`, and so on. The aggregates chain to
+small single-purpose scripts, and the check side mirrors the write side:
+
+| Script | What it does |
+| --- | --- |
+| `ci` | The release gate: `check-all-format` then `test` (plus `test:e2e` for UI). |
+| `test` | Unit / integration tests (`vitest run`). |
+| `test:e2e` | End-to-end tests (`playwright test`) — UI projects only. |
+| `update-all-format` | Reformat everything: code + markdown docs (write). |
+| `check-all-format` | Verify formatting: code + markdown docs (used by `ci`). |
+| `update-code-formatting` / `check-code-formatting` | Prettier write / check. |
+| `update-markdown-docs` / `check-markdown-docs` | Regenerate / verify generated markdown (TOC, UML, …). |
 
 ### Console / CLI project
 
