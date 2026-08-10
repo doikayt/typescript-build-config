@@ -12,7 +12,7 @@ Shared build configuration presets for TypeScript-based projects.
   - [Usage](#usage)
     - [The canonical script set](#the-canonical-script-set)
     - [Console / CLI project](#console--cli-project)
-    - [UI / web project (with Playwright e2e)](#ui--web-project-with-playwright-e2e)
+    - [Injecting Playwright config (UI projects)](#injecting-playwright-config-ui-projects)
     - [Existing project](#existing-project)
     - [Trying it out (demo + scratch repo)](#trying-it-out-demo--scratch-repo)
   - [Dependency Strategy](#dependency-strategy)
@@ -142,10 +142,12 @@ sets up the release pipeline (see below).
 ## Usage
 
 After installing, run the `init` scaffolder to write the
-[canonical npm-script set](#the-canonical-script-set) and declare the dev
-dependencies those scripts need. `init` is interactive and **idempotent** — it
-only adds what is missing and never overwrites a script or config you already
-have, so it is safe to re-run.
+[canonical npm-script set](#the-canonical-script-set), declare the dev
+dependencies those scripts need — `vitest`, `@doikayt/autogen-markdown-doc`,
+`typescript`, and `@changesets/cli` (the release pipeline needs it) — and seed a
+commented `vitest.config.ts`. `init` is interactive and **idempotent** — it only
+adds what is missing and never overwrites a script or config you already have, so
+it is safe to re-run.
 
 ### The canonical script set
 
@@ -181,6 +183,11 @@ doesn't overwrite your other keys):
 `dist/`, publish fields, library vs app)? See
 [Packaging concepts](docs/packaging-concepts.md) for the background.
 
+That covers _what_ `init` decides; the two recipes below are _how_ you run it.
+They differ only in the **Playwright?** answer — `n` for a console/CLI or plain
+library, `y` for a UI / web project that needs end-to-end tests. Library-vs-app
+is an orthogonal choice, so either shape can still be published or kept private.
+
 ### Console / CLI project
 
 ```bash
@@ -190,15 +197,12 @@ npx @doikayt/typescript-build-config init             # answer "n" to Playwright
 npm install                                            # fetch the declared devDependencies
 ```
 
-`init` writes the canonical scripts (`ci`, `build`, `test`, `update-all-format`,
-`check-all-format`, and their sub-tasks), declares `vitest` +
-`@doikayt/autogen-markdown-doc` + `typescript` + `@changesets/cli` (the release
-pipeline needs it), and seeds a commented `vitest.config.ts`. Answering the
-"publishable library?" prompt sets those publish-related fields — `private` for
-an app, or `prepack` + the `dist/`-based fields for a library (see
-[The canonical script set](#the-canonical-script-set)).
+### Injecting Playwright config (UI projects)
 
-### UI / web project (with Playwright e2e)
+Answering **yes** to the `init` Playwright prompt is the one extra step a UI /
+web project needs. It injects the end-to-end setup: adds a `test:e2e` script and
+folds it into `ci` (so the release gate runs e2e), declares `@playwright/test`,
+and seeds a `playwright.config.ts` template.
 
 ```bash
 npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
@@ -208,11 +212,9 @@ npm install
 # then fill in the TODOs in the generated playwright.config.ts (webServer, baseURL)
 ```
 
-Answering **yes** to the Playwright prompt additionally: adds a `test:e2e`
-script and folds it into `ci` (so the release gate runs e2e), declares
-`@playwright/test`, and seeds a `playwright.config.ts` template. Browsers are
-installed on demand by the bundled `doikayt-playwright-install` wrapper the
-`test:e2e` script calls — no manual `playwright install` step, locally or in CI.
+Browsers are installed on demand by the bundled `doikayt-playwright-install`
+wrapper the `test:e2e` script calls — no manual `playwright install` step,
+locally or in CI.
 
 ### Existing project
 
