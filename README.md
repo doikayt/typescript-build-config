@@ -60,7 +60,7 @@ Clone this base repo and install the shared team
 (`dk-scaffold`, `mkrepo`); it does **not** configure any project:
 
 ```bash
-git clone git@github.com:doikayt/typescript-build-config.git
+git clone https://github.com/doikayt/typescript-build-config.git   # HTTPS: no SSH key needed
 cd typescript-build-config
 ./assets/shell/install.sh   # adds `source assets/shell/aliases.sh` to your rc (idempotent)
 exec $SHELL                 # reload
