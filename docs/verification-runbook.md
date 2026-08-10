@@ -3,6 +3,11 @@
 A manual runbook to confirm, hands-on, that this package can scaffold and ship
 both project archetypes. Each step lists the command and **what to look for**.
 
+> **Not the `@doikayt` maintainer?** The full pipeline (A4 / B4) runs against your
+> own repo, npm scope, and `NPM` secret — see
+> [`verification-byo-prerequisites.md`](verification-byo-prerequisites.md) to set
+> that up first.
+
 > **Are you new to these terms** (compiled `dist/`, publish fields, library vs
 > app)? See [Packaging concepts](packaging-concepts.md) first.
 
