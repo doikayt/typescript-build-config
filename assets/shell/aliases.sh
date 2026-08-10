@@ -76,7 +76,14 @@ dk-scaffold() {
         return 1
     fi
 
-    mkdir "$name" && cd "$name" || return 1
+    # Land in the project directory. If we're already standing in an empty dir
+    # named "$name", scaffold in place; otherwise create (or reuse) a "$name"
+    # subdirectory and enter it.
+    if [ "$(basename "$PWD")" = "$name" ] && [ -z "$(ls -A . 2>/dev/null)" ]; then
+        echo "ℹ️  Scaffolding in place in ${PWD}."
+    else
+        mkdir -p "$name" && cd "$name" || return 1
+    fi
 
     dk-new
     npm install --save-dev "$DOIKAYT_TBC"
