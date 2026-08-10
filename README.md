@@ -551,7 +551,7 @@ Installed by [Quick start](#quick-start) step 1 (or manually: add
 | `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
 | `dk-new` | `npm init -y` + `@doikayt` scope. |
 | `dk-init` | Scaffold the build config into the current project. |
-| `dk-scaffold <name> [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). |
+| `dk-scaffold <name>\|. [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). Pass `.` to scaffold in the current directory, using its leaf name as `@doikayt/<package-name>`. |
 
 ## For Maintainers
 

@@ -64,8 +64,16 @@ dk-init() { npx "$DOIKAYT_TBC" init "$@"; }
 dk-scaffold() {
     local name="$1" kind="${2:-app}"
     if [ -z "$name" ]; then
-        echo "❌ Usage: dk-scaffold <name> [lib|app]"
+        echo "❌ Usage: dk-scaffold <name>|. [lib|app]"
         return 1
+    fi
+
+    # "." means: scaffold in the current directory, using its leaf name as the
+    # package/repo name (full package becomes @${DOIKAYT_ORG}/<leaf>). No mkdir.
+    local in_place=0
+    if [ "$name" = "." ]; then
+        name="$(basename "$PWD")"
+        in_place=1
     fi
 
     mkrepo "$name"
@@ -79,7 +87,7 @@ dk-scaffold() {
     # Land in the project directory. If we're already standing in an empty dir
     # named "$name", scaffold in place; otherwise create (or reuse) a "$name"
     # subdirectory and enter it.
-    if [ "$(basename "$PWD")" = "$name" ] && [ -z "$(ls -A . 2>/dev/null)" ]; then
+    if [ "$in_place" -eq 1 ] || { [ "$(basename "$PWD")" = "$name" ] && [ -z "$(ls -A . 2>/dev/null)" ]; }; then
         echo "ℹ️  Scaffolding in place in ${PWD}."
     else
         mkdir -p "$name" && cd "$name" || return 1
@@ -98,9 +106,14 @@ dk-scaffold() {
     npm install
     npm run update-all-format
 
+    # Idempotent so re-running (or scaffolding "." into an existing repo) is safe.
     git init && git branch -M main
-    git add -A && git commit -m "chore: scaffold"
-    git remote add origin "git@github.com:${DOIKAYT_ORG}/${name}.git"
+    git add -A
+    git diff --cached --quiet || git commit -m "chore: scaffold"   # skip if nothing staged
+    local remote_url="git@github.com:${DOIKAYT_ORG}/${name}.git"
+    git remote get-url origin &>/dev/null \
+        && git remote set-url origin "$remote_url" \
+        || git remote add origin "$remote_url"
     git push -u origin main
 
     echo "✅ Scaffolded ${DOIKAYT_ORG}/${name} (${kind})"
