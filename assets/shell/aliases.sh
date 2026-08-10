@@ -104,12 +104,23 @@ dk-scaffold() {
     fi
 
     npm install
-    npm run update-all-format
+    npm run update-all-format   # single pass converges (autogen orders NX→UML→TOC)
 
     # Idempotent so re-running (or scaffolding "." into an existing repo) is safe.
     git init && git branch -M main
     git add -A
     git diff --cached --quiet || git commit -m "chore: scaffold"   # skip if nothing staged
+
+    # Gate: run the exact command CI runs (release.yml: `npm run ci` =
+    # check-all-format && test) before touching the remote. Refuse to push a tree
+    # CI would reject — this guards both the normal and the force-push paths below,
+    # so a force-push can never clobber an existing main with a red build.
+    if ! npm run ci; then
+        echo "❌ 'npm run ci' failed — refusing to push a tree CI will reject."
+        echo "   Fix locally, then re-run dk-scaffold (it is idempotent)."
+        return 1
+    fi
+
     local remote_url="git@github.com:${DOIKAYT_ORG}/${name}.git"
     git remote get-url origin &>/dev/null \
         && git remote set-url origin "$remote_url" \
