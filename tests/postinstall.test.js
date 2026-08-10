@@ -33,6 +33,13 @@ function run(dir) {
   });
 }
 
+test("no package.json in project root exits 0 without crashing", () => {
+  const dir = mkdtempSync(join(tmpdir(), "tbc-postinstall-empty-"));
+  const res = run(dir);
+  assert.equal(res.status, 0, res.stderr);
+  assert.match(res.stdout, /nothing to configure/);
+});
+
 test("fresh install copies config and pipeline files verbatim", () => {
   const dir = makeConsumer();
   const res = run(dir);

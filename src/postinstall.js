@@ -15,9 +15,19 @@ const PREFIX = "[@doikayt/typescript-build-config]";
 console.log(`${PREFIX} Running postinstall...`);
 
 const projectRoot = process.env.INIT_CWD ?? process.cwd();
-const projectPkg = JSON.parse(
-  readFileSync(resolve(projectRoot, "package.json"), "utf8"),
-);
+const projectPkgPath = resolve(projectRoot, "package.json");
+
+// Installed via `npx @doikayt/... new` into a bare dir (or otherwise before a
+// consuming project has a package.json) — nothing to configure. Postinstall is
+// warn-only, so no-op instead of crashing.
+if (!existsSync(projectPkgPath)) {
+  console.log(
+    `${PREFIX} No package.json in ${projectRoot} — nothing to configure. Skipping.`,
+  );
+  process.exit(0);
+}
+
+const projectPkg = JSON.parse(readFileSync(projectPkgPath, "utf8"));
 
 if (projectPkg.name === "@doikayt/typescript-build-config") {
   console.log(`${PREFIX} Self-install detected — postinstall is a no-op.`);
