@@ -72,8 +72,10 @@ scaffolds build config + a runnable demo — choose `lib` (published) or `app`
 dk-scaffold my-project lib
 ```
 
-Or do it by hand / in an **existing** project — the same steps `dk-scaffold`
-runs ([Installation](#installation) and [Usage](#usage) explain each):
+Or run those steps by hand — the scaffolding `dk-scaffold` does under the hood —
+for a brand-new project or to adopt Doikayt standard build config into an
+existing one. ([Installation](#installation) and [Usage](#usage) explain each in
+detail.)
 
 ```bash
 npx @doikayt/typescript-build-config new                  # npm init -y + @doikayt scope
@@ -84,10 +86,11 @@ npm install                                               # fetch declared devDe
 
 ### Trying it out
 
-One wrapper, three levels — each adds one thing you bring and one thing you see.
-Each scaffolds a throwaway **app** (nothing publishes) unless noted. Do the
-one-time [Quick start step 1](#quick-start) first so `dk-scaffold` is on your
-PATH.
+`dk-scaffold` does a lot under the hood, so the best way to get familiar with it
+is to run it at the three levels it supports — each requiring a little more setup
+than the last, and revealing a little more of the process. Each level scaffolds a
+throwaway **app** (nothing publishes) unless noted. Do the one-time
+[Quick start step 1](#quick-start) first so `dk-scaffold` is on your PATH.
 
 **Level 0 — local, no accounts.** Scaffold and run the same gate CI runs — no
 GitHub repo, no push:
@@ -96,27 +99,30 @@ GitHub repo, no push:
 dk-scaffold my-demo --local
 ```
 
-Under the hood it runs `init` (demo=yes, app, no Playwright) then `npm run ci`.
+That single command runs `init` (demo=yes, app, no Playwright) then `npm run ci`.
 You'll see the vitest demo tests pass, `npm run build` emit `dist/` + type
 declarations, and `update-all-format` fill the README's TOC + UML markers
 (mermaid **source** — rendered at Level 1). `npm publish --dry-run` **refuses** —
 proof the app archetype never publishes.
 
-**Level 1 — push to your own GitHub.** Add a GitHub account and `gh`
-(`gh auth login`). Point the wrapper at your account and drop `--local`:
+**Level 1 — push to your own GitHub.** Bring a GitHub account and the `gh` CLI.
+Sign in, point the wrapper at your account, and drop `--local`:
 
 ```bash
-export DOIKAYT_ORG=<your-github-username>   # target owner for the repo
+gh auth login                                # one-time: sign in to GitHub
+export DOIKAYT_ORG=<your-github-username>    # target owner for the repo
 dk-scaffold my-demo                          # app (private) — no npm creds
 ```
 
-It creates the repo and pushes. On GitHub you'll see the **mermaid diagrams
-rendered** and the **CI job go green**. Push a follow-up **`feat:`** commit and
-the **release job** version-bumps + tags — nothing published (app). (The initial
-`chore: scaffold` push releases nothing; `feat:` / `fix:` triggers it.)
+Now it creates the repo and pushes — and you see what Level 0 couldn't: the
+**mermaid diagrams rendered** and the **CI job go green** in Actions. Push a
+follow-up **`feat:`** commit and the **release job** version-bumps + tags —
+nothing published (app). (The initial `chore: scaffold` push releases nothing;
+`feat:` / `fix:` triggers it.)
 
-**Level 2 — publish to your own npm.** Scaffold a `lib` and bring your own npm
-scope + `NPM` secret to watch `changeset publish` ship a real package. Full
+**Level 2 — publish to your own npm.** The last rung swaps the app for a `lib`
+and adds your own npm scope + `NPM` secret — then you see the one thing the other
+levels can't: `changeset publish` shipping a real, dist-only package. Full
 procedure: [docs/verification-runbook.md](docs/verification-runbook.md);
 non-`@doikayt`-scope setup:
 [docs/verification-byo-prerequisites.md](docs/verification-byo-prerequisites.md).
