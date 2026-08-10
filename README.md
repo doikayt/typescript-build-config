@@ -73,6 +73,9 @@ scaffolds build config + a runnable demo — choose `lib` (published) or `app`
 dk-scaffold my-project lib
 ```
 
+To watch the scaffolded demo build, test, and (for a library) publish
+end-to-end, follow the [verification runbook](docs/verification-runbook.md).
+
 Or do it by hand / in an **existing** project — the same steps `dk-scaffold`
 runs ([Installation](#installation) and [Usage](#usage) explain each):
 
