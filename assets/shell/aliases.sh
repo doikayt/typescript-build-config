@@ -28,10 +28,12 @@ mkrepo() {
     fi
 
     echo "🔍 Checking if '${FULL_REPO_NAME}' already exists..."
+    # Exit 2 (not 1) signals "already exists" so callers like dk-scaffold can
+    # treat it as non-fatal and continue, while true failures stay exit 1.
     if gh repo view "${FULL_REPO_NAME}" &> /dev/null; then
-        echo "❌ Repository '${FULL_REPO_NAME}' already exists:"
+        echo "ℹ️  Repository '${FULL_REPO_NAME}' already exists:"
         echo "   https://github.com/${FULL_REPO_NAME}"
-        return 1
+        return 2
     fi
 
     echo "🚀 Creating public repository '${FULL_REPO_NAME}'..."
@@ -66,7 +68,14 @@ dk-scaffold() {
         return 1
     fi
 
-    mkrepo "$name" || return 1
+    mkrepo "$name"
+    local rc=$?
+    if [ "$rc" -eq 2 ]; then
+        echo "ℹ️  Continuing scaffold against the existing ${DOIKAYT_ORG}/${name} repo."
+    elif [ "$rc" -ne 0 ]; then
+        return 1
+    fi
+
     mkdir "$name" && cd "$name" || return 1
 
     dk-new
