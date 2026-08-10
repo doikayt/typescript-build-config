@@ -69,3 +69,31 @@ test("missing name prints usage and fails", () => {
   assert.notEqual(status, 0);
   assert.match(out, /Usage: dk-scaffold/);
 });
+
+test("errors out early when no git identity is configured", () => {
+  const workdir = mkdtempSync(join(tmpdir(), "tbc-scaffold-"));
+  const script = `
+    source ${JSON.stringify(ALIASES)}
+    mkrepo(){ echo "CALL mkrepo $*"; return 0; }
+    dk-new(){ echo "CALL dk-new"; }
+    dk-init(){ cat >/dev/null; echo "CALL dk-init"; }
+    npm(){ echo "CALL npm $*"; return 0; }
+    git(){
+      case "$*" in
+        "config user.email" | "config user.name") return 1 ;; # identity unset
+        *) echo "CALL git $*"; return 0 ;;
+      esac
+    }
+    cd ${JSON.stringify(workdir)}
+    dk-scaffold demo --local
+    exit $?
+  `;
+  const env = { ...process.env };
+  delete env.DOIKAYT_ORG;
+  delete env.DOIKAYT_TBC;
+  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  const out = (res.stdout || "") + (res.stderr || "");
+  assert.notEqual(res.status, 0);
+  assert.match(out, /Git identity not configured/);
+  assert.doesNotMatch(out, /CALL dk-new/); // failed before any scaffolding
+});

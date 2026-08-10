@@ -92,6 +92,17 @@ dk-scaffold() {
         in_place=1
     fi
 
+    # A git identity is required — the scaffold makes a commit (Level 1 pushes
+    # it). Check up front and fail fast with instructions, rather than aborting
+    # mid-run after the slower scaffold + install.
+    if ! git config user.email >/dev/null 2>&1 || ! git config user.name >/dev/null 2>&1; then
+        echo "❌ Git identity not configured — needed to commit the scaffold."
+        echo "   Set it once, then re-run dk-scaffold:"
+        echo "     git config --global user.email \"you@example.com\""
+        echo "     git config --global user.name \"Your Name\""
+        return 1
+    fi
+
     # --local skips repo creation entirely (no gh needed); rc stays 0.
     local rc=0
     if [ "$local_only" -eq 0 ]; then
