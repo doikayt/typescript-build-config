@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.22
+
+### Patch Changes
+
+- - fix: no-op postinstall when project package.json is absent
+
 ## 0.1.21
 
 ### Patch Changes
