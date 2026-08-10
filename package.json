@@ -26,8 +26,8 @@
   "scripts": {
     "prepack": "echo no build step required",
     "postinstall": "node src/postinstall.js",
-    "update-all-format": "prettier --write src/ && update-markdown-toc README.md",
-    "check-format": "prettier --check src/ && update-markdown-toc --check README.md",
+    "update-all-format": "prettier --write src/ && update-markdown-toc README.md && update-markdown-toc docs/verification-runbook.md",
+    "check-format": "prettier --check src/ && update-markdown-toc --check README.md && update-markdown-toc --check docs/verification-runbook.md",
     "ci": "npm run check-format && node --test tests/*.test.js",
     "test": "node --test tests/*.test.js"
   },

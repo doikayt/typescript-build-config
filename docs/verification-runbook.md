@@ -12,6 +12,27 @@ There are two depths:
   `release.yml` publish to npm. Only when you want the real thing; it burns a
   version number and (for a library) a public package name.
 
+## Contents
+
+<!-- TOC:START -->
+- [End-to-end verification: `init` a library and an app](#end-to-end-verification-init-a-library-and-an-app)
+  - [Contents](#contents)
+  - [Prerequisites](#prerequisites)
+  - [Testing publish without cluttering npm](#testing-publish-without-cluttering-npm)
+  - [Pushing to a reusable scratch repo](#pushing-to-a-reusable-scratch-repo)
+  - [Scenario A — Library (publishes to npm)](#scenario-a--library-publishes-to-npm)
+    - [A1. Scaffold](#a1-scaffold)
+    - [A2. Build, test, docs](#a2-build-test-docs)
+    - [A3. Verify the published artifact — local, no registry write](#a3-verify-the-published-artifact--local-no-registry-write)
+    - [A4. Full publish via the pipeline — optional, writes to npm](#a4-full-publish-via-the-pipeline--optional-writes-to-npm)
+  - [Scenario B — App / CLI (never publishes)](#scenario-b--app--cli-never-publishes)
+    - [B1. Scaffold](#b1-scaffold)
+    - [B2. Build and test (same as a library — an app still compiles)](#b2-build-and-test-same-as-a-library--an-app-still-compiles)
+    - [B3. Verify it will not publish — the key check](#b3-verify-it-will-not-publish--the-key-check)
+    - [B4. Full pipeline — optional](#b4-full-pipeline--optional)
+  - [Pass criteria at a glance](#pass-criteria-at-a-glance)
+<!-- TOC:END -->
+
 ## Prerequisites
 
 - Node 22+ and npm.
@@ -175,8 +196,7 @@ to npm**; a `v0.0.x` tag appears. Confirm the package page on npmjs.com shows
 your version with only `dist/` files.
 
 **Clean up (avoid cluttering npm):** delete the test publish within **72 hours** —
-on the package page
-[npmjs.com/package/@doikayt/verify-lib](https://www.npmjs.com/package/@doikayt/verify-lib)
+on its npm page (`npmjs.com/package/@doikayt/verify-lib`)
 → **Settings → Unpublish package**, or from the CLI:
 
 ```bash
