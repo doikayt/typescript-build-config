@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.23
+
+### Patch Changes
+
+- - fix: force build
+
 ## 0.1.22
 
 ### Patch Changes
