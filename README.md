@@ -6,8 +6,10 @@ Shared build configuration presets for TypeScript-based projects.
 - [@doikayt/typescript-build-config](#doikayttypescript-build-config)
   - [Purpose](#purpose)
   - [Quick start](#quick-start)
-    - [dk-scaffold](#dk-scaffold)
-    - [Run dk-scaffold's steps individually](#run-dk-scaffolds-steps-individually)
+    - [1. One-time machine setup (once per machine)](#1-one-time-machine-setup-once-per-machine)
+    - [2. Create a new project (repeatable)](#2-create-a-new-project-repeatable)
+      - [dk-scaffold](#dk-scaffold)
+      - [Run dk-scaffold's steps individually](#run-dk-scaffolds-steps-individually)
     - [Trying it out](#trying-it-out)
   - [Design Goals](#design-goals)
     - [What each component is for](#what-each-component-is-for)
@@ -48,12 +50,14 @@ via the pipeline files it installs into each consumer repo and the canonical rel
 These steps set up — in a fresh "new-developer" environment — a local git repo
 with a skeleton demo app plus all the standard Doikayt build configuration:
 tooling that auto-documents the code in the repo and lets it be pushed to
-GitHub, built, and (for a library) published to npm. Steps are minimal here —
-each links to the section that explains _what_ and _why_.
+GitHub, built on GitHub's CI servers, and (for a library) published to npm. Steps
+are minimal here — each links to the section that explains _what_ and _why_.
 
-**1. One-time machine setup — (done once per machine).** Clone this base repo and
-install the shared team [shell aliases](#team-shell-aliases). This only sets up
-the aliases (`dk-scaffold`, `mkrepo`); it does **not** configure any project:
+### 1. One-time machine setup (once per machine)
+
+Clone this base repo and install the shared team
+[shell aliases](#team-shell-aliases). This only sets up the aliases
+(`dk-scaffold`, `mkrepo`); it does **not** configure any project:
 
 ```bash
 git clone git@github.com:doikayt/typescript-build-config.git
@@ -62,11 +66,12 @@ cd typescript-build-config
 exec $SHELL                 # reload
 ```
 
-**2. Create a new project — (done multiple times).** The two paths below are
-**alternatives that reach the same result** — a project wired to this base
-package.
+### 2. Create a new project (repeatable)
 
-### dk-scaffold
+The two paths below are **alternatives that reach the same result** — a project
+wired to this base package.
+
+#### dk-scaffold
 
 `dk-scaffold` is the one-command wrapper that also (optionally) creates the
 GitHub repo and pushes it. Just run it with a first argument naming your project
@@ -78,7 +83,7 @@ app/utility, the default) — see [library vs app](#usage) and
 dk-scaffold my-project lib
 ```
 
-### Run dk-scaffold's steps individually
+#### Run dk-scaffold's steps individually
 
 The steps below mirror the work `dk-scaffold` does under the hood — either for a
 brand-new project or to adopt Doikayt standard build config into an existing one.
@@ -97,7 +102,8 @@ npm install                                               # fetch declared devDe
 is to run it at the three levels it supports — each requiring a little more setup
 than the last, and revealing a little more of the process. Each level scaffolds a
 throwaway **app** (nothing publishes) unless noted. Do the one-time
-[Quick start step 1](#quick-start) first so `dk-scaffold` is on your PATH.
+[machine setup](#1-one-time-machine-setup-once-per-machine) first so `dk-scaffold`
+is on your PATH.
 
 **Level 0 — local (no external GitHub/npm accounts needed).** Scaffold and run
 the same gate CI runs — no GitHub repo, no push:
