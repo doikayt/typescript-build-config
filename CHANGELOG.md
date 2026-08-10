@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.27
+
+### Patch Changes
+
+- - feat: dk-scaffold --local scaffolds without a repo or push
+
 ## 0.1.26
 
 ### Patch Changes
