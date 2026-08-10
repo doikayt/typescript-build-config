@@ -44,8 +44,11 @@ via the pipeline files it installs into each consumer repo and the canonical rel
 
 ## Quick start
 
-From a fresh machine to a pushed, scaffolded repo. Steps are minimal here — each
-links to the section that explains _what_ and _why_.
+These steps set up — in a fresh "new-developer" environment — a local git repo
+with a skeleton demo app plus all the standard Doikayt build configuration:
+tooling that auto-documents the code in the repo and lets it be pushed to
+GitHub, built, and (for a library) published to npm. Steps are minimal here —
+each links to the section that explains _what_ and _why_.
 
 **1. One-time machine setup — once per machine.** Clone this base repo and
 install the shared team [shell aliases](#team-shell-aliases). This only sets up
