@@ -128,8 +128,8 @@ dk-scaffold my-demo                          # app (private) — no npm creds
 ```
 
 Now it creates the repo and pushes — and you see what Level 0 couldn't: the
-**mermaid diagrams rendered** (example:
-[tooling-core's UML](https://github.com/doikayt/build-tools/blob/main/javascript/tooling-core/README.md#package-structure))
+**mermaid diagrams rendered** (example
+[here](https://github.com/doikayt/build-tools/blob/main/javascript/tooling-core/README.md#package-structure))
 and the **CI job go green** in Actions (example:
 [this project's runs](https://github.com/doikayt/typescript-build-config/actions)).
 Push a follow-up **`feat:`** commit and the **release job** version-bumps + tags —
