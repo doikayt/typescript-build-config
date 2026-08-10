@@ -11,8 +11,7 @@ Shared build configuration presets for TypeScript-based projects.
   - [Installation](#installation)
   - [Usage](#usage)
     - [The canonical script set](#the-canonical-script-set)
-    - [Console / CLI project](#console--cli-project)
-    - [Injecting Playwright config (UI projects)](#injecting-playwright-config-ui-projects)
+    - [Optional Playwright config for Web / UI testing](#optional-playwright-config-for-web--ui-testing)
     - [Existing project](#existing-project)
     - [Trying it out (demo + scratch repo)](#trying-it-out-demo--scratch-repo)
   - [Dependency Strategy](#dependency-strategy)
@@ -186,12 +185,15 @@ doesn't overwrite your other keys):
 `dist/`, publish fields, library vs app)? See
 [Packaging concepts](docs/packaging-concepts.md) for the background.
 
-That covers _what_ `init` decides; the two recipes below are _how_ you run it.
-They differ only in the **Playwright?** answer — `n` for a console/CLI or plain
-library, `y` for a UI / web project that needs end-to-end tests. Library-vs-app
-is an orthogonal choice, so either shape can still be published or kept private.
+### Optional Playwright config for Web / UI testing
 
-### Console / CLI project
+The above section covers _what_ `init` decides; the two recipes below are _how_
+you run it. They differ only in the **Playwright?** answer — `n` for a
+console/CLI or plain library, `y` for a UI / web project that needs end-to-end
+tests. Library-vs-app is an orthogonal choice, so either shape can still be
+published or kept private.
+
+**Console / CLI or plain library — answer `n`:**
 
 ```bash
 npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
@@ -200,12 +202,9 @@ npx @doikayt/typescript-build-config init             # answer "n" to Playwright
 npm install                                            # fetch the declared devDependencies
 ```
 
-### Injecting Playwright config (UI projects)
-
-Answering **yes** to the `init` Playwright prompt is the one extra step a UI /
-web project needs. It injects the end-to-end setup: adds a `test:e2e` script and
-folds it into `ci` (so the release gate runs e2e), declares `@playwright/test`,
-and seeds a `playwright.config.ts` template.
+**UI / web — answer `y`:** injects the end-to-end setup — adds a `test:e2e`
+script and folds it into `ci` (so the release gate runs e2e), declares
+`@playwright/test`, and seeds a `playwright.config.ts` template.
 
 ```bash
 npx @doikayt/typescript-build-config new              # npm init -y + @doikayt scope
