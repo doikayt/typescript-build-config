@@ -53,7 +53,7 @@ links to the section that explains _what_ and _why_.
 ```bash
 git clone git@github.com:doikayt/typescript-build-config.git
 cd typescript-build-config
-./shell-assets/install.sh   # adds `source shell-assets/aliases.sh` to your rc (idempotent)
+./assets/shell/install.sh   # adds `source assets/shell/aliases.sh` to your rc (idempotent)
 exec $SHELL                 # reload
 ```
 
@@ -115,8 +115,8 @@ is _why_.)
 | **Convention checks** — postinstall warns on missing `ci` / `update-all-format` | An install-time nudge toward the shared command surface | Consistency |
 | **`ci` gate** — `release.yml` runs `npm run ci` | Fail-closed enforcement: a repo that ignores the convention cannot release | Consistency (hard teeth) |
 | **Policy doc** — `docs/RELEASE-PROCESS.md`, linked never copied | One canonical release policy, impossible to drift | Consistency |
-| **Assets** — `image-assets/*` seeded into `docs/assets/` | Shared brand logos with no per-repo copies to maintain | Minimal setup |
-| **Shell aliases** — `shell-assets/aliases.sh`, cloned + sourced (never shipped to npm) | One standard way for the team to create and scaffold repos (`mkrepo`, `dk-*`) | Consistency |
+| **Assets** — `assets/image/*` seeded into `docs/assets/` | Shared brand logos with no per-repo copies to maintain | Minimal setup |
+| **Shell aliases** — `assets/shell/aliases.sh`, cloned + sourced (never shipped to npm) | One standard way for the team to create and scaffold repos (`mkrepo`, `dk-*`) | Consistency |
 
 The two goals map onto two lifecycle phases — **[delivery](#delivery-model)**
 (getting canonical artifacts into a consuming repo) and
@@ -277,7 +277,7 @@ versions of these tools may produce peer dependency conflicts.
   });
   ```
 
-- Brand assets (`image-assets/doikayt-logo.png`, `image-assets/doikayt-logo.svg`) — shared logos for use
+- Brand assets (`assets/image/doikayt-logo.png`, `assets/image/doikayt-logo.svg`) — shared logos for use
   across all `@doikayt` project READMEs and documentation
 
 ## Delivery Model
@@ -305,7 +305,7 @@ components.
         │  presets  eslint  prettier  tsconfig  playwright│
         │  stubs       src/top-level/*                    │
         │  pipeline    src/pipeline/*                     │
-        │  assets      image-assets/*                     │
+        │  assets      assets/image/*                     │
         │  policy      docs/RELEASE-PROCESS.md            │
         └─────────┬───────────────┬───────────────┬───────┘
                   │               │               │
@@ -361,8 +361,8 @@ components.
 a _consuming repo_ through npm (channels 1–3). The team
 [shell aliases](#team-shell-aliases) are the exception: they target the
 _developer's machine_, not a repo, through a fourth channel — **cloned and
-sourced** (`git clone` this repo + `source shell-assets/aliases.sh`, via
-`shell-assets/install.sh`). npm never touches them and they never land in a consumer's
+sourced** (`git clone` this repo + `source assets/shell/aliases.sh`, via
+`assets/shell/install.sh`). npm never touches them and they never land in a consumer's
 `package.json` or tree. Same goal (a standard way to create repos), different
 destination — which is why they sit outside the five-components / three-channels
 model rather than as a sixth row in it.
@@ -543,7 +543,7 @@ release job until one is committed.
 ## Team shell aliases
 
 Installed by [Quick start](#quick-start) step 1 (or manually: add
-`source <clone-path>/shell-assets/aliases.sh` to your shell rc). They require `gh`
+`source <clone-path>/assets/shell/aliases.sh` to your shell rc). They require `gh`
 (authenticated) and `node`/`npm`.
 
 | Alias | What it does |

@@ -21,7 +21,7 @@
   "files": [
     "src/",
     "src/top-level/.gitignore",
-    "image-assets/"
+    "assets/image/"
   ],
   "scripts": {
     "prepack": "echo no build step required",
