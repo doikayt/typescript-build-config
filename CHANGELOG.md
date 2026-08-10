@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.26
+
+### Patch Changes
+
+- - feat: dk-scaffold gates push on 'npm run ci'
+
 ## 0.1.25
 
 ### Patch Changes
