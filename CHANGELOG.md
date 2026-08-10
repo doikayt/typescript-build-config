@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.28
+
+### Patch Changes
+
+- - fix: dk-scaffold requires a git identity, failing fast with instructions
+  - fix: install.sh creates a shell rc when none exists
+
 ## 0.1.27
 
 ### Patch Changes
