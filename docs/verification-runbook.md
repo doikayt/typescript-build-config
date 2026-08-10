@@ -46,7 +46,9 @@ There are two depths:
     publishing.
 - For the **full** path only: a throwaway GitHub repo and an `NPM` token secret
   (see [docs/RELEASE-PROCESS.md](RELEASE-PROCESS.md)), plus — for a library — a
-  package name not already taken on npm.
+  package name not already taken on npm. Not the `@doikayt` maintainer? See
+  [`verification-byo-prerequisites.md`](verification-byo-prerequisites.md) for
+  setting all of this up against your own repo, scope, and secret.
 
 Do each scenario in a fresh empty directory outside this repo.
 
