@@ -47,8 +47,9 @@ via the pipeline files it installs into each consumer repo and the canonical rel
 From a fresh machine to a pushed, scaffolded repo. Steps are minimal here — each
 links to the section that explains _what_ and _why_.
 
-**1. One-time machine setup.** Clone this base repo and install the shared team
-[shell aliases](#team-shell-aliases):
+**1. One-time machine setup — once per machine.** Clone this base repo and
+install the shared team [shell aliases](#team-shell-aliases). This only sets up
+the aliases (`dk-scaffold`, `mkrepo`); it does **not** configure any project:
 
 ```bash
 git clone git@github.com:doikayt/typescript-build-config.git
@@ -57,9 +58,12 @@ cd typescript-build-config
 exec $SHELL                 # reload
 ```
 
-**2. Create a new project.** One command creates the GitHub repo, scaffolds it
-(build config + a runnable demo), and pushes it — choose `lib` (published) or
-`app` (private, the default); see [library vs app](#usage) and
+**2. Create a new project — once per project.** The two paths below are
+**alternatives that reach the same result** — a project wired to this base
+package. `dk-scaffold` is the one-command wrapper that *also* creates the GitHub
+repo and pushes it; the hand-run steps are what it runs under the hood. It
+scaffolds build config + a runnable demo — choose `lib` (published) or `app`
+(private, the default); see [library vs app](#usage) and
 [Packaging concepts](docs/packaging-concepts.md):
 
 ```bash
