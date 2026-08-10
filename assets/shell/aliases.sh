@@ -114,7 +114,29 @@ dk-scaffold() {
     git remote get-url origin &>/dev/null \
         && git remote set-url origin "$remote_url" \
         || git remote add origin "$remote_url"
-    git push -u origin main
+    if [ "$rc" -eq 2 ]; then
+        # The repo pre-existed, so its main likely diverges from this fresh
+        # scaffold's root commit. Overwriting it is destructive, so confirm
+        # first. On yes, force with --force-with-lease (fetch first to seed a
+        # baseline) so a concurrent push aborts us instead of being clobbered.
+        echo "⚠️  Remote ${DOIKAYT_ORG}/${name} already existed."
+        echo "    Pushing this scaffold will OVERWRITE its main branch history."
+        printf "    Force-push over it? [y/N] "
+        local reply
+        read -r reply
+        case "$reply" in
+            [yY] | [yY][eE][sS])
+                git fetch origin &>/dev/null
+                git push -u origin main --force-with-lease
+                ;;
+            *)
+                echo "⏭️  Skipped push. To overwrite the remote later:"
+                echo "    git fetch origin && git push -u origin main --force-with-lease"
+                ;;
+        esac
+    else
+        git push -u origin main
+    fi
 
     echo "✅ Scaffolded ${DOIKAYT_ORG}/${name} (${kind})"
 }
