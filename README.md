@@ -158,8 +158,10 @@ small single-purpose scripts, and the check side mirrors the write side:
 | `update-code-formatting` / `check-code-formatting` | Prettier write / check. |
 | `update-markdown-docs` / `check-markdown-docs` | Regenerate / verify generated markdown (TOC, UML, …). |
 
-`init` also asks whether the project is a **publishable library**, which sets the
-publish config accordingly (non-destructively):
+`init` also asks whether the project is a **publishable library**. That answer
+sets the `package.json` fields that control publishing — `main`, `types`,
+`exports`, `files`, `prepack`, `private` — non-destructively (it merges, it
+doesn't overwrite your other keys):
 
 - **Library** — `main` / `types` / `exports` → `dist/index.js`, `files: ["dist"]`,
   and `prepack`, so it publishes a compiled, typed ESM package on push. `init`
@@ -185,9 +187,9 @@ npm install                                            # fetch the declared devD
 `check-all-format`, and their sub-tasks), declares `vitest` +
 `@doikayt/autogen-markdown-doc` + `typescript` + `@changesets/cli` (the release
 pipeline needs it), and seeds a commented `vitest.config.ts`. Answering the
-"publishable library?" prompt sets the publish
-config — `private` for an app, or `prepack` + the `dist/`-based fields for a
-library (see [The canonical script set](#the-canonical-script-set)).
+"publishable library?" prompt sets those publish-related fields — `private` for
+an app, or `prepack` + the `dist/`-based fields for a library (see
+[The canonical script set](#the-canonical-script-set)).
 
 ### UI / web project (with Playwright e2e)
 

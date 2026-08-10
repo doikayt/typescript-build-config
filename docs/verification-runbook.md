@@ -3,6 +3,9 @@
 A manual runbook to confirm, hands-on, that this package can scaffold and ship
 both project archetypes. Each step lists the command and **what to look for**.
 
+> **Are you new to these terms** (compiled `dist/`, publish fields, library vs
+> app)? See [Packaging concepts](packaging-concepts.md) first.
+
 There are two depths:
 
 - **Local (safe, default)** — proves the build/pack/publish _mechanics_ without
