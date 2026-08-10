@@ -58,13 +58,29 @@ dk-new() { npx "$DOIKAYT_TBC" new "$@"; }
 dk-init() { npx "$DOIKAYT_TBC" init "$@"; }
 
 # ---------------------------------------------------------------------------
-# dk-scaffold <name> [lib|app] : create the repo, scaffold a project, push.
-# Defaults to an app (private). Answers init non-interactively.
+# dk-scaffold <name> [lib|app] [--local] : create the repo, scaffold a project,
+# push. Defaults to an app (private). Answers init non-interactively. Pass
+# --local (or -l) to scaffold and run the CI gate only — no GitHub repo, no push
+# (the "Level 0" tire-kick; needs no gh).
 # ---------------------------------------------------------------------------
 dk-scaffold() {
-    local name="$1" kind="${2:-app}"
+    # Positional <name>|. and optional [lib|app]; --local may appear anywhere.
+    local local_only=0 name="" kind="" arg
+    for arg in "$@"; do
+        case "$arg" in
+            --local | -l) local_only=1 ;;
+            *)
+                if [ -z "$name" ]; then
+                    name="$arg"
+                elif [ -z "$kind" ]; then
+                    kind="$arg"
+                fi
+                ;;
+        esac
+    done
+    kind="${kind:-app}"
     if [ -z "$name" ]; then
-        echo "❌ Usage: dk-scaffold <name>|. [lib|app]"
+        echo "❌ Usage: dk-scaffold <name>|. [lib|app] [--local]"
         return 1
     fi
 
@@ -76,12 +92,16 @@ dk-scaffold() {
         in_place=1
     fi
 
-    mkrepo "$name"
-    local rc=$?
-    if [ "$rc" -eq 2 ]; then
-        echo "ℹ️  Continuing scaffold against the existing ${DOIKAYT_ORG}/${name} repo."
-    elif [ "$rc" -ne 0 ]; then
-        return 1
+    # --local skips repo creation entirely (no gh needed); rc stays 0.
+    local rc=0
+    if [ "$local_only" -eq 0 ]; then
+        mkrepo "$name"
+        rc=$?
+        if [ "$rc" -eq 2 ]; then
+            echo "ℹ️  Continuing scaffold against the existing ${DOIKAYT_ORG}/${name} repo."
+        elif [ "$rc" -ne 0 ]; then
+            return 1
+        fi
     fi
 
     # Land in the project directory. If we're already standing in an empty dir
@@ -119,6 +139,13 @@ dk-scaffold() {
         echo "❌ 'npm run ci' failed — refusing to push a tree CI will reject."
         echo "   Fix locally, then re-run dk-scaffold (it is idempotent)."
         return 1
+    fi
+
+    if [ "$local_only" -eq 1 ]; then
+        echo "✅ Scaffolded ${name} locally (${kind}) — no repo created, nothing pushed."
+        echo "   Explore: 'npm test', 'npm run build' (→ dist/), and the generated"
+        echo "   README diagrams. Re-run without --local to create a repo and push."
+        return 0
     fi
 
     local remote_url="git@github.com:${DOIKAYT_ORG}/${name}.git"
