@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.25
+
+### Patch Changes
+
+- - fix: dk-scaffold confirms then force-pushes when the repo already existed
+  - feat: dk-scaffold accepts '.' to scaffold in the current directory
+
 ## 0.1.24
 
 ### Patch Changes
