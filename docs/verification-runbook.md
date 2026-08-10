@@ -32,20 +32,8 @@ Do each scenario in a fresh empty directory outside this repo.
 ## Testing publish without cluttering npm
 
 The scenarios keep routine checks off the public registry (`npm pack`,
-`npm publish --dry-run`). For the **optional full path (A4 / B4)**, prefer one of
-these so you never leave test packages on npm:
-
-- **Local registry (recommended)** — run [verdaccio](https://verdaccio.org), a
-  throwaway npm proxy, and publish to it instead of npm:
-
-  ```bash
-  npx verdaccio &                                # serves http://localhost:4873
-  npm publish --registry http://localhost:4873   # goes to the local registry
-  ```
-
-  Confirm it appears at `http://localhost:4873`, then wipe everything by stopping
-  verdaccio and deleting its storage dir (`~/.config/verdaccio/storage` by
-  default). Nothing ever reaches public npm.
+`npm publish --dry-run`). For the **optional full path (A4 / B4)**, use this so you
+never leave test packages on npm:
 
 - **Publish to real npm, then unpublish the same day** — if you must hit the real
   registry with a throwaway `@your-scope/junk`:
