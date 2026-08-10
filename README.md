@@ -6,6 +6,7 @@ Shared build configuration presets for TypeScript-based projects.
 - [@doikayt/typescript-build-config](#doikayttypescript-build-config)
   - [Purpose](#purpose)
   - [Quick start](#quick-start)
+    - [Trying it out (demo + scratch repo)](#trying-it-out-demo--scratch-repo)
   - [Design Goals](#design-goals)
     - [What each component is for](#what-each-component-is-for)
   - [Installation](#installation)
@@ -13,7 +14,6 @@ Shared build configuration presets for TypeScript-based projects.
     - [The canonical script set](#the-canonical-script-set)
     - [Optional Playwright config for Web / UI testing](#optional-playwright-config-for-web--ui-testing)
     - [Existing project](#existing-project)
-    - [Trying it out (demo + scratch repo)](#trying-it-out-demo--scratch-repo)
   - [Dependency Strategy](#dependency-strategy)
   - [Current Contents](#current-contents)
   - [Delivery Model](#delivery-model)
@@ -72,9 +72,6 @@ scaffolds build config + a runnable demo — choose `lib` (published) or `app`
 dk-scaffold my-project lib
 ```
 
-To watch the scaffolded demo build, test, and (for a library) publish
-end-to-end, follow the [verification runbook](docs/verification-runbook.md).
-
 Or do it by hand / in an **existing** project — the same steps `dk-scaffold`
 runs ([Installation](#installation) and [Usage](#usage) explain each):
 
@@ -84,6 +81,22 @@ npm install --save-dev @doikayt/typescript-build-config   # postinstall seeds co
 npx @doikayt/typescript-build-config init                 # scripts, deps, publish config, demo
 npm install                                               # fetch declared devDependencies
 ```
+
+### Trying it out (demo + scratch repo)
+
+Answer **yes** to the demo prompt and `init` seeds a minimal starter — a `src/`
+module, a `README` with doc-generator markers, and a `project.json` — so a
+brand-new project builds, tests, and (for a library) publishes on push.
+
+To exercise a scaffold end-to-end without standing up a repo, push it to the
+shared throwaway repo
+**[`doikayt/scratch-pad`](https://github.com/doikayt/scratch-pad)** (force-overwrite
+each run). The full procedure — for both a library and an app, with what to look
+for at each step — is in [docs/verification-runbook.md](docs/verification-runbook.md):
+
+- [Pushing to the scratch repo](docs/verification-runbook.md#pushing-to-a-reusable-scratch-repo)
+- [Testing publish without cluttering npm](docs/verification-runbook.md#testing-publish-without-cluttering-npm)
+  — dry-run, and deleting a real test publish afterward.
 
 ## Design Goals
 
@@ -224,22 +237,6 @@ Skip `init` if you prefer. On install, `postinstall` warns about any missing
 required targets (`ci`, `update-all-format`) until you add them — either by
 running `init` to adopt the full canonical set, or by defining the two scripts
 by hand (see [Conventions](#conventions-every-project-must-adhere-to)).
-
-### Trying it out (demo + scratch repo)
-
-Answer **yes** to the demo prompt and `init` seeds a minimal starter — a `src/`
-module, a `README` with doc-generator markers, and a `project.json` — so a
-brand-new project builds, tests, and (for a library) publishes on push.
-
-To exercise a scaffold end-to-end without standing up a repo, push it to the
-shared throwaway repo
-**[`doikayt/scratch-pad`](https://github.com/doikayt/scratch-pad)** (force-overwrite
-each run). The full procedure — for both a library and an app, with what to look
-for at each step — is in [docs/verification-runbook.md](docs/verification-runbook.md):
-
-- [Pushing to the scratch repo](docs/verification-runbook.md#pushing-to-a-reusable-scratch-repo)
-- [Testing publish without cluttering npm](docs/verification-runbook.md#testing-publish-without-cluttering-npm)
-  — dry-run / verdaccio, and deleting a real test publish afterward.
 
 ## Dependency Strategy
 
