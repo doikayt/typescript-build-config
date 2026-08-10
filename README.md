@@ -6,6 +6,8 @@ Shared build configuration presets for TypeScript-based projects.
 - [@doikayt/typescript-build-config](#doikayttypescript-build-config)
   - [Purpose](#purpose)
   - [Quick start](#quick-start)
+    - [dk-scaffold](#dk-scaffold)
+    - [Run dk-scaffold's steps individually](#run-dk-scaffolds-steps-individually)
     - [Trying it out](#trying-it-out)
   - [Design Goals](#design-goals)
     - [What each component is for](#what-each-component-is-for)
@@ -62,20 +64,25 @@ exec $SHELL                 # reload
 
 **2. Create a new project — (done multiple times).** The two paths below are
 **alternatives that reach the same result** — a project wired to this base
-package. `dk-scaffold` is the one-command wrapper that *also* creates the GitHub
-repo and pushes it; the hand-run steps are what it runs under the hood. It
-scaffolds build config + a runnable demo — choose `lib` (published) or `app`
-(private, the default); see [library vs app](#usage) and
+package.
+
+### dk-scaffold
+
+`dk-scaffold` is the one-command wrapper that also (optionally) creates the
+GitHub repo and pushes it. Just run it with a first argument naming your project
+and a second indicating `lib` (a published library) or `app` (a standalone
+app/utility, the default) — see [library vs app](#usage) and
 [Packaging concepts](docs/packaging-concepts.md):
 
 ```bash
 dk-scaffold my-project lib
 ```
 
-Or run those steps by hand — the scaffolding `dk-scaffold` does under the hood —
-for a brand-new project or to adopt Doikayt standard build config into an
-existing one. ([Installation](#installation) and [Usage](#usage) explain each in
-detail.)
+### Run dk-scaffold's steps individually
+
+The steps below mirror the work `dk-scaffold` does under the hood — either for a
+brand-new project or to adopt Doikayt standard build config into an existing one.
+([Installation](#installation) and [Usage](#usage) explain each in detail.)
 
 ```bash
 npx @doikayt/typescript-build-config new                  # npm init -y + @doikayt scope
@@ -92,8 +99,8 @@ than the last, and revealing a little more of the process. Each level scaffolds 
 throwaway **app** (nothing publishes) unless noted. Do the one-time
 [Quick start step 1](#quick-start) first so `dk-scaffold` is on your PATH.
 
-**Level 0 — local, no accounts.** Scaffold and run the same gate CI runs — no
-GitHub repo, no push:
+**Level 0 — local (no external GitHub/npm accounts needed).** Scaffold and run
+the same gate CI runs — no GitHub repo, no push:
 
 ```bash
 dk-scaffold my-demo --local
@@ -119,8 +126,7 @@ Now it creates the repo and pushes — and you see what Level 0 couldn't: the
 [tooling-core's UML](https://github.com/doikayt/build-tools/blob/main/javascript/tooling-core/README.md#package-structure))
 and the **CI job go green** in Actions (example:
 [this project's runs](https://github.com/doikayt/typescript-build-config/actions)).
-Push a
-follow-up **`feat:`** commit and the **release job** version-bumps + tags —
+Push a follow-up **`feat:`** commit and the **release job** version-bumps + tags —
 nothing published (app). (The initial `chore: scaffold` push releases nothing;
 `feat:` / `fix:` triggers it.)
 
