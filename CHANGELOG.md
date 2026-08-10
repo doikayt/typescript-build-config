@@ -1,5 +1,12 @@
 # @datalackey/typescript-build-config
 
+## 0.1.24
+
+### Patch Changes
+
+- - feat: dk-scaffold scaffolds in place in an empty same-named dir
+  - fix: dk-scaffold continues when the repo already exists
+
 ## 0.1.23
 
 ### Patch Changes
