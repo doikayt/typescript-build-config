@@ -12,8 +12,8 @@ const ALIASES = fileURLToPath(
 
 // Run dk-scaffold with every external stubbed to echo a "CALL <cmd>" marker, so
 // we can assert control flow (which side effects fire) without gh, npm, or git.
-// DOIKAYT_ORG/_TBC are cleared so aliases.sh applies its own defaults, making the
-// default-path assertions deterministic regardless of the caller's environment.
+// REPO_OWNER/DOIKAYT_ORG/_TBC are cleared so aliases.sh applies its own defaults,
+// making the default-path assertions deterministic regardless of the caller's env.
 function runScaffold(args) {
   const workdir = mkdtempSync(join(tmpdir(), "tbc-scaffold-"));
   const script = `
@@ -28,6 +28,7 @@ function runScaffold(args) {
     exit $?
   `;
   const env = { ...process.env };
+  delete env.REPO_OWNER;
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
   const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
@@ -48,6 +49,48 @@ test("default (no flag): creates the repo and pushes", () => {
   assert.match(out, /CALL mkrepo my-demo/);
   assert.match(out, /CALL git push -u origin main/);
   assert.match(out, /Scaffolded doikayt\/my-demo \(app\)/);
+});
+
+// Owner-override plumbing: REPO_OWNER sets the repo owner, and the legacy
+// DOIKAYT_ORG is still honored (REPO_OWNER wins when both are set).
+function runScaffoldWithEnv(args, overrides) {
+  const workdir = mkdtempSync(join(tmpdir(), "tbc-scaffold-"));
+  const script = `
+    source ${JSON.stringify(ALIASES)}
+    mkrepo(){ echo "CALL mkrepo $*"; return 0; }
+    dk-new(){ echo "CALL dk-new"; }
+    dk-init(){ cat >/dev/null; echo "CALL dk-init"; }
+    npm(){ echo "CALL npm $*"; return 0; }
+    git(){ echo "CALL git $*"; return 0; }
+    cd ${JSON.stringify(workdir)}
+    dk-scaffold ${args}
+    exit $?
+  `;
+  const env = { ...process.env };
+  delete env.REPO_OWNER;
+  delete env.DOIKAYT_ORG;
+  delete env.DOIKAYT_TBC;
+  Object.assign(env, overrides);
+  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  return { out: (res.stdout || "") + (res.stderr || ""), status: res.status };
+}
+
+test("REPO_OWNER overrides the repo owner", () => {
+  const { out } = runScaffoldWithEnv("my-demo", { REPO_OWNER: "alice" });
+  assert.match(out, /Scaffolded alice\/my-demo \(app\)/);
+});
+
+test("legacy DOIKAYT_ORG is still honored", () => {
+  const { out } = runScaffoldWithEnv("my-demo", { DOIKAYT_ORG: "legacy-org" });
+  assert.match(out, /Scaffolded legacy-org\/my-demo \(app\)/);
+});
+
+test("REPO_OWNER wins when both it and DOIKAYT_ORG are set", () => {
+  const { out } = runScaffoldWithEnv("my-demo", {
+    REPO_OWNER: "alice",
+    DOIKAYT_ORG: "legacy-org",
+  });
+  assert.match(out, /Scaffolded alice\/my-demo \(app\)/);
 });
 
 test("--local is positional-independent and preserves kind", () => {
@@ -89,6 +132,7 @@ test("errors out early when no git identity is configured", () => {
     exit $?
   `;
   const env = { ...process.env };
+  delete env.REPO_OWNER;
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
   const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });

@@ -123,7 +123,7 @@ Sign in, point the wrapper at your account, and drop `--local`:
 
 ```bash
 gh auth login                                # one-time: sign in to GitHub
-export DOIKAYT_ORG=<your-github-username>    # target owner for the repo
+export REPO_OWNER=<your-github-username>      # target owner for the repo
 dk-scaffold my-demo                          # app (private) — no npm creds
 ```
 

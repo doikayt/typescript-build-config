@@ -3,7 +3,9 @@
 # Source this from your shell rc (see the README, "Team shell aliases").
 
 # --- config (override via env if needed) ---
-: "${DOIKAYT_ORG:=doikayt}"
+# REPO_OWNER is the GitHub account/org that owns created repos (the "owner" in
+# owner/repo). DOIKAYT_ORG is the old name, still honored for backward compat.
+: "${REPO_OWNER:=${DOIKAYT_ORG:-doikayt}}"
 : "${DOIKAYT_TBC:=@doikayt/typescript-build-config}"
 
 # ---------------------------------------------------------------------------
@@ -16,7 +18,7 @@ mkrepo() {
     fi
 
     local REPO_NAME="$1"
-    local FULL_REPO_NAME="${DOIKAYT_ORG}/${REPO_NAME}"
+    local FULL_REPO_NAME="${REPO_OWNER}/${REPO_NAME}"
 
     if ! command -v gh &> /dev/null; then
         echo "❌ GitHub CLI 'gh' is not installed (https://cli.github.com/)."
@@ -85,7 +87,7 @@ dk-scaffold() {
     fi
 
     # "." means: scaffold in the current directory, using its leaf name as the
-    # package/repo name (full package becomes @${DOIKAYT_ORG}/<leaf>). No mkdir.
+    # package/repo name (full package becomes @${REPO_OWNER}/<leaf>). No mkdir.
     local in_place=0
     if [ "$name" = "." ]; then
         name="$(basename "$PWD")"
@@ -109,7 +111,7 @@ dk-scaffold() {
         mkrepo "$name"
         rc=$?
         if [ "$rc" -eq 2 ]; then
-            echo "ℹ️  Continuing scaffold against the existing ${DOIKAYT_ORG}/${name} repo."
+            echo "ℹ️  Continuing scaffold against the existing ${REPO_OWNER}/${name} repo."
         elif [ "$rc" -ne 0 ]; then
             return 1
         fi
@@ -159,7 +161,7 @@ dk-scaffold() {
         return 0
     fi
 
-    local remote_url="git@github.com:${DOIKAYT_ORG}/${name}.git"
+    local remote_url="git@github.com:${REPO_OWNER}/${name}.git"
     git remote get-url origin &>/dev/null \
         && git remote set-url origin "$remote_url" \
         || git remote add origin "$remote_url"
@@ -168,7 +170,7 @@ dk-scaffold() {
         # scaffold's root commit. Overwriting it is destructive, so confirm
         # first. On yes, force with --force-with-lease (fetch first to seed a
         # baseline) so a concurrent push aborts us instead of being clobbered.
-        echo "⚠️  Remote ${DOIKAYT_ORG}/${name} already existed."
+        echo "⚠️  Remote ${REPO_OWNER}/${name} already existed."
         echo "    Pushing this scaffold will OVERWRITE its main branch history."
         printf "    Force-push over it? [y/N] "
         local reply
@@ -187,5 +189,5 @@ dk-scaffold() {
         git push -u origin main
     fi
 
-    echo "✅ Scaffolded ${DOIKAYT_ORG}/${name} (${kind})"
+    echo "✅ Scaffolded ${REPO_OWNER}/${name} (${kind})"
 }
