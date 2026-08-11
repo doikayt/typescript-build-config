@@ -137,7 +137,19 @@ nothing published (app). (The initial `chore: scaffold` push releases nothing;
 `feat:` / `fix:` triggers it.)
 
 
-The screen cast below shows the process:
+The screen cast below shows the process for Level 1. Note:
+
+- When we log in to our test account (associated with a dummy GitHub account,
+  not doikayt) we see:
+  - no repos initially
+  - no doikayt aliases registered in `.bashrc`
+- After we run `dk-scaffold demo`, we will see:
+  - lots of output showing the project being configured and built
+  - a push to GitHub
+  - a build and release triggered on GitHub
+  - since we did not select `lib`, we got an app build profile, for which
+    there is no publish to npm
+
 
 <p align="center">
   <img
