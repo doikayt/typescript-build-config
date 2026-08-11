@@ -143,7 +143,7 @@ The screen cast below shows the process for Level 1. Note:
   not doikayt) we see:
   - no repos initially
   - no doikayt aliases registered in `.bashrc`
-- After we run `dk-scaffold demo`, we will see:
+- After we run `dk-scaffold demo`, we need to input 'y' to install, then we see:
   - lots of output showing the project being configured and built
   - a push to GitHub
   - a build and release triggered on GitHub
