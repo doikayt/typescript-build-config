@@ -99,7 +99,7 @@ npm install                                               # fetch declared devDe
 ### Trying it out
 
 `dk-scaffold` does a lot under the hood, so the best way to get familiar with it
-is to run it at the three levels it supports — each requiring a little more setup
+is to run it at the two levels it supports — each requiring a little more setup
 than the last, and revealing a little more of the process. Each level scaffolds a
 throwaway **app** (nothing publishes) unless noted. Do the one-time
 [machine setup](#1-one-time-machine-setup-once-per-machine) first so `dk-scaffold`
@@ -136,12 +136,18 @@ Push a follow-up **`feat:`** commit and the **release job** version-bumps + tags
 nothing published (app). (The initial `chore: scaffold` push releases nothing;
 `feat:` / `fix:` triggers it.)
 
-**Level 2 — publish to your own npm.** The last rung swaps the app for a `lib`
-and adds your own npm scope + `NPM` secret — then you see the one thing the other
-levels can't: `changeset publish` shipping a real, dist-only package. Full
-procedure: [docs/verification-runbook.md](docs/verification-runbook.md);
-non-`@doikayt`-scope setup:
-[docs/verification-byo-prerequisites.md](docs/verification-byo-prerequisites.md).
+
+The screen cast below shows the process:
+
+<p align="center">
+  <img
+    src="docs/demo.gif"
+    width="720"
+    alt="update-markdown-toc demo">
+</p>
+
+
+
 
 ## Design Goals
 
