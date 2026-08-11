@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.29
+
+### Patch Changes
+
+- - feat: include demo screen cast (phase 1)
+
 ## 0.1.28
 
 ### Patch Changes
