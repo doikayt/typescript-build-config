@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.31
+
+### Patch Changes
+
+- - feat: add screen shot of github actions
+
 ## 0.1.30
 
 ### Patch Changes
