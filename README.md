@@ -158,6 +158,15 @@ The screen cast below shows the process for Level 1. Note:
     alt="update-markdown-toc demo">
 </p>
 
+After we ran the screen cast steps we were able to screenshot how our push triggered a build o
+onthe  Github CI servers.
+
+<p align="center">
+  <img
+    src="docs/github-actions.png"
+    width="720"
+    alt="github-actions-view">
+</p>
 
 
 
