@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.30
+
+### Patch Changes
+
+- - feat: rename DOIKAYT_ORG to REPO_OWNER (backward compatible)
+
 ## 0.1.29
 
 ### Patch Changes
