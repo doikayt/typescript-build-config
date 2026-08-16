@@ -1,5 +1,11 @@
 # @datalackey/typescript-build-config
 
+## 0.1.32
+
+### Patch Changes
+
+- - feat: add addpush alias to wire up and push a local repo
+
 ## 0.1.31
 
 ### Patch Changes
