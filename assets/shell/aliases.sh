@@ -50,6 +50,42 @@ mkrepo() {
 }
 
 # ---------------------------------------------------------------------------
+# addpush [repo-name] : wire up the current directory to an existing GitHub
+# repo (create it first with mkrepo) and push. init -> remote -> add -> commit
+# -> branch -M main -> push -u. Idempotent: safe to re-run. Defaults repo-name
+# to the current directory's name if omitted.
+# ---------------------------------------------------------------------------
+addpush() {
+    local REPO_NAME="${1:-$(basename "$PWD")}"
+    local remote_url="git@github.com:${REPO_OWNER}/${REPO_NAME}.git"
+
+    if ! git config user.email >/dev/null 2>&1 || ! git config user.name >/dev/null 2>&1; then
+        echo "❌ Git identity not configured — needed to commit."
+        echo "   Set it once, then re-run addpush:"
+        echo "     git config --global user.email \"you@example.com\""
+        echo "     git config --global user.name \"Your Name\""
+        return 1
+    fi
+
+    [ -d .git ] || git init
+
+    git remote get-url origin &>/dev/null \
+        && git remote set-url origin "$remote_url" \
+        || git remote add origin "$remote_url"
+
+    git add -A
+    git diff --cached --quiet || git commit -m "Initial commit"
+
+    git branch -M main
+    if ! git push -u origin main; then
+        echo "❌ Push failed — check that '${REPO_OWNER}/${REPO_NAME}' exists (mkrepo ${REPO_NAME}) and you have access."
+        return 1
+    fi
+
+    echo "✅ Pushed to https://github.com/${REPO_OWNER}/${REPO_NAME}"
+}
+
+# ---------------------------------------------------------------------------
 # Thin wrappers over the @doikayt/typescript-build-config CLI.
 # ---------------------------------------------------------------------------
 
