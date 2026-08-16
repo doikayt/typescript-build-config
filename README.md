@@ -174,7 +174,8 @@ onthe  Github CI servers.
 
 The  package housed in this repo is designed to be 'upstream-most' -- i.e., all other
 packages depend on it (possibly transitively) and this package has no other 
-dependencies in this repo.
+dependencies on `doikait` packages (except ONE pinned version specific dependency on build_tools
+which we rely on for documentation generation. -- Cycles are generally bad, but this one works!)
 
 Two goals drive every design decision made for this package, and they pull in different
 directions:
