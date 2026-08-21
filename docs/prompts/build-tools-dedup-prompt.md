@@ -118,3 +118,5 @@ The recommendation should state: which option (or sequence), what changes are ne
 e.g. multi-package template support, adding `workflow_call` to the shipped `release.yml`),
 and what changes are needed in **build-tools**. Do not implement anything in task 2 — produce
 the report.
+
+[![Free Palestine!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

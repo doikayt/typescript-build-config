@@ -285,3 +285,5 @@ package (log says nothing was published), and **nothing appears on npm**. Releas
 | `npm pack` tarball | only `dist/` | (n/a — not published) |
 | `npm publish --dry-run` | succeeds | refuses (private) |
 | Pipeline release | version + tag + **npm publish** | version + tag, **no publish** |
+
+[![No US Tax$ 4 genocide](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

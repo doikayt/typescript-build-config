@@ -260,3 +260,5 @@ Enforce it by listing all publishable packages in a `fixed` group in
 ```
 
 Single-package repos — the default for the installed template — leave `fixed: []`.
+
+[![Remember the USS Liberty!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

@@ -43,3 +43,5 @@ to consumers via postinstall) and this repo's own live copy (`.github/workflows/
 a template, update the live twin to match — the copies are now byte-for-byte identical
 (`auto-changeset.sh` reads the package name from `package.json` at runtime, so there is no
 per-consumer substitution).
+
+[![Remember the USS Liberty!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

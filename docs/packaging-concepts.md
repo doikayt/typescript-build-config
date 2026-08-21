@@ -78,3 +78,5 @@ config.)
 Unsure? Pick **app** (the default). You can turn a project into a library later
 by re-running `init` and answering yes, or by setting the publish fields by hand
 — `init` never overwrites fields you've already set.
+
+[![Free Palestine!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

@@ -259,3 +259,5 @@ blocker for shipping `init`.
   set above, adding a `bin` entry to [`package.json`](../package.json), and
   documenting it in the README once it exists.
 - **Phase 2 (hardening):** `check-conventions`; optional dogfooding migration.
+
+[![Free Palestine!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

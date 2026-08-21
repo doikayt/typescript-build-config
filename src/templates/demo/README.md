@@ -40,3 +40,5 @@ npm test                    # the seeded vitest test passes
 npm run update-all-format   # fills the doc blocks above
 git commit -am "feat: initial version" && git push   # feat:/fix: cut a release (npm publish if a library)
 ```
+
+[![Free Palestine!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

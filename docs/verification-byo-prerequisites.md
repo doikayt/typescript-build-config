@@ -103,3 +103,5 @@ See the token-troubleshooting section of
 
 Then follow [`verification-runbook.md`](verification-runbook.md), substituting your
 repo URL for `doikayt/scratch-pad` and your scope for `@doikayt`.
+
+[![Remember the USS Liberty!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)

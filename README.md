@@ -679,3 +679,5 @@ by hand, with what to look for at each step — follow
 MIT
 
 
+
+[![Remember the USS Liberty!](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)
