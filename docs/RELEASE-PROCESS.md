@@ -7,10 +7,9 @@ Each bullet below is a **link**. The text shows where the file lands in a
 consumer repo (its _destination_); clicking it opens the canonical template it is
 generated from in this package (each template exists under `src/pipeline/`):
 
-- [`.github/workflows/release.yml`](../src/pipeline/release.yml)
+- [`.woodpecker.yml`](../src/pipeline/woodpecker.yml)
 - [`.changeset/config.json`](../src/pipeline/changeset-config.json)
 - [`scripts/auto-changeset.sh`](../src/pipeline/auto-changeset.sh)
-- [`.github/workflows/verify-npm-token.yml`](../src/pipeline/verify-npm-token.yml)
 
 It applies to every repository that installs this package. Repos with extra machinery (e.g.
 monorepos with NX orchestration or post-publish smoke tests) layer their specifics on top of
@@ -198,7 +197,7 @@ After a release completes, evidence appears in several places:
 
 | Where | What to look for |
 |---|---|
-| **GitHub Actions** | Release job green; `Publishing "<your-package>" at "x.y.z"` in the log |
+| **Woodpecker CI** | Release job green; `Publishing "<your-package>" at "x.y.z"` in the log |
 | **`git log`** | A `chore: release [skip ci]` commit with the bumped version |
 | **`git tag`** | New `v<x.y.z>` tag from `changeset publish` — `git pull --tags` to fetch |
 | **`CHANGELOG.md`** | One entry per release with the commit summaries that drove it |
@@ -219,16 +218,15 @@ why. It is generated automatically from the conventional commit subjects that dr
 
 ## Troubleshooting Publish Auth
 
-The pipeline files installed by this package include a small diagnostic workflow,
-`.github/workflows/verify-npm-token.yml`, for checking npm publish credentials without
-performing a release.
+The Woodpecker pipeline requires an `NPM` secret for checking npm publish credentials
+without performing a release.
 
 **When to use it:** the release job fails at the `changeset publish` step with an auth error
 (`ENEEDAUTH`, `EOTP`, 403), or you have just rotated the `NPM` org secret and want to confirm
 the new token works before pushing a release commit.
 
-**How to run it:** GitHub → Actions → **Verify NPM Token** → **Run workflow**. It is
-manual-dispatch only and never runs automatically.
+**How to run it:** run `npm whoami` locally with the same token, or add a temporary
+Woodpecker step that runs `npm whoami` with the `NPM` secret. Do not publish anything.
 
 **What it does:** sets up Node against `registry.npmjs.org` and runs `npm whoami` with the
 `NPM` secret injected as `NODE_AUTH_TOKEN`.

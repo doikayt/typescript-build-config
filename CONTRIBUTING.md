@@ -38,7 +38,7 @@ Add the template under `src/pipeline/` and register it in the `pipelineFiles` li
 when identical, and diff-warned (never overwritten) when the consumer's copy has diverged.
 
 Note that each pipeline file exists twice: the template under `src/pipeline/` (distributed
-to consumers via postinstall) and this repo's own live copy (`.github/workflows/`,
+to consumers via postinstall) and this repo's own live copy (`.woodpecker.yml`,
 `scripts/`, `.changeset/`) — this repo runs the same pipeline it distributes. When changing
 a template, update the live twin to match — the copies are now byte-for-byte identical
 (`auto-changeset.sh` reads the package name from `package.json` at runtime, so there is no

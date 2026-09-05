@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -10,8 +10,16 @@ const ALIASES = fileURLToPath(
   new URL("../assets/shell/aliases.sh", import.meta.url),
 );
 
+test("aliases target Codeberg and use the API token", () => {
+  const source = readFileSync(ALIASES, "utf8");
+  assert.match(source, /CODEBERG_API/);
+  assert.match(source, /Authorization: token/);
+  assert.match(source, /git@codeberg\.org/);
+  assert.doesNotMatch(source, /gh repo create/);
+});
+
 // Run dk-scaffold with every external stubbed to echo a "CALL <cmd>" marker, so
-// we can assert control flow (which side effects fire) without gh, npm, or git.
+// we can assert control flow (which side effects fire) without curl, npm, or git.
 // REPO_OWNER/DOIKAYT_ORG/_TBC are cleared so aliases.sh applies its own defaults,
 // making the default-path assertions deterministic regardless of the caller's env.
 function runScaffold(args) {

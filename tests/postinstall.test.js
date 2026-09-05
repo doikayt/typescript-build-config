@@ -49,8 +49,6 @@ test("fresh install copies config and pipeline files verbatim", () => {
     "eslint.config.js",
     "prettier.config.js",
     ".woodpecker.yml",
-    ".github/workflows/release.yml",
-    ".github/workflows/verify-npm-token.yml",
     ".changeset/config.json",
     "scripts/auto-changeset.sh",
     "docs/assets/doikayt-logo.png",
@@ -80,12 +78,12 @@ test("second run skips identical pipeline files without warnings", () => {
 test("diverged pipeline file is preserved and produces a diff warning", () => {
   const dir = makeConsumer();
   run(dir);
-  const target = join(dir, ".github", "workflows", "release.yml");
+  const target = join(dir, ".woodpecker.yml");
   appendFileSync(target, "# local customisation\n");
   const before = readFileSync(target, "utf8");
   const res = run(dir);
   assert.equal(res.status, 0);
-  assert.match(res.stderr, /release\.yml differs from canonical version/);
+  assert.match(res.stderr, /woodpecker\.yml differs from canonical version/);
   assert.equal(
     readFileSync(target, "utf8"),
     before,

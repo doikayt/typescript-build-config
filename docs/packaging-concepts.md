@@ -61,7 +61,7 @@ publish half differs.
 ### Why an app is marked `private`
 
 `private: true` tells npm the package must never be published. The release
-pipeline's [`changeset publish`](../src/pipeline/release.yml) step honors that
+pipeline's [`changeset publish`](../src/pipeline/woodpecker.yml) step honors that
 and skips private packages, so an app still gets versioned and tagged on release
 — it just isn't pushed to the npm registry. (A future Google Apps Script app
 deploys via `clasp`, not npm, which is another reason apps carry no publish

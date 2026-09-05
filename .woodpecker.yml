@@ -10,6 +10,8 @@ steps:
 
   release:
     image: node:22
+    depends_on:
+      - ci
     commands:
       - apt-get update && apt-get install -y --no-install-recommends git bash
       - npm ci
@@ -19,7 +21,7 @@ steps:
       - bash scripts/auto-changeset.sh
       - npx changeset version
       - git add .
-      - git diff --staged --quiet || git commit -m "chore: release [skip ci]"
+      - git diff --staged --quiet || git commit -m "chore: release [CI SKIP]"
       - git remote set-url origin "https://$CODEBERG_TOKEN@codeberg.org/$CI_REPO.git"
       - git push origin HEAD:main
       - NODE_AUTH_TOKEN="$NPM" npx changeset publish

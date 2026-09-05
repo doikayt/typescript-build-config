@@ -3,10 +3,12 @@
 # Source this from your shell rc (see the README, "Team shell aliases").
 
 # --- config (override via env if needed) ---
-# REPO_OWNER is the GitHub account/org that owns created repos (the "owner" in
+# REPO_OWNER is the Codeberg account/org that owns created repos (the "owner" in
 # owner/repo). DOIKAYT_ORG is the old name, still honored for backward compat.
 : "${REPO_OWNER:=${DOIKAYT_ORG:-doikayt}}"
 : "${DOIKAYT_TBC:=@doikayt/typescript-build-config}"
+: "${CODEBERG_API:=https://codeberg.org/api/v1}"
+: "${CODEBERG_REPO_SCOPE:=org}"
 
 # ---------------------------------------------------------------------------
 # mkrepo <name> : create a public repo in the org (guards against duplicates).
@@ -20,44 +22,54 @@ mkrepo() {
     local REPO_NAME="$1"
     local FULL_REPO_NAME="${REPO_OWNER}/${REPO_NAME}"
 
-    if ! command -v gh &> /dev/null; then
-        echo "❌ GitHub CLI 'gh' is not installed (https://cli.github.com/)."
+    if ! command -v curl &> /dev/null; then
+        echo "❌ curl is required to create Codeberg repositories."
         return 1
     fi
-    if ! gh auth status &> /dev/null; then
-        echo "❌ Not authenticated with gh — run 'gh auth login' first."
+    if [ -z "${CODEBERG_TOKEN:-}" ]; then
+        echo "❌ CODEBERG_TOKEN is not set — create a Codeberg API token first."
         return 1
     fi
 
     echo "🔍 Checking if '${FULL_REPO_NAME}' already exists..."
     # Exit 2 (not 1) signals "already exists" so callers like dk-scaffold can
     # treat it as non-fatal and continue, while true failures stay exit 1.
-    if gh repo view "${FULL_REPO_NAME}" &> /dev/null; then
+    if curl --fail --silent --show-error \
+        -H "Authorization: token ${CODEBERG_TOKEN}" \
+        "${CODEBERG_API}/repos/${FULL_REPO_NAME}" >/dev/null; then
         echo "ℹ️  Repository '${FULL_REPO_NAME}' already exists:"
-        echo "   https://github.com/${FULL_REPO_NAME}"
+        echo "   https://codeberg.org/${FULL_REPO_NAME}"
         return 2
     fi
 
-    echo "🚀 Creating public repository '${FULL_REPO_NAME}'..."
-    # Note: newer gh (2.x) removed --confirm; passing a name is non-interactive.
-    if ! gh repo create "${FULL_REPO_NAME}" --public; then
+    echo "🚀 Creating public Codeberg repository '${FULL_REPO_NAME}'..."
+    local create_url="${CODEBERG_API}/orgs/${REPO_OWNER}/repos"
+    if [ "${CODEBERG_REPO_SCOPE}" = "user" ]; then
+        create_url="${CODEBERG_API}/user/repos"
+    fi
+    if ! curl --fail --silent --show-error \
+        -X POST \
+        -H "Authorization: token ${CODEBERG_TOKEN}" \
+        -H "Content-Type: application/json" \
+        "${create_url}" \
+        --data "{\"name\":\"${REPO_NAME}\",\"private\":false}" >/dev/null; then
         echo "❌ Failed to create repository."
         return 1
     fi
 
-    echo "✅ Created https://github.com/${FULL_REPO_NAME}"
-    echo "   Clone: git@github.com:${FULL_REPO_NAME}.git"
+    echo "✅ Created https://codeberg.org/${FULL_REPO_NAME}"
+    echo "   Clone: git@codeberg.org:${FULL_REPO_NAME}.git"
 }
 
 # ---------------------------------------------------------------------------
-# addpush [repo-name] : wire up the current directory to an existing GitHub
+# addpush [repo-name] : wire up the current directory to an existing Codeberg
 # repo (create it first with mkrepo) and push. init -> remote -> add -> commit
 # -> branch -M main -> push -u. Idempotent: safe to re-run. Defaults repo-name
 # to the current directory's name if omitted.
 # ---------------------------------------------------------------------------
 addpush() {
     local REPO_NAME="${1:-$(basename "$PWD")}"
-    local remote_url="git@github.com:${REPO_OWNER}/${REPO_NAME}.git"
+    local remote_url="git@codeberg.org:${REPO_OWNER}/${REPO_NAME}.git"
 
     if ! git config user.email >/dev/null 2>&1 || ! git config user.name >/dev/null 2>&1; then
         echo "❌ Git identity not configured — needed to commit."
@@ -82,7 +94,7 @@ addpush() {
         return 1
     fi
 
-    echo "✅ Pushed to https://github.com/${REPO_OWNER}/${REPO_NAME}"
+    echo "✅ Pushed to https://codeberg.org/${REPO_OWNER}/${REPO_NAME}"
 }
 
 # ---------------------------------------------------------------------------
@@ -98,8 +110,8 @@ dk-init() { npx "$DOIKAYT_TBC" init "$@"; }
 # ---------------------------------------------------------------------------
 # dk-scaffold <name> [lib|app] [--local] : create the repo, scaffold a project,
 # push. Defaults to an app (private). Answers init non-interactively. Pass
-# --local (or -l) to scaffold and run the CI gate only — no GitHub repo, no push
-# (the "Level 0" tire-kick; needs no gh).
+# --local (or -l) to scaffold and run the CI gate only — no Codeberg repo, no
+# push (the "Level 0" tire-kick; needs no API token).
 # ---------------------------------------------------------------------------
 dk-scaffold() {
     # Positional <name>|. and optional [lib|app]; --local may appear anywhere.
@@ -197,7 +209,7 @@ dk-scaffold() {
         return 0
     fi
 
-    local remote_url="git@github.com:${REPO_OWNER}/${name}.git"
+    local remote_url="git@codeberg.org:${REPO_OWNER}/${name}.git"
     git remote get-url origin &>/dev/null \
         && git remote set-url origin "$remote_url" \
         || git remote add origin "$remote_url"

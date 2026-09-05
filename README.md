@@ -50,7 +50,7 @@ via the pipeline files it installs into each consumer repo and the canonical rel
 These steps set up — in a fresh "new-developer" environment — a local git repo
 with a skeleton demo app plus all the standard Doikayt build configuration:
 tooling that auto-documents the code in the repo and lets it be pushed to
-GitHub, built on GitHub's CI servers, and (for a library) published to npm. Steps
+Codeberg, built by Woodpecker CI, and (for a library) published to npm. Steps
 are minimal here — each links to the section that explains _what_ and _why_.
 
 ### 1. One-time machine setup (once per machine)
@@ -74,7 +74,7 @@ wired to this base package.
 #### dk-scaffold
 
 `dk-scaffold` is the one-command wrapper that also (optionally) creates the
-GitHub repo and pushes it. Just run it with a first argument naming your project
+Codeberg repo and pushes it. Just run it with a first argument naming your project
 and a second indicating `lib` (a published library) or `app` (a standalone
 app/utility, the default) — see [library vs app](#usage) and
 [Packaging concepts](docs/packaging-concepts.md):
@@ -105,8 +105,8 @@ throwaway **app** (nothing publishes) unless noted. Do the one-time
 [machine setup](#1-one-time-machine-setup-once-per-machine) first so `dk-scaffold`
 is on your PATH.
 
-**Level 0 — local (no external GitHub/npm accounts needed).** Scaffold and run
-the same gate CI runs — no GitHub repo, no push:
+**Level 0 — local (no external Codeberg/npm accounts needed).** Scaffold and run
+the same gate CI runs — no Codeberg repo, no push:
 
 ```bash
 dk-scaffold my-demo --local
@@ -118,12 +118,12 @@ declarations, and `update-all-format` fill the README's TOC + UML markers
 (mermaid **source** — rendered at Level 1). `npm publish --dry-run` **refuses** —
 proof the app archetype never publishes.
 
-**Level 1 — push to your own GitHub.** Bring a GitHub account and the `gh` CLI.
-Sign in, point the wrapper at your account, and drop `--local`:
+**Level 1 — push to your own Codeberg.** Bring a Codeberg account and an API token.
+Export the token, point the wrapper at your account, and drop `--local`:
 
 ```bash
-gh auth login                                # one-time: sign in to GitHub
-export REPO_OWNER=<your-github-username>      # target owner for the repo
+export CODEBERG_TOKEN=<your-codeberg-token>   # repository-creation token
+export REPO_OWNER=<your-codeberg-org>        # target owner for the repo
 dk-scaffold my-demo                          # app (private) — no npm creds
 ```
 
@@ -139,14 +139,14 @@ nothing published (app). (The initial `chore: scaffold` push releases nothing;
 
 The screen cast below shows the process for Level 1. Note:
 
-- When we log in to our test account (associated with a dummy GitHub account,
+- When we log in to our test account (associated with a dummy Codeberg account,
   not doikayt) we see:
   - no repos initially
   - no doikayt aliases registered in `.bashrc`
 - After we run `dk-scaffold demo`, we need to input 'y' to install, then we see:
   - lots of output showing the project being configured and built
-  - a push to GitHub
-  - a build and release triggered on GitHub
+  - a push to Codeberg
+  - a build and release triggered by Woodpecker CI
   - since we did not select `lib`, we got an app build profile, for which
     there is no publish to npm
 
@@ -158,14 +158,14 @@ The screen cast below shows the process for Level 1. Note:
     alt="update-markdown-toc demo">
 </p>
 
-After we ran the screen cast steps we were able to screenshot how our push triggered a build o
-onthe  Github CI servers.
+After we ran the screen cast steps we were able to screenshot how our push triggered a build on
+Woodpecker CI.
 
 <p align="center">
   <img
     src="docs/github-actions.png"
     width="720"
-    alt="github-actions-view">
+    alt="woodpecker-ci-view">
 </p>
 
 
@@ -208,7 +208,7 @@ is _why_.)
 | **Stubs** — `src/top-level/*` seeded into the project root | Zero-config entry points that only `extends` the presets | Minimal setup |
 | **Pipeline** — `src/pipeline/*` copied on install | A working release + changeset workflow with no hand-wiring; drift is diff-warned | Both |
 | **Convention checks** — postinstall warns on missing `ci` / `update-all-format` | An install-time nudge toward the shared command surface | Consistency |
-| **`ci` gate** — `release.yml` runs `npm run ci` | Fail-closed enforcement: a repo that ignores the convention cannot release | Consistency (hard teeth) |
+| **`ci` gate** — `.woodpecker.yml` runs `npm run ci` | Fail-closed enforcement: a repo that ignores the convention cannot release | Consistency (hard teeth) |
 | **Policy doc** — `docs/RELEASE-PROCESS.md`, linked never copied | One canonical release policy, impossible to drift | Consistency |
 | **Assets** — `assets/image/*` seeded into `docs/assets/` | Shared brand logos with no per-repo copies to maintain | Minimal setup |
 | **Shell aliases** — `assets/shell/aliases.sh`, cloned + sourced (never shipped to npm) | One standard way for the team to create and scaffold repos (`mkrepo`, `dk-*`) | Consistency |
@@ -335,10 +335,10 @@ versions of these tools may produce peer dependency conflicts.
 - TypeScript config (`tsconfig.json`, `tsconfig.test.json`, `tsconfig.eslint.json`)
 - Postinstall script that copies starter top-level config files into your
   project root, extending the configs installed under `node_modules`
-- GitHub Actions release workflow (`.github/workflows/release.yml`)
+- Woodpecker CI release workflow (`.woodpecker.yml`)
 - Changeset config (`.changeset/config.json`)
 - Auto-changeset script (`scripts/auto-changeset.sh`)
-- NPM token diagnostic workflow (`.github/workflows/verify-npm-token.yml`) — see
+- NPM token diagnostic instructions — see
   [Troubleshooting Publish Auth](docs/RELEASE-PROCESS.md#troubleshooting-publish-auth)
 - Playwright config helper (`@doikayt/typescript-build-config/playwright`) — `nixChromiumLaunchOptions()`
   discovers the system Chromium on quirky NixOS; `definePlaywrightConfig()` wraps `defineConfig` and
@@ -410,7 +410,7 @@ components.
         │       │         prettier.config.js  …           │
         │       └────extends────► presets living in       │
         │                         node_modules  (chan. 1) │
-        │  owned pipeline:  .github/workflows/release.yml │
+        │  owned pipeline:  .woodpecker.yml                │
         │                   scripts/auto-changeset.sh     │
         │  owned assets:    docs/assets/doikayt-logo.*    │
         │  CONTRIBUTING.md ─cites URL─► RELEASE-PROCESS.md│
@@ -502,9 +502,7 @@ On `npm update`, the behavior per file is:
 This means local customisations are never silently overwritten, but you are
 notified when your copy has drifted from the upstream version.
 
-The release pipeline requires an `NPM` secret stored at the GitHub organisation
-level. All repos under the org inherit it automatically — no per-repo secret
-configuration is needed.
+The release pipeline requires `NPM` and `CODEBERG_TOKEN` secrets in Woodpecker.
 
 ## Conventions Every Project Must Adhere To
 
@@ -601,7 +599,7 @@ directly.
 
 ## Publishing
 
-Releases are automated via Changesets and GitHub Actions. The full policy —
+Releases are automated via Changesets and Woodpecker CI. The full policy —
 commit-prefix → bump mapping, forcing or suppressing a release, resolving
 `changeset status` errors, verifying a release, troubleshooting publish auth —
 is documented in [docs/RELEASE-PROCESS.md](docs/RELEASE-PROCESS.md). That
@@ -620,14 +618,13 @@ present. For majors this is mandatory: a breaking-change commit (`feat!:` or
 `BREAKING CHANGE` in the body) with no handwritten changeset fails the
 release job until one is committed.
 
-**Manual publish (emergency):** trigger the workflow manually via
-**GitHub Actions → CI / Release → Run workflow** on the `main` branch.
+**Manual publish (emergency):** trigger a Woodpecker pipeline on the `main` branch.
 
 ## Team shell aliases
 
 Installed by [Quick start](#quick-start) step 1 (or manually: add
-`source <clone-path>/assets/shell/aliases.sh` to your shell rc). They require `gh`
-(authenticated) and `node`/`npm`.
+`source <clone-path>/assets/shell/aliases.sh` to your shell rc). They require
+`curl`, `CODEBERG_TOKEN`, and `node`/`npm`.
 
 | Alias | What it does |
 | --- | --- |

@@ -15,7 +15,7 @@ That document covers: how the automated release pipeline works (auto-changeset �
 `changeset version` + `[skip ci]` commit-back → `changeset publish` + tag), versioning tiers
 and the commit-prefix → bump mapping, forcing a specific bump level, suppressing a release,
 handling `changeset status` errors, verifying a release, maintainer rules, troubleshooting
-publish auth via `verify-npm-token.yml`, and the coordinated (sideways/`fixed`) version bump
+publish auth via the `NPM` secret, and the coordinated (sideways/`fixed`) version bump
 policy for multi-package workspaces.
 
 Do the following two tasks. Task 1 is a concrete edit; task 2 is an investigation whose
@@ -72,11 +72,11 @@ Commit as `docs: replace generic release policy with links to typescript-build-c
 
 ## Task 2 — Investigate sharing release-workflow logic (report only)
 
-Today `.github/workflows/javascript-ci.yml` has two jobs: `build` (tests) and `release`
+Today `.woodpecker.yml` has two jobs: `ci` (tests) and `release`
 (build → `scripts/auto-changeset.sh` → `changeset version` → commit bumps → `changeset
 publish` → smoke test). The release steps are hand-maintained copies of logic that
 `@doikayt/typescript-build-config` now distributes to consumer repos via postinstall
-(`src/pipeline/release.yml`, `auto-changeset.sh`, `verify-npm-token.yml`,
+(`src/pipeline/woodpecker.yml`, `auto-changeset.sh`,
 `changeset-config.json`).
 
 Evaluate the following options and end with a single recommendation:
@@ -89,7 +89,7 @@ Evaluate the following options and end with a single recommendation:
      needs a five-package array. Does the template need multi-package parameterization
      upstream first (e.g. derive the array from the workspace globs or the `fixed` group in
      `.changeset/config.json`)?
-   - The postinstall-distributed `release.yml` assumes repo root as working directory and no
+   - The postinstall-distributed `.woodpecker.yml` assumes repo root as working directory and no
      build step;
      build-tools needs `working-directory: javascript`, an NX build, and the smoke test.
      Would the copy immediately diff-warn forever, defeating the purpose?
@@ -97,7 +97,7 @@ Evaluate the following options and end with a single recommendation:
 2. **Reusable workflow.** typescript-build-config publishes a `workflow_call` workflow
    (inputs: working-directory, node-version, build command, optional smoke-test hook) and
    build-tools' release job becomes a one-line
-   `uses: doikayt/typescript-build-config/.github/workflows/<name>.yml@<ref>`. Weigh: central
+   `.woodpecker.yml` is copied into each consumer repo. Weigh: central
    fixes propagate instantly to all consumers, but a breaking change in the shared workflow
    breaks every consumer's releases at once; pinning to a tag mitigates but reintroduces
    drift.
@@ -109,13 +109,13 @@ Evaluate the following options and end with a single recommendation:
    would duplicate the NX build/test job.
 
 3. **Status quo plus.** Keep hand-maintained copies but adopt only the pieces that fit
-   cleanly today (e.g. `verify-npm-token.yml`, which is fully generic — note it currently
+   cleanly today (e.g. an `npm whoami` diagnostic step, which is fully generic — note it currently
    reads `secrets.NPM_TOKEN` in build-tools vs `secrets.NPM` in the shared version; the org
    convention is `NPM`).
 
 The recommendation should state: which option (or sequence), what changes are needed in
 **typescript-build-config** to enable it (file these as a list to feed back to that repo —
-e.g. multi-package template support, adding `workflow_call` to the shipped `release.yml`),
+e.g. multi-package template support in the shipped `.woodpecker.yml`),
 and what changes are needed in **build-tools**. Do not implement anything in task 2 — produce
 the report.
 

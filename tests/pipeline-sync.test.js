@@ -10,11 +10,6 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const pairs = [
-  { template: 'src/pipeline/release.yml', live: '.github/workflows/release.yml' },
-  {
-    template: 'src/pipeline/verify-npm-token.yml',
-    live: '.github/workflows/verify-npm-token.yml',
-  },
   { template: 'src/pipeline/changeset-config.json', live: '.changeset/config.json' },
   { template: 'src/pipeline/auto-changeset.sh', live: 'scripts/auto-changeset.sh' },
   { template: 'src/pipeline/woodpecker.yml', live: '.woodpecker.yml' },
@@ -22,9 +17,15 @@ const pairs = [
 
 for (const { template, live, substitute } of pairs) {
   test(`${live} matches its template ${template}`, () => {
-    let expected = readFileSync(join(repoRoot, template), 'utf8');
+    let expected = readFileSync(join(repoRoot, template), 'utf8').replaceAll(
+      '\r\n',
+      '\n',
+    );
     if (substitute) expected = substitute(expected);
-    const actual = readFileSync(join(repoRoot, live), 'utf8');
+    const actual = readFileSync(join(repoRoot, live), 'utf8').replaceAll(
+      '\r\n',
+      '\n',
+    );
     assert.equal(actual, expected);
   });
 }

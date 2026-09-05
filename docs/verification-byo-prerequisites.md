@@ -1,40 +1,38 @@
 # Prerequisites: bring-your-own repo and npm registry
 
-The verification runbook's **full-pipeline** steps (A4 / B4) push to a GitHub repo
-and let `release.yml` publish to npm. This page lists what a developer who is
+The verification runbook's **full-pipeline** steps (A4 / B4) push to a Codeberg repo
+and let Woodpecker publish to npm. This page lists what a developer who is
 **not** the `@doikayt` maintainer must set up to run those steps against **their
-own** GitHub repo and npm account — no access to the `doikayt` org or scope
+own** Codeberg repo and npm account — no access to the `doikayt` org or scope
 required.
 
 > **You only need this for the full pipeline.** The local depth (A1–A3, B1–B3) in
 > [`verification-runbook.md`](verification-runbook.md) writes to nothing — no repo,
 > no tokens. Do those first; set up the below only when you want to watch
-> `release.yml` actually publish.
+> `.woodpecker.yml` actually publish.
 
 ## What the pipeline needs from you
 
 | # | Thing | Why |
 | --- | --- | --- |
-| 1 | A GitHub repo you can push to | to trigger Actions and watch `release.yml` |
+| 1 | A Codeberg repo you can push to | to trigger Woodpecker and watch `.woodpecker.yml` |
 | 2 | An npm scope you control | so the package publishes under a name that's yours |
 | 3 | An `NPM` token wired as a repo secret | the credential the release job publishes with |
 
-## 1. A GitHub repo you own
+## 1. A Codeberg repo you own
 
 - Create a throwaway repo under your account (e.g. `you/scratch-pad`). Reuse one
   repo each run via force-push — see
   [Pushing to a reusable scratch repo](verification-runbook.md#pushing-to-a-reusable-scratch-repo).
 - It must contain the scaffold's
-  [`.github/workflows/release.yml`](../.github/workflows/release.yml) — the
+  [`.woodpecker.yml`](../.woodpecker.yml) — the
   scaffolder seeds it for you.
-- **Actions enabled** (Settings → Actions → General → *Allow all actions*).
-- **Leave `main` unprotected.** The release job pushes a `chore: release [skip ci]`
+- Enable the repository in Codeberg's Woodpecker CI instance after onboarding.
+- **Leave `main` unprotected.** The release job pushes a `chore: release [CI SKIP]`
   commit and a tag back to `main`; a branch-protection rule requiring PRs or
   reviews blocks that push and fails the release. A throwaway repo needs no
   protection.
-- **No workflow-permission toggle needed.** The workflow declares
-  `contents: write` and `id-token: write` itself, which overrides a read-only repo
-  default. The built-in `GITHUB_TOKEN` is auto-provided — you never create it.
+- Add a `CODEBERG_TOKEN` Woodpecker secret with permission to push `main` and tags.
 - **Git push auth** from your machine: an SSH key or a PAT/HTTPS credential for
   your repo.
 
@@ -56,8 +54,7 @@ required.
 To publish somewhere other than npmjs (GitHub Packages, a private registry), also:
 
 - point the workflows at it — change `registry-url` in
-  [`.github/workflows/release.yml`](../.github/workflows/release.yml) and
-  [`.github/workflows/verify-npm-token.yml`](../.github/workflows/verify-npm-token.yml);
+  [`.woodpecker.yml`](../.woodpecker.yml);
 - set `publishConfig.registry` in `package.json`;
 - issue the token (step 3) from that registry.
 
@@ -69,8 +66,7 @@ This is the credential the release job publishes with:
 
 - **Name:** `NPM` — must match exactly. The workflow injects it as
   `NODE_AUTH_TOKEN`.
-- **Where:** your repo → **Settings → Secrets and variables → Actions → New
-  repository secret**.
+- **Where:** your repository's Woodpecker settings → **Secrets**.
 - **Value:** an npm token that can publish to your scope — use either:
   - a classic **Automation** token, or
   - a **granular access token** with read+write on your scope **and 2FA bypass
@@ -84,7 +80,7 @@ This is the credential the release job publishes with:
 The scaffold ships a **Verify NPM Token** workflow so you can confirm the secret
 without publishing anything:
 
-- GitHub → **Actions → Verify NPM Token → Run workflow**.
+- Woodpecker → run a temporary `npm whoami` step with the `NPM` secret.
 - It runs `npm whoami` with your `NPM` secret. **Green + your username** = the
   token authenticates. **Red** = the token is expired/revoked/malformed, or the
   secret is missing or misnamed.
@@ -96,7 +92,7 @@ See the token-troubleshooting section of
 
 | Item | Where | Value / setting |
 | --- | --- | --- |
-| Scratch repo | your GitHub account | push access; Actions on; `main` unprotected |
+| Scratch repo | your Codeberg account | push access; Woodpecker enabled; `main` unprotected |
 | Package name | `init` prompt / `package.json` | `@yourname/…` + `publishConfig.access: "public"` |
 | `NPM` secret | repo → Settings → Secrets → Actions | Automation or 2FA-bypass granular publish token |
 | Git push auth | your machine | SSH key or PAT for your repo |

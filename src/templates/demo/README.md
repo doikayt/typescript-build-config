@@ -9,7 +9,7 @@
 > before you write any code. Replace them with your own whenever you like —
 > `init` printed the exact paths to delete.
 
-Run `npm run update-all-format` to fill the blocks below; GitHub renders the
+Run `npm run update-all-format` to fill the blocks below; Codeberg renders the
 Mermaid diagrams inline from the fenced blocks.
 
 ## Build Pipeline

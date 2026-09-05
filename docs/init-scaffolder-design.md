@@ -142,7 +142,7 @@ Notes:
 - `vitest` (always)
 - `@doikayt/autogen-markdown-doc` (always — `update/check-markdown-docs` need it)
 - `typescript` (always — the `build` script runs `tsc`)
-- `@changesets/cli` (always — `release.yml` runs `npx changeset version` / `publish`)
+- `@changesets/cli` (always — `.woodpecker.yml` runs `npx changeset version` / `publish`)
 - `@playwright/test` (UI projects only)
 
 `init` also sets top-level publish fields non-destructively. `type: "module"` is
@@ -178,7 +178,7 @@ The browser install is idempotent and cached, so after the first run it is a
 fast no-op. This makes browsers appear automatically in every environment with
 no extra manual step — locally (first `npm run test:e2e`) and on the CI runner
 (via `npm run ci` → `npm run test:e2e`). Crucially, it keeps
-[`release.yml`](../src/pipeline/release.yml) uniform: the shared workflow never
+`.woodpecker.yml` uniform: the shared pipeline never
 has to learn about Playwright — it still just runs `npm run ci`.
 
 **App bring-up lives in the Playwright config, not the workflow.** The seeded
@@ -207,7 +207,7 @@ that chooses the right form at runtime:
 
 This keeps `test:e2e` a single cross-platform script, needs no root locally,
 installs OS deps only where it's both safe and necessary, and leaves
-`release.yml` uniform. It's a ~10-line Node script exposed as a `bin` in this
+`.woodpecker.yml` uniform. It's a ~10-line Node script exposed as a `bin` in this
 package's [`package.json`](../package.json).
 
 ### NX chaining
@@ -236,7 +236,7 @@ time:
 
 - **Now (soft, name-level):** `postinstall` warns when `ci` / `update-all-format`
   are missing. It checks the name exists, not that the script does anything.
-- **Now (hard):** the fail-closed `ci` gate — `release.yml` runs `npm run ci`; a
+- **Now (hard):** the fail-closed `ci` gate — `.woodpecker.yml` runs `npm run ci`; a
   repo without a working gate can't publish.
 - **Planned (`check-conventions`):** a subcommand CI can run to assert both
   **presence and shape** of the canonical targets — turning the soft name-warn

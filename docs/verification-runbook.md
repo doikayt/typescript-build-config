@@ -14,10 +14,10 @@ both project archetypes. Each step lists the command and **what to look for**.
 There are two depths:
 
 - **Local (safe, default)** — proves the build/pack/publish _mechanics_ without
-  writing to npm or GitHub. Uses `npm pack` and `npm publish --dry-run`. Run this
+  writing to npm or Codeberg. Uses `npm pack` and `npm publish --dry-run`. Run this
   every time.
-- **Full pipeline (optional)** — actually pushes to a GitHub repo and lets
-  `release.yml` publish to npm. Only when you want the real thing; it burns a
+- **Full pipeline (optional)** — actually pushes to a Codeberg repo and lets
+  Woodpecker publish to npm. Only when you want the real thing; it burns a
   version number and (for a library) a public package name.
 
 ## Contents
@@ -52,7 +52,8 @@ There are two depths:
     produce `doikayt-typescript-build-config-<ver>.tgz`, then install that
     tarball path in the scratch project below. This is how you verify _before_
     publishing.
-- For the **full** path only: a throwaway GitHub repo and an `NPM` token secret
+- For the **full** path only: a throwaway Codeberg repo, `CODEBERG_TOKEN`, and an
+  `NPM` token secret
   (see [docs/RELEASE-PROCESS.md](RELEASE-PROCESS.md)), plus — for a library — a
   package name not already taken on npm. Not the `@doikayt` maintainer? See
   [`verification-byo-prerequisites.md`](verification-byo-prerequisites.md) for
@@ -86,8 +87,8 @@ never leave test packages on npm:
 
 ## Pushing to a reusable scratch repo
 
-The full-pipeline steps (A4 / B4) push to a real GitHub repo to watch
-`release.yml` run. Rather than a new repo each run, keep **one throwaway repo**
+The full-pipeline steps (A4 / B4) push to a real Codeberg repo to watch
+Woodpecker run. Rather than a new repo each run, keep **one throwaway repo**
 (e.g. `doikayt/scratch-pad`) and overwrite it each time with a force push.
 
 From the scaffolded project directory:
@@ -198,7 +199,7 @@ exits 0. No error about the package being private.
 2. Push to your scratch repo per
    [Pushing to a reusable scratch repo](#pushing-to-a-reusable-scratch-repo) —
    but commit with **`feat:`** so the release job fires.
-3. Watch the **Actions** run (`CI / Release`).
+3. Watch the **Woodpecker CI** run.
 
 **Look for:** the `ci` job passes; the `release` job runs `changeset version`
 (bumps to a patch), commits `chore: release`, then `changeset publish` **uploads
