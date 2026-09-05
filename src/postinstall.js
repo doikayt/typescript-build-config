@@ -9,6 +9,7 @@ import { resolve, dirname } from "path";
 import { execSync } from "child_process";
 import { tmpdir } from "os";
 import { join } from "path";
+import { fileURLToPath } from "url";
 
 const PREFIX = "[@doikayt/typescript-build-config]";
 
@@ -34,8 +35,8 @@ if (projectPkg.name === "@doikayt/typescript-build-config") {
   process.exit(0);
 }
 
-const srcDir = new URL("top-level", import.meta.url).pathname;
-const pipelineDir = new URL("pipeline", import.meta.url).pathname;
+const srcDir = fileURLToPath(new URL("top-level", import.meta.url));
+const pipelineDir = fileURLToPath(new URL("pipeline", import.meta.url));
 
 // --- Top-level config files: all-or-nothing ---
 
@@ -72,6 +73,7 @@ if (alreadyExist.length > 0) {
 // --- Pipeline files: per-file copy/warn/diff ---
 
 const pipelineFiles = [
+  { src: "woodpecker.yml", dest: ".woodpecker.yml" },
   { src: "release.yml", dest: ".github/workflows/release.yml" },
   { src: "changeset-config.json", dest: ".changeset/config.json" },
   { src: "auto-changeset.sh", dest: "scripts/auto-changeset.sh" },
@@ -111,7 +113,7 @@ for (const { src, dest } of pipelineFiles) {
 
 // --- Asset files: seeded into docs/assets/, same per-file copy/warn as pipeline ---
 
-const assetDir = new URL("../assets/image", import.meta.url).pathname;
+const assetDir = fileURLToPath(new URL("../assets/image", import.meta.url));
 
 const assetFiles = [
   { src: "doikayt-logo.png", dest: "docs/assets/doikayt-logo.png" },

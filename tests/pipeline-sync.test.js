@@ -17,6 +17,7 @@ const pairs = [
   },
   { template: 'src/pipeline/changeset-config.json', live: '.changeset/config.json' },
   { template: 'src/pipeline/auto-changeset.sh', live: 'scripts/auto-changeset.sh' },
+  { template: 'src/pipeline/woodpecker.yml', live: '.woodpecker.yml' },
 ];
 
 for (const { template, live, substitute } of pairs) {

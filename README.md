@@ -130,8 +130,8 @@ dk-scaffold my-demo                          # app (private) — no npm creds
 Now it creates the repo and pushes — and you see what Level 0 couldn't: the
 **mermaid diagrams rendered** (example
 [here](https://github.com/doikayt/build-tools/blob/main/javascript/tooling-core/README.md#package-structure))
-and the **CI job go green** in Actions (example:
-[this project's runs](https://codeberg.org/doikayt/typescript-build-config/actions)).
+and the **CI job goes green** in Woodpecker CI (example:
+[this project's runs](https://ci.codeberg.org/repos/doikayt/typescript-build-config)).
 Push a follow-up **`feat:`** commit and the **release job** version-bumps + tags —
 nothing published (app). (The initial `chore: scaffold` push releases nothing;
 `feat:` / `fix:` triggers it.)

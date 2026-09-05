@@ -48,6 +48,7 @@ test("fresh install copies config and pipeline files verbatim", () => {
     "tsconfig.json",
     "eslint.config.js",
     "prettier.config.js",
+    ".woodpecker.yml",
     ".github/workflows/release.yml",
     ".github/workflows/verify-npm-token.yml",
     ".changeset/config.json",

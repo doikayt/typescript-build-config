@@ -1,0 +1,34 @@
+# Canonical pipeline is maintained in src/pipeline/woodpecker.yml.
+# Keep this root copy in sync for this repository.
+steps:
+  ci:
+    image: node:22
+    commands:
+      - npm ci
+      - npm run ci
+      - if [ "$CI_PIPELINE_EVENT" = "pull_request" ]; then npx changeset status; fi
+
+  release:
+    image: node:22
+    commands:
+      - apt-get update && apt-get install -y --no-install-recommends git bash
+      - npm ci
+      - git fetch --tags --force
+      - git config user.name "doikayt-release-bot"
+      - git config user.email "doikayt-release-bot@codeberg.org"
+      - bash scripts/auto-changeset.sh
+      - npx changeset version
+      - git add .
+      - git diff --staged --quiet || git commit -m "chore: release [skip ci]"
+      - git remote set-url origin "https://$CODEBERG_TOKEN@codeberg.org/$CI_REPO.git"
+      - git push origin HEAD:main
+      - NODE_AUTH_TOKEN="$NPM" npx changeset publish
+      - git push origin --tags
+    environment:
+      CODEBERG_TOKEN:
+        from_secret: CODEBERG_TOKEN
+      NPM:
+        from_secret: NPM
+    when:
+      - event: push
+        branch: main
