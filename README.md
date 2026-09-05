@@ -60,7 +60,7 @@ Clone this base repo and install the shared team
 (`dk-scaffold`, `mkrepo`); it does **not** configure any project:
 
 ```bash
-git clone https://github.com/doikayt/typescript-build-config.git   # HTTPS: no SSH key needed
+git clone https://codeberg.org/doikayt/typescript-build-config.git   # HTTPS: no SSH key needed
 cd typescript-build-config
 ./assets/shell/install.sh   # adds `source assets/shell/aliases.sh` to your rc (idempotent)
 exec $SHELL                 # reload
@@ -131,7 +131,7 @@ Now it creates the repo and pushes — and you see what Level 0 couldn't: the
 **mermaid diagrams rendered** (example
 [here](https://github.com/doikayt/build-tools/blob/main/javascript/tooling-core/README.md#package-structure))
 and the **CI job go green** in Actions (example:
-[this project's runs](https://github.com/doikayt/typescript-build-config/actions)).
+[this project's runs](https://codeberg.org/doikayt/typescript-build-config/actions)).
 Push a follow-up **`feat:`** commit and the **release job** version-bumps + tags —
 nothing published (app). (The initial `chore: scaffold` push releases nothing;
 `feat:` / `fix:` triggers it.)
@@ -641,7 +641,7 @@ Installed by [Quick start](#quick-start) step 1 (or manually: add
 ### Clone and install
 
 ```bash
-git clone git@github.com:doikayt/typescript-build-config.git
+git clone git@codeberg.org:doikayt/typescript-build-config.git
 cd typescript-build-config
 npm install
 ```

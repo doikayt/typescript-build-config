@@ -59,7 +59,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/doikayt/typescript-build-config.git"
+    "url": "git+ssh://git@codeberg.org/doikayt/typescript-build-config.git"
   },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.57.1",

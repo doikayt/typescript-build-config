@@ -9,7 +9,7 @@ The generic release policy formerly documented only in this repo's
 `@doikayt/typescript-build-config` package, whose repo now hosts the canonical policy
 document:
 
-    https://github.com/doikayt/typescript-build-config/blob/main/docs/RELEASE-PROCESS.md
+      https://codeberg.org/doikayt/typescript-build-config/src/branch/main/docs/RELEASE-PROCESS.md
 
 That document covers: how the automated release pipeline works (auto-changeset →
 `changeset version` + `[skip ci]` commit-back → `changeset publish` + tag), versioning tiers

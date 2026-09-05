@@ -103,7 +103,7 @@ git status                        # confirm node_modules/ is NOT staged (.gitign
 git commit -m "chore: scratch-pad test scaffold"   # chore: = CI runs, nothing publishes;
                                                     # use feat: to test the publish path
 
-git remote add origin git@github.com:doikayt/scratch-pad.git   # set-url if origin exists
+git remote add origin git@codeberg.org:doikayt/scratch-pad.git   # set-url if origin exists
 git push -u origin main --force   # first push: sets upstream + overwrites the scratch repo
 ```
 
