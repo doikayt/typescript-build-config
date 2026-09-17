@@ -28,6 +28,8 @@ mkrepo() {
     fi
     if [ -z "${CODEBERG_TOKEN:-}" ]; then
         echo "❌ CODEBERG_TOKEN is not set — create a Codeberg API token first."
+        echo "   For a local scaffold without a repo, run: dk-scaffold <name> --local"
+        echo "   For a remote scaffold, export CODEBERG_TOKEN and REPO_OWNER=<your-codeberg-org>"
         return 1
     fi
 
@@ -153,9 +155,15 @@ dk-scaffold() {
         return 1
     fi
 
-    # --local skips repo creation entirely (no gh needed); rc stays 0.
+    # --local skips repo creation entirely (no Codeberg token needed); rc stays 0.
     local rc=0
     if [ "$local_only" -eq 0 ]; then
+        if [ -z "${CODEBERG_TOKEN:-}" ]; then
+            echo "❌ CODEBERG_TOKEN is not set — create a Codeberg API token first."
+            echo "   For a local scaffold without a repo, run: dk-scaffold ${name} --local"
+            echo "   For a remote scaffold, export CODEBERG_TOKEN and REPO_OWNER=<your-codeberg-org>"
+            return 1
+        fi
         mkrepo "$name"
         rc=$?
         if [ "$rc" -eq 2 ]; then

@@ -39,6 +39,7 @@ function runScaffold(args) {
   delete env.REPO_OWNER;
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
+  env.CODEBERG_TOKEN = "test-token";
   const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
   return { out: (res.stdout || "") + (res.stderr || ""), status: res.status };
 }
@@ -78,6 +79,7 @@ function runScaffoldWithEnv(args, overrides) {
   delete env.REPO_OWNER;
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
+  env.CODEBERG_TOKEN = "test-token";
   Object.assign(env, overrides);
   const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
   return { out: (res.stdout || "") + (res.stderr || ""), status: res.status };
@@ -119,6 +121,30 @@ test("missing name prints usage and fails", () => {
   const { out, status } = runScaffold("--local");
   assert.notEqual(status, 0);
   assert.match(out, /Usage: dk-scaffold/);
+});
+
+test("missing Codeberg token explains the local-only workaround", () => {
+  const workdir = mkdtempSync(join(tmpdir(), "tbc-scaffold-"));
+  const script = `
+    source ${JSON.stringify(ALIASES)}
+    dk-new(){ echo "CALL dk-new"; }
+    dk-init(){ cat >/dev/null; echo "CALL dk-init"; }
+    npm(){ echo "CALL npm $*"; return 0; }
+    git(){ echo "CALL git $*"; return 0; }
+    cd ${JSON.stringify(workdir)}
+    dk-scaffold demo
+    exit $?
+  `;
+  const env = { ...process.env };
+  delete env.REPO_OWNER;
+  delete env.DOIKAYT_ORG;
+  delete env.DOIKAYT_TBC;
+  delete env.CODEBERG_TOKEN;
+  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  const out = (res.stdout || "") + (res.stderr || "");
+  assert.notEqual(res.status, 0);
+  assert.match(out, /CODEBERG_TOKEN is not set/);
+  assert.match(out, /--local/);
 });
 
 test("errors out early when no git identity is configured", () => {
