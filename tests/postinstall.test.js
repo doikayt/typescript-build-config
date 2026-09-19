@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { normalizeProjectRoot } from "../src/postinstall.js";
 import {
   mkdtempSync,
   existsSync,
@@ -32,6 +33,17 @@ function run(dir) {
     env: { ...process.env, INIT_CWD: dir },
   });
 }
+
+test("normalizeProjectRoot strips duplicated Windows drive prefixes from Git Bash paths", () => {
+  assert.equal(
+    normalizeProjectRoot("C:\\C:\\Users\\Pranjal345\\Documents\\remote\\add_new"),
+    "C:\\Users\\Pranjal345\\Documents\\remote\\add_new",
+  );
+  assert.equal(
+    normalizeProjectRoot("/c/Users/Pranjal345/Documents/remote/add_new"),
+    "C:\\Users\\Pranjal345\\Documents\\remote\\add_new",
+  );
+});
 
 test("no package.json in project root exits 0 without crashing", () => {
   const dir = mkdtempSync(join(tmpdir(), "tbc-postinstall-empty-"));

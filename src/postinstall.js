@@ -13,9 +13,28 @@ import { fileURLToPath } from "url";
 
 const PREFIX = "[@doikayt/typescript-build-config]";
 
+export function normalizeProjectRoot(rawPath) {
+  if (!rawPath) return rawPath;
+
+  let normalized = rawPath.replace(/^[A-Za-z]:\\C:\\/, "C:\\");
+  normalized = normalized.replace(/^\/([A-Za-z])\//, (_, drive) => `${drive.toUpperCase()}:\\`);
+  normalized = normalized.replace(/^\//, "");
+  normalized = normalized.replace(/\\+/g, "\\");
+
+  if (/^([A-Za-z]):\\/.test(normalized)) {
+    return normalized.replace(/\\+/g, "\\");
+  }
+
+  if (/^([A-Za-z]):\//.test(normalized)) {
+    return normalized.replace(/\//g, "\\");
+  }
+
+  return normalized;
+}
+
 console.log(`${PREFIX} Running postinstall...`);
 
-const projectRoot = process.env.INIT_CWD ?? process.cwd();
+const projectRoot = normalizeProjectRoot(process.env.INIT_CWD ?? process.cwd());
 const projectPkgPath = resolve(projectRoot, "package.json");
 
 // Installed via `npx @doikayt/... new` into a bare dir (or otherwise before a
