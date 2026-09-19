@@ -10,6 +10,12 @@
 : "${CODEBERG_API:=https://codeberg.org/api/v1}"
 : "${CODEBERG_REPO_SCOPE:=org}"
 
+# Resolve the current checkout reliably even after the caller `cd`s elsewhere.
+# This avoids falling back to the published npm package when a developer is
+# testing the repo they are editing.
+__DK_ALIAS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+__DK_REPO_ROOT="$(cd "${__DK_ALIAS_DIR}/../.." && pwd)"
+
 # ---------------------------------------------------------------------------
 # mkrepo <name> : create a public repo in the org (guards against duplicates).
 # ---------------------------------------------------------------------------
@@ -103,11 +109,25 @@ addpush() {
 # Thin wrappers over the @doikayt/typescript-build-config CLI.
 # ---------------------------------------------------------------------------
 
-# dk-new : `npm init -y` + @doikayt scope on the package name.
-dk-new() { npx "$DOIKAYT_TBC" new "$@"; }
+# Prefer the local repo checkout when this file is being used from a dev clone.
+# That keeps the shell aliases pinned to the code you are actively editing,
+# instead of silently pulling the published npm package.
+dk-new() {
+    if [ -f "${__DK_REPO_ROOT}/src/cli.js" ]; then
+        node "${__DK_REPO_ROOT}/src/cli.js" new "$@"
+        return
+    fi
+    npx "$DOIKAYT_TBC" new "$@"
+}
 
 # dk-init : scaffold the shared build config into the current project.
-dk-init() { npx "$DOIKAYT_TBC" init "$@"; }
+dk-init() {
+    if [ -f "${__DK_REPO_ROOT}/src/cli.js" ]; then
+        node "${__DK_REPO_ROOT}/src/cli.js" init "$@"
+        return
+    fi
+    npx "$DOIKAYT_TBC" init "$@"
+}
 
 # ---------------------------------------------------------------------------
 # dk-scaffold <name> [lib|app] [--local] : create the repo, scaffold a project,

@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync } from "fs";
+import * as childProcess from "node:child_process";
 import { tmpdir } from "os";
 import { join } from "path";
-import { runNew } from "../src/new-package.js";
+import { npmExecutableName, runNew } from "../src/new-package.js";
 
 const silent = () => {};
 
@@ -50,4 +51,64 @@ test("new: an already-@doikayt name is unchanged", () => {
     "@doikayt/keep",
   );
   assert.equal(res.changed, false);
+});
+
+test("new: uses npm.cmd on Windows", () => {
+  const originalPlatform = process.platform;
+  Object.defineProperty(process, "platform", {
+    value: "win32",
+    configurable: true,
+  });
+  try {
+    assert.equal(npmExecutableName(), "npm.cmd");
+  } finally {
+    Object.defineProperty(process, "platform", {
+      value: originalPlatform,
+      configurable: true,
+    });
+  }
+});
+
+test("new: shells out through cmd.exe on Windows so npm.cmd can spawn in Git Bash", () => {
+  const originalPlatform = process.platform;
+  Object.defineProperty(process, "platform", {
+    value: "win32",
+    configurable: true,
+  });
+
+  const original = childProcess.spawnSync;
+  const calls = [];
+
+  try {
+    Object.defineProperty(childProcess, "spawnSync", {
+      value: (cmd, args, opts) => {
+        calls.push({ cmd, args, opts });
+        return { status: 0, error: undefined };
+      },
+      configurable: true,
+    });
+
+    const dir = mkdtempSync(join(tmpdir(), "tbc-new-shell-"));
+    runNew({
+      cwd: dir,
+      npmInit: (cwd) =>
+        writeFileSync(
+          join(cwd, "package.json"),
+          JSON.stringify({ name: "demo" }, null, 2) + "\n",
+        ),
+      log: silent,
+    });
+
+    assert.ok(calls.length > 0, "expected spawnSync to be called");
+    assert.equal(calls[0].opts.shell, true);
+  } finally {
+    Object.defineProperty(childProcess, "spawnSync", {
+      value: original,
+      configurable: true,
+    });
+    Object.defineProperty(process, "platform", {
+      value: originalPlatform,
+      configurable: true,
+    });
+  }
 });

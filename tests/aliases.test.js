@@ -2,13 +2,26 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const ALIASES = fileURLToPath(
   new URL("../assets/shell/aliases.sh", import.meta.url),
 );
+
+function bashExecutable() {
+  if (process.platform === "win32") {
+    const candidates = [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:/Program Files/Git/usr/bin/bash.exe",
+      "C:/Program Files/Git/bin/bash",
+    ];
+    const match = candidates.find((candidate) => existsSync(candidate));
+    if (match) return match;
+  }
+  return "bash";
+}
 
 test("aliases target Codeberg and use the API token", () => {
   const source = readFileSync(ALIASES, "utf8");
@@ -40,7 +53,7 @@ function runScaffold(args) {
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
   env.CODEBERG_TOKEN = "test-token";
-  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8", env });
   return { out: (res.stdout || "") + (res.stderr || ""), status: res.status };
 }
 
@@ -81,7 +94,7 @@ function runScaffoldWithEnv(args, overrides) {
   delete env.DOIKAYT_TBC;
   env.CODEBERG_TOKEN = "test-token";
   Object.assign(env, overrides);
-  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8", env });
   return { out: (res.stdout || "") + (res.stderr || ""), status: res.status };
 }
 
@@ -140,7 +153,7 @@ test("missing Codeberg token explains the local-only workaround", () => {
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
   delete env.CODEBERG_TOKEN;
-  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8", env });
   const out = (res.stdout || "") + (res.stderr || "");
   assert.notEqual(res.status, 0);
   assert.match(out, /CODEBERG_TOKEN is not set/);
@@ -169,9 +182,30 @@ test("errors out early when no git identity is configured", () => {
   delete env.REPO_OWNER;
   delete env.DOIKAYT_ORG;
   delete env.DOIKAYT_TBC;
-  const res = spawnSync("bash", ["-c", script], { encoding: "utf8", env });
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8", env });
   const out = (res.stdout || "") + (res.stderr || "");
   assert.notEqual(res.status, 0);
   assert.match(out, /Git identity not configured/);
   assert.doesNotMatch(out, /CALL dk-new/); // failed before any scaffolding
+});
+
+test("dk-new and dk-init always prefer the local checkout even after cd", () => {
+  const workdir = mkdtempSync(join(tmpdir(), "tbc-scaffold-"));
+  const script = `
+    source ${JSON.stringify(ALIASES)}
+    node(){ echo "CALL node $*"; return 0; }
+    npx(){ echo "CALL npx $*"; return 0; }
+    cd ${JSON.stringify(workdir)}
+    dk-new demo
+    dk-init --help
+  `;
+  const env = { ...process.env };
+  delete env.REPO_OWNER;
+  delete env.DOIKAYT_ORG;
+  delete env.DOIKAYT_TBC;
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8", env });
+  const out = (res.stdout || "") + (res.stderr || "");
+  assert.match(out, /CALL node .*src\/cli\.js new demo/);
+  assert.match(out, /CALL node .*src\/cli\.js init --help/);
+  assert.doesNotMatch(out, /CALL npx/);
 });

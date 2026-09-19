@@ -3,9 +3,18 @@ import { resolve } from "path";
 import { spawnSync } from "child_process";
 import { scopeName } from "./scope-name.js";
 
+export function npmExecutableName() {
+  return process.platform === "win32" ? "npm.cmd" : "npm";
+}
+
 // Default `npm init -y` runner. Injectable so runNew is testable without npm.
 function npmInitY(cwd) {
-  const res = spawnSync("npm", ["init", "-y"], { cwd, stdio: "inherit" });
+  const npmCommand = npmExecutableName();
+  const res = spawnSync(npmCommand, ["init", "-y"], {
+    cwd,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
   if (res.error) throw res.error;
   if (res.status !== 0)
     throw new Error(`npm init -y exited with ${res.status}`);
