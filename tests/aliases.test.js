@@ -130,6 +130,21 @@ test("-l short flag behaves like --local", () => {
   assert.doesNotMatch(out, /CALL mkrepo/);
 });
 
+test("prints the auto-answered-prompts note by default", () => {
+  const { out, status } = runScaffold("my-demo --local");
+  assert.equal(status, 0);
+  assert.match(out, /answers all setup prompts for you automatically/);
+});
+
+test("-q and --quiet hide the auto-answered-prompts note", () => {
+  for (const flag of ["-q", "--quiet"]) {
+    const { out, status } = runScaffold(`my-demo --local ${flag}`);
+    assert.equal(status, 0);
+    assert.doesNotMatch(out, /answers all setup prompts/);
+    assert.match(out, /Scaffolded my-demo locally \(app\)/);
+  }
+});
+
 test("missing name prints usage and fails", () => {
   const { out, status } = runScaffold("--local");
   assert.notEqual(status, 0);

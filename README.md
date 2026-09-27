@@ -83,6 +83,16 @@ app/utility, the default) — see [library vs app](#usage) and
 dk-scaffold my-project lib
 ```
 
+**Where the project lands.** `dk-scaffold <name>` creates a `<name>/` subdirectory in the
+directory you ran it from (for example `~/projects/my-project/`) and leaves your shell
+inside it. Two variants scaffold in place instead of creating a subdirectory:
+
+- run it from inside an empty directory that is already named `<name>`
+- pass `.` as the name, which uses the current directory's name as the project name
+
+`dk-scaffold` will look like it is prompting you, but just wait a moment: the script
+fills in the appropriate answers itself. It prints a note saying so; pass `-q` to hide it.
+
 #### Run dk-scaffold's steps individually
 
 The steps below mirror the work `dk-scaffold` does under the hood — either for a
@@ -118,13 +128,17 @@ declarations, and `update-all-format` fill the README's TOC + UML markers
 (mermaid **source** — rendered at Level 1). `npm publish --dry-run` **refuses** —
 proof the app archetype never publishes.
 
+The project is created in `./my-demo/` (a subdirectory of wherever you ran the command),
+and your shell is left `cd`'d into it, so you can run `npm test` or `npm run build` right
+away.
+
 **Level 1 — push to your own Codeberg.** Bring a Codeberg account and an API token.
 Export the token, point the wrapper at your account, and drop `--local`:
 
 ```bash
 export CODEBERG_TOKEN=<your-codeberg-token>   # repository-creation token
 export REPO_OWNER=<your-codeberg-org>        # target owner for the repo
-dk-scaffold my-demo                          # app (private) — no npm creds
+dk-scaffold my-demo                          # app (public repo) — no npm creds
 ```
 
 Now it creates the repo and pushes — and you see what Level 0 couldn't: the
@@ -143,7 +157,7 @@ The screen cast below shows the process for Level 1. Note:
   not doikayt) we see:
   - no repos initially
   - no doikayt aliases registered in `.bashrc`
-- After we run `dk-scaffold demo`, we need to input 'y' to install, then we see:
+- After we run `dk-scaffold demo`, the install proceeds automatically, then we see:
   - lots of output showing the project being configured and built
   - a push to Codeberg
   - a build and release triggered by Woodpecker CI
@@ -631,7 +645,7 @@ Installed by [Quick start](#quick-start) step 1 (or manually: add
 | `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
 | `dk-new` | `npm init -y` + `@doikayt` scope. |
 | `dk-init` | Scaffold the build config into the current project. |
-| `dk-scaffold <name>\|. [lib\|app]` | Create the repo, scaffold, and push — one command (defaults to app). Pass `.` to scaffold in the current directory, using its leaf name as `@doikayt/<package-name>`. |
+| `dk-scaffold <name>\|. [lib\|app] [--local] [-q]` | Create the repo, scaffold, and push — one command (defaults to app). Pass `.` to scaffold in the current directory, using its leaf name as `@doikayt/<package-name>`. `--local` skips the repo and push; `-q` hides the auto-answered-prompts note. |
 
 ## For Maintainers
 

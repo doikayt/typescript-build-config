@@ -130,17 +130,19 @@ dk-init() {
 }
 
 # ---------------------------------------------------------------------------
-# dk-scaffold <name> [lib|app] [--local] : create the repo, scaffold a project,
-# push. Defaults to an app (private). Answers init non-interactively. Pass
-# --local (or -l) to scaffold and run the CI gate only — no Codeberg repo, no
-# push (the "Level 0" tire-kick; needs no API token).
+# dk-scaffold <name> [lib|app] [--local] [-q] : create the repo, scaffold a
+# project, push. Defaults to an app (private). Answers init non-interactively.
+# Pass --local (or -l) to scaffold and run the CI gate only — no Codeberg repo,
+# no push (the "Level 0" tire-kick; needs no API token). Pass --quiet (or -q)
+# to hide the note explaining that the prompts are answered automatically.
 # ---------------------------------------------------------------------------
 dk-scaffold() {
-    # Positional <name>|. and optional [lib|app]; --local may appear anywhere.
-    local local_only=0 name="" kind="" arg
+    # Positional <name>|. and optional [lib|app]; flags may appear anywhere.
+    local local_only=0 quiet=0 name="" kind="" arg
     for arg in "$@"; do
         case "$arg" in
             --local | -l) local_only=1 ;;
+            --quiet | -q) quiet=1 ;;
             *)
                 if [ -z "$name" ]; then
                     name="$arg"
@@ -152,7 +154,7 @@ dk-scaffold() {
     done
     kind="${kind:-app}"
     if [ -z "$name" ]; then
-        echo "❌ Usage: dk-scaffold <name>|. [lib|app] [--local]"
+        echo "❌ Usage: dk-scaffold <name>|. [lib|app] [--local] [-q]"
         return 1
     fi
 
@@ -173,6 +175,11 @@ dk-scaffold() {
         echo "     git config --global user.email \"you@example.com\""
         echo "     git config --global user.name \"Your Name\""
         return 1
+    fi
+
+    if [ "$quiet" -eq 0 ]; then
+        echo "ℹ️  dk-scaffold answers all setup prompts for you automatically."
+        echo "   They may look like they are waiting for input; give it a moment. (-q hides this note.)"
     fi
 
     # --local skips repo creation entirely (no Codeberg token needed); rc stays 0.
