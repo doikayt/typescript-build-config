@@ -17,7 +17,10 @@ export function normalizeProjectRoot(rawPath) {
   if (!rawPath) return rawPath;
 
   let normalized = rawPath.replace(/^[A-Za-z]:\\C:\\/, "C:\\");
-  normalized = normalized.replace(/^\/([A-Za-z])\//, (_, drive) => `${drive.toUpperCase()}:\\`);
+  normalized = normalized.replace(
+    /^\/([A-Za-z])\//,
+    (_, drive) => `${drive.toUpperCase()}:\\`,
+  );
   normalized = normalized.replace(/^\//, "");
   normalized = normalized.replace(/\\+/g, "\\");
 
