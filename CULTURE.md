@@ -1,71 +1,23 @@
 # How We Work With AI
 
 AI enables us, as engineers, to design solutions at a higher level of abstraction. It
-flattens the learning curve and allows us to orchestrate the production of new, useful
+flattens learning curves and allows us to orchestrate the production of new, useful
 functionality without getting bogged down in the details of any particular framework
-or language. But if we let AI do the bulk of the exploratory work — the grunt work of
-roughing out a first spike, finding bugs, generating documentation — does that mean
-we're lazy distributors of AI slop?
-
-No. Why?
+or language. But if we let AI do the bulk of the grunt work — roughing out code 
+for a first spike, finding bugs, generating inital drafts of documentation — does that mean
+we're lazy distributors of AI slop? No. Why?
 
 Because:
 
-- **[We understand Before Using](#understand-before-using)** — we never blindly accept
-  what the AI gives us without taking the time to understand it first.
-- **[We teach It Forward](#teach-it-forward)** — we write up 'backgrounders' on new concepts we're just getting
-  comfortable with, because those same concepts will likely be unfamiliar to colleagues onboarding later,
-  and to 'future us'.
 - **[We begin With the End User in Mind](#begin-with-the-end-user-in-mind)** — we
   start by describing the system from the end user's perspective, the highest level of abstraction
   that actually matters.
-
-## Understand Before Using
-
-We never blindly accept what the AI gives us without taking the time to understand it
-first.
-
-First, we look at the solution the AI produced and  ask it to explain  any unfamiliar
-terminology in comments, and unfamiliar syntax patterns in key parts of the code.
-Does that mean we scrutinize every numeric value in, say, some CSS the AI dumped out?
-Since our attention is limited, probably not — CSS gone wrong is at
-worst a rendering issue on one page -- not something that would kneecap an app completely.
-Taking the AI's word for it is relatively low risk in these scenarios.
-
-## Teach It Forward
-
-As we write new functionality, we realize that any associated concepts that are new to us, 
-(be they related to new progamming languages, frameworks, or whatever)
-might also be unfamiliar to colleagues onboarding later on down the
-line. So we  put in the extra effort to write up 'backgrounders' about these 
-new concepts for the benefit of those prospective future
-colleagues, as well as 'future us'.
-
-The ideal is to be able to explain to a new colleague, in your own words, what the key
-elements of the background technology are. This also helps 'future you', once the
-reasoning that made sense today has faded from memory.
-
-Turns out "wired into memory" isn't just a turn of phrase. When mice learned to
-associate two sensory signals, the neurons encoding that association grew more
-synapses and became more excitable — the connections were, quite literally, wired in
-([Li et al., 2023](https://pmc.ncbi.nlm.nih.gov/articles/PMC10308380/)).
-
-The same principle shows up behaviorally. Explaining something in your own words taps
-the *generation effect*: information you generate yourself is remembered better than
-information you just read
-([Slamecka & Graf, 1978](https://doi.org/10.1037/0278-7393.4.6.592)). And writing it up
-for someone else — even a future colleague you'll never meet — taps the *protégé
-effect*: expecting to teach material improves how well you learn it yourself
-([Nestojko et al., 2014](https://doi.org/10.3758/s13421-014-0416-z)).
-
-The best way we've found to put this to work is by:
-
-- explaining the new concept your code depends on in your own words (building on, and refining the initial AI slop explanation)
-- connecting the new idea to another idea — and what better idea to connect it to than
-  the actual code you're in the process of developing?
-
-That second point is the whole reason the case study below matters: a backgrounder
-that never points at the code it explains is much easier to let go stale.
+- **[We understand Before Using](#understand-before-using)** — we never blindly accept
+  what the AI gives us without taking the time to understand it first.
+- **[We teach It Forward](#teach-it-forward)** — as part of cementing our understanding, we write 
+  up 'backgrounders' on new concepts we're just getting
+  comfortable with. Those same concepts will likely be unfamiliar to colleagues onboarding later,
+  and to 'future us'.
 
 ## Begin With the End User in Mind
 
@@ -89,6 +41,61 @@ Concretely: when you're learning something new, stuck, or working slightly outsi
 your comfort zone, build the documentation *during* the session, not as cleanup
 afterward. The write-up isn't a summary of what happened. It's what makes the next
 person's version of this problem take ten minutes instead of two hours.
+
+## Understand Before Using
+
+We never blindly accept what the AI gives us without taking the time to understand it
+first.
+
+First, we try to follow the main code flows of whatever AI first dumps in our laps. 
+If it's not clear, we ask for more documentation. 
+If a comment uses unfamiliar terminology, or a section uses an
+unfamiliar syntax pattern, we ask for an explanation — and fold that explanation back
+into the comments, so it's there for the next person too.
+Does that mean we scrutinize every numeric value in, say, some CSS the AI dumped out?
+Since our attention is limited, probably not — CSS gone wrong is at
+worst a rendering issue on one page -- not something that would kneecap an app completely.
+Taking the AI's word for it is relatively low risk in these scenarios.
+
+That's the trade-off in a nutshell: attention is limited, so we can't scrutinize
+everything equally. What varies is the cost if we miss something — a bad CSS value
+costs little, a bad migration costs a lot. So we do a quick risk analysis, and we spend
+eyeball time  on sections that would really hose us if they're done wrong, and we 
+'never sweat the small stuff'.
+
+## Teach It Forward
+
+As we write new functionality, we keep in mind that any associated concepts that are new to us, 
+(be they related to new progamming languages, frameworks, or whatever)
+might also be unfamiliar to colleagues onboarding later on down the
+line. So we  put in the extra effort to write up 'backgrounders' about these 
+new concepts for the benefit of those prospective future
+colleagues, as well as 'future us'.
+
+The ideal is to be able to explain to a new colleague, in your own words, what the key
+elements of the background technology are. 
+
+Turns out "wired into memory" isn't just a turn of phrase. When mice learned to
+associate two sensory signals, the neurons encoding that association grew more
+synapses and became more excitable — the connections were, quite literally, wired in
+([Li et al., 2023](https://pmc.ncbi.nlm.nih.gov/articles/PMC10308380/)).
+
+The same principle shows up behaviorally. Explaining something in your own words taps
+the *generation effect*: information you generate yourself is remembered better than
+information you just read
+([Slamecka & Graf, 1978](https://doi.org/10.1037/0278-7393.4.6.592)). And writing it up
+for someone else — even a future colleague you'll never meet — taps the *protégé
+effect*: expecting to teach material improves how well you learn it yourself
+([Nestojko et al., 2014](https://doi.org/10.3758/s13421-014-0416-z)).
+
+The best way we've found to put this to work is by:
+
+- explaining the new concept your code depends on in your own words (building on, and refining the initial AI slop explanation)
+- connecting the new idea to another idea — and what better idea to connect it to than
+  the actual code you're in the process of developing?
+
+That second point is the whole reason the case study below matters: a backgrounder
+that never points at the code it explains is much easier to let go stale.
 
 ## Case study: linking backgrounders to code
 
@@ -148,6 +155,8 @@ place.
   more certain than it actually is.
 - Don't let unrelated stuff you notice along the way slide. Found a stale comment, or
   a doc that contradicts the code? Flag it, fix it separately, and move on.
+- Constantly vet (maybe by setting up a quality gate in CI) that your docs, tests and implementation
+  are all consistent.  matches your tests and omp
 
 If you had to stop and work something out — even something small — ask yourself:
 would a colleague hit this same wall? If yes, leave a marker before moving on: a doc,
