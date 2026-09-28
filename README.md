@@ -59,6 +59,10 @@ Clone this base repo and install the shared team
 [shell aliases](#team-shell-aliases). This only sets up the aliases
 (`dk-scaffold`, `mkrepo`); it does **not** configure any project:
 
+🛑 **STOP here if you are a contributor/maintainer of `typescript-build-config` itself** If you intend to
+push commits back to *this* repo, you're in the wrong place — the clone below is
+HTTPS, read-only for this repo. Start here instead: [For Maintainers](#for-maintainers).
+
 ```bash
 git clone https://codeberg.org/doikayt/typescript-build-config.git   # HTTPS: no SSH key needed
 cd typescript-build-config
@@ -129,8 +133,8 @@ declarations, and `update-all-format` fill the README's TOC + UML markers
 proof the app archetype never publishes.
 
 The project is created in `./my-demo/` (a subdirectory of wherever you ran the command),
-and your shell is left `cd`'d into it, so you can run `npm test` or `npm run build` right
-away.
+and your shell's CWD (current working directory) gets set to the root of this new project.
+This means you can run `npm test` or `npm run build` right away.
 
 **Level 1 — push to your own Codeberg.** Bring a Codeberg account and an API token.
 Export the token, point the wrapper at your account, and drop `--local`:
