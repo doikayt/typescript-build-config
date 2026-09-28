@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -223,4 +223,121 @@ test("dk-new and dk-init always prefer the local checkout even after cd", () => 
   assert.match(out, /CALL node .*src\/cli\.js new demo/);
   assert.match(out, /CALL node .*src\/cli\.js init --help/);
   assert.doesNotMatch(out, /CALL npx/);
+});
+
+// gp/gpu/trackify are plain git plumbing, so these use a real local bare
+// repo as "origin" instead of stubbing git — cheap, no network, and trusts
+// git's own ref-existence semantics rather than reimplementing them in a stub.
+function makeRepoWithRemote() {
+  const bareDir = mkdtempSync(join(tmpdir(), "tbc-bare-"));
+  spawnSync("git", ["init", "--bare", "-q", bareDir]);
+
+  const workdir = mkdtempSync(join(tmpdir(), "tbc-work-"));
+  const run = (args) => spawnSync("git", args, { cwd: workdir, encoding: "utf8" });
+  run(["init", "-q", "-b", "main"]);
+  run(["config", "user.email", "test@example.com"]);
+  run(["config", "user.name", "Test"]);
+  writeFileSync(join(workdir, "file.txt"), "hello\n");
+  run(["add", "-A"]);
+  run(["commit", "-q", "-m", "initial"]);
+  run(["remote", "add", "origin", bareDir]);
+  run(["push", "-q", "-u", "origin", "main"]);
+
+  return { workdir, bareDir };
+}
+
+function runAliasFn(workdir, fnCall) {
+  const script = `
+    source ${JSON.stringify(ALIASES)}
+    cd ${JSON.stringify(workdir)}
+    ${fnCall}
+    exit $?
+  `;
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8" });
+  return { out: (res.stdout || "") + (res.stderr || ""), status: res.status };
+}
+
+function currentUpstream(workdir) {
+  const res = spawnSync(
+    "git",
+    ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+    { cwd: workdir, encoding: "utf8" },
+  );
+  return res.stdout.trim();
+}
+
+test("gp: pulls with rebase, then pushes the current branch", () => {
+  const { workdir, bareDir } = makeRepoWithRemote();
+  writeFileSync(join(workdir, "file.txt"), "hello again\n");
+  spawnSync("git", ["add", "-A"], { cwd: workdir });
+  spawnSync("git", ["commit", "-q", "-m", "second"], { cwd: workdir });
+
+  const { out, status } = runAliasFn(workdir, "gp");
+  assert.equal(status, 0);
+  assert.match(out, /Pulled with rebase and pushed to main/);
+
+  // Reference "main" explicitly -- a fresh bare repo's HEAD may symbolically
+  // point at "master" (depends on init.defaultBranch), which would make a
+  // plain `git log` here resolve nothing even though the push succeeded.
+  const log = spawnSync("git", ["log", "-1", "--format=%s", "main"], {
+    cwd: bareDir,
+    encoding: "utf8",
+  });
+  assert.equal(log.stdout.trim(), "second");
+});
+
+test("gpu: pushes and sets tracking for a brand-new branch", () => {
+  const { workdir, bareDir } = makeRepoWithRemote();
+  spawnSync("git", ["checkout", "-q", "-b", "feature-x"], { cwd: workdir });
+
+  const { status } = runAliasFn(workdir, "gpu");
+  assert.equal(status, 0);
+  assert.equal(currentUpstream(workdir), "origin/feature-x");
+
+  const branches = spawnSync("git", ["branch"], { cwd: bareDir, encoding: "utf8" });
+  assert.match(branches.stdout, /feature-x/);
+});
+
+test("gpu: just sets tracking when origin already has the branch", () => {
+  const { workdir } = makeRepoWithRemote();
+  // Simulate the branch already existing on origin (e.g. pushed from elsewhere).
+  spawnSync("git", ["push", "-q", "origin", "main:feature-y"], { cwd: workdir });
+  spawnSync("git", ["checkout", "-q", "-b", "feature-y", "--no-track"], { cwd: workdir });
+  spawnSync("git", ["fetch", "-q", "origin"], { cwd: workdir });
+
+  const { status } = runAliasFn(workdir, "gpu");
+  assert.equal(status, 0);
+  assert.equal(currentUpstream(workdir), "origin/feature-y");
+});
+
+test("trackify: sets tracking when the remote branch already exists", () => {
+  const { workdir } = makeRepoWithRemote();
+  spawnSync("git", ["push", "-q", "origin", "main:feature-z"], { cwd: workdir });
+  spawnSync("git", ["checkout", "-q", "-b", "feature-z", "--no-track"], { cwd: workdir });
+  spawnSync("git", ["fetch", "-q", "origin"], { cwd: workdir });
+
+  const { status } = runAliasFn(workdir, "trackify");
+  assert.equal(status, 0);
+  assert.equal(currentUpstream(workdir), "origin/feature-z");
+});
+
+test("trackify: fails cleanly when the remote branch doesn't exist yet", () => {
+  const { workdir } = makeRepoWithRemote();
+  spawnSync("git", ["checkout", "-q", "-b", "never-pushed"], { cwd: workdir });
+
+  const { status } = runAliasFn(workdir, "trackify");
+  assert.notEqual(status, 0);
+});
+
+test("gpu and trackify refuse to run in detached HEAD", () => {
+  const { workdir } = makeRepoWithRemote();
+  spawnSync("git", ["checkout", "-q", "--detach", "HEAD"], { cwd: workdir });
+
+  const gpuResult = runAliasFn(workdir, "gpu");
+  assert.notEqual(gpuResult.status, 0);
+  assert.match(gpuResult.out, /Not on a branch/);
+
+  const trackifyResult = runAliasFn(workdir, "trackify");
+  assert.notEqual(trackifyResult.status, 0);
+  assert.match(trackifyResult.out, /Not on a branch/);
 });

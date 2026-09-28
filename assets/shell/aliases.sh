@@ -106,6 +106,72 @@ addpush() {
 }
 
 # ---------------------------------------------------------------------------
+# gp : pull --rebase, then push the current branch. The everyday git sync
+# command. Requires the branch to already track a remote (see gpu/trackify
+# below if it doesn't).
+# ---------------------------------------------------------------------------
+gp() {
+    if ! git pull --rebase; then
+        echo "❌ Pull failed — stopping" >&2
+        return 1
+    fi
+
+    local branch
+    branch=$(git rev-parse --abbrev-ref HEAD)
+
+    if [ -z "$branch" ]; then
+        echo "❌ Could not determine current branch" >&2
+        return 1
+    fi
+
+    if ! git push origin HEAD:"$branch"; then
+        echo "❌ git push failed" >&2
+        return 1
+    fi
+
+    echo "✅ Pulled with rebase and pushed to $branch"
+}
+
+# ---------------------------------------------------------------------------
+# gpu : first push of a new local branch — sets the upstream tracking branch
+# so `gp` works on it afterward. If origin already has a same-named branch
+# (e.g. someone else pushed it first), just wires up tracking; otherwise
+# pushes and sets tracking in one step.
+# ---------------------------------------------------------------------------
+gpu() {
+    local branch
+    branch=$(git rev-parse --abbrev-ref HEAD)
+
+    if [ -z "$branch" ] || [ "$branch" = "HEAD" ]; then
+        echo "❌ Not on a branch (detached HEAD?)" >&2
+        return 1
+    fi
+
+    if git rev-parse --verify --quiet "origin/$branch" > /dev/null; then
+        git branch --set-upstream-to="origin/$branch" "$branch"
+    else
+        git push -u origin HEAD
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# trackify : set the upstream tracking branch for the current branch to the
+# same-named branch on origin. Does not push — the remote branch must
+# already exist (e.g. pushed from another machine, or created on Codeberg).
+# ---------------------------------------------------------------------------
+trackify() {
+    local branch
+    branch=$(git rev-parse --abbrev-ref HEAD)
+
+    if [ -z "$branch" ] || [ "$branch" = "HEAD" ]; then
+        echo "❌ Not on a branch (detached HEAD?)" >&2
+        return 1
+    fi
+
+    git branch --set-upstream-to="origin/$branch" "$branch"
+}
+
+# ---------------------------------------------------------------------------
 # Thin wrappers over the @doikayt/typescript-build-config CLI.
 # ---------------------------------------------------------------------------
 

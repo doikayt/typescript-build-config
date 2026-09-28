@@ -647,9 +647,13 @@ Installed by [Quick start](#quick-start) step 1 (or manually: add
 | Alias | What it does |
 | --- | --- |
 | `mkrepo <name>` | Create a public repo in the `doikayt` org (guards against duplicates). |
+| `addpush [name]` | Wire up the current directory to an existing Codeberg repo (create it first with `mkrepo`) and push. Defaults `name` to the current directory. |
 | `dk-new` | `npm init -y` + `@doikayt` scope. |
 | `dk-init` | Scaffold the build config into the current project. |
 | `dk-scaffold <name>\|. [lib\|app] [--local] [-q]` | Create the repo, scaffold, and push — one command (defaults to app). Pass `.` to scaffold in the current directory, using its leaf name as `@doikayt/<package-name>`. `--local` skips the repo and push; `-q` hides the auto-answered-prompts note. |
+| `gp` | Pull with rebase, then push the current branch. The everyday git sync command — requires the branch to already track a remote. |
+| `gpu` | First push of a new local branch: sets it up to track `origin` and pushes (or just wires up tracking if `origin` already has a same-named branch). |
+| `trackify` | Set the upstream tracking branch for the current branch to the same-named branch on `origin`, without pushing. Fails if that remote branch doesn't exist yet. |
 
 ## For Maintainers
 
