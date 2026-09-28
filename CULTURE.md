@@ -71,10 +71,10 @@ eyeball time  on sections that would really hose us if they're done wrong, and w
 
 ## Teach It Forward
 
-The goal here is to be able to echo back the concept in your own words — which serves
-two purposes. First, it checks off the mechanical task of cleaning up the often
-robotic cadence of an AI's initial draft. Second, it moves you beyond just reading the
-AI's response, into [active learning](https://teaching.cornell.edu/teaching-resources/active-collaborative-learning/active-learning) —
+The goal here is to be able to echo back the concept in your own words. This serves
+two purposes. First, it checks off the mechanical task of cleaning up the wordiness
+and robotic cadence issues typically found in an AI's first draft. Second, it moves
+you beyond just reading the AI's response, into [active learning](https://teaching.cornell.edu/teaching-resources/active-collaborative-learning/active-learning) —
 which measurably beats passive reading for retention.
 
 The best way we've found to put this to work is by:
@@ -83,6 +83,10 @@ The best way we've found to put this to work is by:
   and refining the initial AI slop explanation)
 - connecting the new idea to another idea — and what better idea to connect it to than
   the actual code you're in the process of developing?
+
+Connecting a new idea to another one isn't just a metaphor either — it's how
+neuroplasticity works: "cells that fire together, wire together"
+([Shatz, 1992](https://en.wikipedia.org/wiki/Carla_J._Shatz)).
 
 That second point is the whole reason the case study below matters: a backgrounder
 that never points at the code it explains is much easier to let go stale.
@@ -123,40 +127,20 @@ invariants* live in the source file's own comments. One altitude per document,
 cross-linked, so you can start reading from either end and still land in the same
 place.
 
-## Putting this into practice
+## Other Strategies to More Effectively Leverage AI
 
-- Ask the concrete question, not the abstract one. "If I run this command, what
-  folder does it end up in?" gets you further than "how does the tool work?" —
-  concrete questions get you answers you can actually check.
-- Verify, don't just recall. Check the answer against the real source, the real API
-  response, the real docs — don't take an answer just because it sounds right.
-- When a decision actually has weight, lay out the trade-offs instead of quietly
-  picking one. Decide together, and leave the reasoning on record.
-- Write down the decision *and* the why, not just the what, somewhere durable. Chat is
-  great for thinking out loud, but it's not where the org's knowledge should end up
-  living.
+- Not accepting AI's first output without really understanding is a good first step. A
+  follow-on useful practice is pushing the AI for alternative solutions once you have
+  one in hand. Sometimes it's useful to ask _another_ AI for the alternative: LLMs
+  show a "pronounced choice-supportive bias... resulting in a marked resistance to
+  change their mind" once they've committed to an answer
+  ([Kumaran et al., 2025](https://arxiv.org/abs/2507.03120)).
 - Link the backgrounder to the code it explains, in both directions — the way
   `plugin-design.md` and `CodeEmitter.ts` do above.
-- Keep the meta-conversation about how we work separate from the thing we're actually
-  building. (This article is a good example of that split in action.)
-- The real test of a doc is running it, not reviewing it. Whatever trips you up while
-  following it is a bug in the doc, not just bad luck.
-- Say what's confirmed and what's still a guess. Nobody's helped by a doc that sounds
-  more certain than it actually is.
-- Don't let unrelated stuff you notice along the way slide. Found a stale comment, or
-  a doc that contradicts the code? Flag it, fix it separately, and move on.
-- Constantly vet (maybe by setting up a quality gate in CI) that your docs, tests and implementation
-  are all consistent.  
-
-If you had to stop and work something out — even something small — ask yourself:
-would a colleague hit this same wall? If yes, leave a marker before moving on: a doc,
-a comment linking to the doc, or both. Assume others will retrace your steps, and make
-sure there's a trail for them to follow.
-
-## Where write-ups live
-
-For now, these write-ups live as markdown, right in the repo, close to the code they
-explain — see [`CODEBERG_HOW_TO_ARTICLE/`](CODEBERG_HOW_TO_ARTICLE/) for an example.
-Our audience today is local devs, so that's good enough. Turning these into something
-else for a wider audience is a problem for later — it's not a reason to put off
-writing the doc now.
+- Use AI-assisted review to regularly verify (maybe by setting up a quality gate in CI) that 
+  your docs, tests and implementation are all consistent.
+-  If you had to stop and work something out — even something small — ask yourself:
+   would a colleague hit this same wall? If yes, leave a marker before moving on: a doc,
+   a comment linking to the doc, or both. Assume others will retrace your steps, and make
+   sure there's a trail for them to follow. AI can usually generate reasonable versions of such
+   things from current context.
