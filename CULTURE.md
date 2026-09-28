@@ -5,53 +5,59 @@ flattens learning curves and allows us to orchestrate the production of new, use
 functionality without getting bogged down in the details of any particular framework
 or language. But if we let AI do the bulk of the grunt work — roughing out code 
 for a first spike, finding bugs, generating inital drafts of documentation — does that mean
-we're lazy distributors of AI slop? No. Why?
+we are mindlessly channeling AI slop? 
+
+No. Why?
 
 Because:
 
-- **[We begin With the End User in Mind](#begin-with-the-end-user-in-mind)** — we
+- **[We begin With the _End_ (User) in Mind](#begin-with-the-end-user-in-mind)** — we
   start by describing the system from the end user's perspective, the highest level of abstraction
   that actually matters.
 - **[We understand Before Using](#understand-before-using)** — we never blindly accept
   what the AI gives us without taking the time to understand it first.
 - **[We teach It Forward](#teach-it-forward)** — as part of cementing our understanding, we write 
   up 'backgrounders' on new concepts we're just getting
-  comfortable with. Those same concepts will likely be unfamiliar to colleagues onboarding later,
-  and to 'future us'.
+  comfortable with. Backgrounders serve as quick intros or refreshers of 
+  concepts that will likely be unfamiliar to colleagues onboarding later, and to 'future us'.
 
-## Begin With the End User in Mind
+## Begin With the _End_ (User) in Mind
 
-Documentation-first is just one aspect of the more general rule we follow: [Begin with
+Documentation-first is just one aspect of a more general rule we follow: [Begin with
 the End in Mind](https://www.goodreads.com/quotes/1401614-to-begin-with-the-end-in-mind-means-to-start).
-We approach things from the end user's perspective, the highest level of abstraction
-that actually matters, and do documentation first.
+We approach things from the end _user's_ perspective, the highest level of abstraction
+that actually matters. 
 
-There's a payoff to this beyond clarity. When you sketch out the end state first, you
-often see early that some of your assumptions lead nowhere — and you get to abandon
-those before you've sunk real time building on top of them.
+When you sketch out the end state first, you
+often see early on that some of your ideas lead nowhere, or to a non-intuitive workflow
+for your end users. You can always abandon those directions before you've sunk real
+time into building them out.
+Having AI create that first sketch is a bit like a painter dumping their preferred
+colors onto a virtual canvas with just a rough idea of what the finished piece might look
+like. An AI-enabled painter can quickly preview different arrangements of those
+colors into shapes and concepts, then easily flip, swap, or resize any of those 
+before committing to a particular option. Because the initial drafts are cheap, 
+the artist can quickly shift directions with minimal time spent eliminating the 
+rejected alternative.  The same goes for the AI-enabled engineer.
 
-Having AI do that first sketch changes the economics of this. It's a bit like dumping
-your preferred colors onto a canvas with a rough idea of what the shapes might be, and
-letting AI handle the arrangement. Once the picture is roughed out, you can step back
-from the canvas and decide: maybe this needs a whole new shape, or maybe the shapes
-just need to be in a different order. Because the first draft was cheap, changing your
-mind about it is cheap too.
-
-Concretely: when you're learning something new, stuck, or working slightly outside
-your comfort zone, build the documentation *during* the session, not as cleanup
-afterward. The write-up isn't a summary of what happened. It's what makes the next
-person's version of this problem take ten minutes instead of two hours.
+Keep in mind that, while the most important end state you are pursuing is useful, intuitive 
+new functionality, a secondary end state objective is to have code that
+is easy to understand, modify and obtain -- by future new members of the team, or maybe even 
+'future you'. It is for the benefit of these future colleagues that you develop 
+the _backgrounders_ we cover in [below](#teach-it-forward).
 
 ## Understand Before Using
 
 We never blindly accept what the AI gives us without taking the time to understand it
 first.
 
-First, we try to follow the main code flows of whatever AI first dumps in our laps. 
-If it's not clear, we ask for more documentation. 
+We  pay particular attention to reviewing 
+code at the 'seams' of a proposed design -- that is code that exposes any 
+aspect of functionality to some higher layer -- whether  that layer is calling code, or an
+end user. If what we're reviewing is unclear, we ask for more documentation. 
 If a comment uses unfamiliar terminology, or a section uses an
-unfamiliar syntax pattern, we ask for an explanation — and fold that explanation back
-into the comments, so it's there for the next person too.
+unfamiliar syntax pattern, we ask for an explanation — and we weigh folding such explanations back
+into the comments (or a _backgrounder_ document), so it's there for the next person too.
 Does that mean we scrutinize every numeric value in, say, some CSS the AI dumped out?
 Since our attention is limited, probably not — CSS gone wrong is at
 worst a rendering issue on one page -- not something that would kneecap an app completely.
@@ -65,32 +71,16 @@ eyeball time  on sections that would really hose us if they're done wrong, and w
 
 ## Teach It Forward
 
-As we write new functionality, we keep in mind that any associated concepts that are new to us, 
-(be they related to new progamming languages, frameworks, or whatever)
-might also be unfamiliar to colleagues onboarding later on down the
-line. So we  put in the extra effort to write up 'backgrounders' about these 
-new concepts for the benefit of those prospective future
-colleagues, as well as 'future us'.
-
-The ideal is to be able to explain to a new colleague, in your own words, what the key
-elements of the background technology are. 
-
-Turns out "wired into memory" isn't just a turn of phrase. When mice learned to
-associate two sensory signals, the neurons encoding that association grew more
-synapses and became more excitable — the connections were, quite literally, wired in
-([Li et al., 2023](https://pmc.ncbi.nlm.nih.gov/articles/PMC10308380/)).
-
-The same principle shows up behaviorally. Explaining something in your own words taps
-the *generation effect*: information you generate yourself is remembered better than
-information you just read
-([Slamecka & Graf, 1978](https://doi.org/10.1037/0278-7393.4.6.592)). And writing it up
-for someone else — even a future colleague you'll never meet — taps the *protégé
-effect*: expecting to teach material improves how well you learn it yourself
-([Nestojko et al., 2014](https://doi.org/10.3758/s13421-014-0416-z)).
+The goal here is to be able to echo back the concept in your own words — which serves
+two purposes. First, it checks off the mechanical task of cleaning up the often
+robotic cadence of an AI's initial draft. Second, it moves you beyond just reading the
+AI's response, into [active learning](https://teaching.cornell.edu/teaching-resources/active-collaborative-learning/active-learning) —
+which measurably beats passive reading for retention.
 
 The best way we've found to put this to work is by:
 
-- explaining the new concept your code depends on in your own words (building on, and refining the initial AI slop explanation)
+- explaining the new concept your code depends on in your own words (building on,
+  and refining the initial AI slop explanation)
 - connecting the new idea to another idea — and what better idea to connect it to than
   the actual code you're in the process of developing?
 
@@ -156,7 +146,7 @@ place.
 - Don't let unrelated stuff you notice along the way slide. Found a stale comment, or
   a doc that contradicts the code? Flag it, fix it separately, and move on.
 - Constantly vet (maybe by setting up a quality gate in CI) that your docs, tests and implementation
-  are all consistent.  matches your tests and omp
+  are all consistent.  
 
 If you had to stop and work something out — even something small — ask yourself:
 would a colleague hit this same wall? If yes, leave a marker before moving on: a doc,
