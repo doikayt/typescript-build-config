@@ -74,26 +74,28 @@ eyeball time  on sections that would really hose us if they're done wrong, and w
 The goal here is to be able to echo back the concept in your own words. This serves
 two purposes. First, it checks off the mechanical task of cleaning up the wordiness
 and robotic cadence issues typically found in an AI's first draft. Second, it moves
-you beyond just reading the AI's response, into [active learning](https://teaching.cornell.edu/teaching-resources/active-collaborative-learning/active-learning) —
+you beyond just reading the AI's response, into 
+[active learning](https://teaching.cornell.edu/teaching-resources/active-collaborative-learning/active-learning) —
 which measurably beats passive reading for retention.
 
 The best way we've found to put this to work is by:
 
-- explaining the new concept your code depends on in your own words (building on,
+- explain key new concepts your code depends on in your own words (building on,
   and refining the initial AI slop explanation)
 - connecting the new idea to another idea — and what better idea to connect it to than
   the actual code you're in the process of developing?
 
-Connecting a new idea to another one isn't just a metaphor either — it's how
-neuroplasticity works: "cells that fire together, wire together"
-([Shatz, 1992](https://en.wikipedia.org/wiki/Carla_J._Shatz)).
 
-That second point is the whole reason the case study below matters: a backgrounder
-that never points at the code it explains is much easier to let go stale.
+The second point has real science behind it: the interplay of _neuroplasticity_ 
+and [_associative learning_](https://en.wikipedia.org/wiki/Learning#Associative_learning)  ensures that
+associated something you just learned with some other  thing you know about reinforces 
+the impression of both things. [Neural] "cells that fire together, wire together"
+([Shatz, 1992](https://en.wikipedia.org/wiki/Carla_J._Shatz)). We explore it further below.
+
 
 ## Case study: linking backgrounders to code
 
-Here's the best example we've found of doing this well:
+Here's an example of compiler plugin-in like code that our founder wrote      we wrote that we -- compiler numskulls had we've found of doing this well:
 [`gas-demodulify-plugin`](https://github.com/doikayt/gas-demodulify-plugin)'s design
 doc. Its backgrounder,
 [`docs/plugin-design.md`](https://github.com/doikayt/gas-demodulify-plugin/blob/main/docs/plugin-design.md),
