@@ -431,8 +431,8 @@ dk-scaffold() {
 
 # --- Introspection ---
 
-# galiases ("git aliases"): print every alias/function in this file, grouped,
-# with a one-line summary parsed from each one's own doc comment.
-galiases() {
+# tools-help: print every alias/function in this file, grouped, with a
+# one-line summary parsed from each one's own doc comment.
+tools-help() {
     node "${__DK_ALIAS_DIR}/list-aliases.mjs"
 }

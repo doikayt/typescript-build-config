@@ -486,8 +486,8 @@ undocumented() {
   assert.equal(groups.has("Some Group"), false);
 });
 
-test("galiases: runs against the real aliases.sh and lists every group", () => {
-  const { out, status } = runAliasFn(process.cwd(), "galiases");
+test("tools-help: runs against the real aliases.sh and lists every group", () => {
+  const { out, status } = runAliasFn(process.cwd(), "tools-help");
   assert.equal(status, 0);
   for (const group of [
     "Repo bootstrap",
@@ -499,6 +499,6 @@ test("galiases: runs against the real aliases.sh and lists every group", () => {
   ]) {
     assert.match(out, new RegExp(group.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
-  assert.match(out, /galiases/);
+  assert.match(out, /tools-help/);
   assert.match(out, /rmbranch/);
 });

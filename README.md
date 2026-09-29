@@ -70,7 +70,7 @@ cd typescript-build-config
 exec $SHELL                 # replaces this shell with a fresh one that reloads your rc
 ```
 
-The aliases are now active in this shell. Run `galiases` to confirm — it prints every
+The aliases are now active in this shell. Run `tools-help` to confirm — it prints every
 command you now have available (`dk-scaffold`, `mkrepo`, and more) with a one-line
 summary of what each does. From here, go to
 [2. Create a new project](#2-create-a-new-project-repeatable) below.
@@ -666,7 +666,7 @@ Installed by [Quick start](#quick-start) step 1 (or manually: add
 | `gp` | Pull with rebase, then push the current branch. The everyday git sync command — requires the branch to already track a remote. |
 | `gpu` | First push of a new local branch: sets it up to track `origin` and pushes (or just wires up tracking if `origin` already has a same-named branch). |
 | `trackify` | Set the upstream tracking branch for the current branch to the same-named branch on `origin`, without pushing. Fails if that remote branch doesn't exist yet. |
-| `galiases` | Print every alias/function in `aliases.sh`, grouped, with a one-line summary parsed from each one's own doc comment — the full, always-current list (diff helpers, cleanup helpers, etc.) lives there instead of being duplicated in this table. |
+| `tools-help` | Print every alias/function in `aliases.sh`, grouped, with a one-line summary parsed from each one's own doc comment — the full, always-current list (diff helpers, cleanup helpers, etc.) lives there instead of being duplicated in this table. |
 
 ## For Maintainers
 
