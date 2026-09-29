@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup: add a line sourcing assets/shell/aliases.sh to your shell rc,
+# As part of one-time setup: adds a line sourcing assets/shell/aliases.sh to your shell rc,
 # so the doikayt team aliases (mkrepo, dk-new, dk-init, dk-scaffold) always load.
 # Idempotent — safe to re-run. Usage: ./assets/shell/install.sh
 set -euo pipefail

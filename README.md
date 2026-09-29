@@ -67,8 +67,20 @@ HTTPS, read-only for this repo. Start here instead: [For Maintainers](#for-maint
 git clone https://codeberg.org/doikayt/typescript-build-config.git   # HTTPS: no SSH key needed
 cd typescript-build-config
 ./assets/shell/install.sh   # adds `source assets/shell/aliases.sh` to your rc (idempotent)
-exec $SHELL                 # reload
+exec $SHELL                 # replaces this shell with a fresh one that reloads your rc
 ```
+
+The aliases are now active in this shell. Run `galiases` to confirm — it prints every
+command you now have available (`dk-scaffold`, `mkrepo`, and more) with a one-line
+summary of what each does. From here, go to
+[2. Create a new project](#2-create-a-new-project-repeatable) below.
+
+**Re-running this after `aliases.sh` changed?** Always use `exec $SHELL` (a fresh
+shell), not `source assets/shell/aliases.sh` in your existing terminal. If a function
+it defines shares a name with something your shell already has loaded (an old alias
+from a previous version, for instance), sourcing directly can fail with a confusing
+`syntax error near unexpected token`. A fresh shell never had the stale definition to
+begin with.
 
 ### 2. Create a new project (repeatable)
 
