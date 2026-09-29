@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 # As part of one-time setup: adds a line sourcing assets/shell/aliases.sh to your shell rc,
 # so the doikayt team aliases (mkrepo, dk-new, dk-init, dk-scaffold) always load.
-# Idempotent — safe to re-run. Usage: ./assets/shell/install.sh
+# Idempotent — safe to re-run.
+#
+# Usage flow: run this with `./assets/shell/install.sh` (execute it, don't
+# source it), then reload with `exec $SHELL` -- a genuinely fresh shell, not
+# just `source assets/shell/aliases.sh` in your current one. If your shell
+# already has an old alias/function under a name aliases.sh now defines (e.g.
+# after re-running this following an update), sourcing directly can fail with
+# a confusing "syntax error near unexpected token" -- a fresh shell never had
+# the stale definition to begin with.
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -37,5 +45,5 @@ fi
 if [ "$added" -eq 0 ]; then
     echo "Nothing to do — already installed."
 else
-    echo "Done. Restart your shell, or run: source \"$SRC\""
+    echo "Done. Reload with a fresh shell to pick it up: exec \$SHELL"
 fi
