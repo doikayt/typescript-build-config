@@ -534,7 +534,7 @@ test("tools-help: runs against the real aliases.sh and lists every group", () =>
     "Diff & inspect",
     "Cleanup",
     "CLI wrappers",
-    "Introspection",
+    "Help",
   ]) {
     assert.match(out, new RegExp(group.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }

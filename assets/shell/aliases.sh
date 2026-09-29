@@ -196,8 +196,9 @@ alias gda="git diff -w --color-words && git diff --staged -w --color-words"
 # gdfs ("git diff, fancy, staged"): word-level diff of staged changes only.
 alias gdfs="git diff --staged -w --color-words"
 
-# glf ("git log, files"): log with the files touched by each commit.
-alias glf='git log --pretty=format:"%h %ad %s" --date=short --name-only'
+# glf ("git log, files"): log with the files touched by each commit, hash in
+# magenta and message in green.
+alias glf='git log --color=always --pretty=format:"%C(magenta)%h%C(reset) %ad %C(green)%s%C(reset)" --date=short --name-only'
 
 # --- Cleanup ---
 
@@ -429,7 +430,7 @@ dk-scaffold() {
     echo "✅ Scaffolded ${REPO_OWNER}/${name} (${kind})"
 }
 
-# --- Introspection ---
+# --- Help ---
 
 # tools-help: print every alias/function in this file, grouped, with a
 # one-line summary parsed from each one's own doc comment.
