@@ -9,6 +9,10 @@ import { join } from "node:path";
 const ALIASES = fileURLToPath(
   new URL("../assets/shell/aliases.sh", import.meta.url),
 );
+const LIST_ALIASES = fileURLToPath(
+  new URL("../assets/shell/list-aliases.mjs", import.meta.url),
+);
+const { parseAliases } = await import(LIST_ALIASES);
 
 function bashExecutable() {
   if (process.platform === "win32") {
@@ -340,4 +344,161 @@ test("gpu and trackify refuse to run in detached HEAD", () => {
   const trackifyResult = runAliasFn(workdir, "trackify");
   assert.notEqual(trackifyResult.status, 0);
   assert.match(trackifyResult.out, /Not on a branch/);
+});
+
+test("gm: checks out the default branch queried live from origin", () => {
+  const { workdir, bareDir } = makeRepoWithRemote();
+  // Give the bare repo a non-"main" HEAD, so this only passes if gm actually
+  // queries origin rather than assuming "main".
+  spawnSync("git", ["push", "-q", "origin", "main:trunk"], { cwd: workdir });
+  spawnSync("git", ["symbolic-ref", "HEAD", "refs/heads/trunk"], { cwd: bareDir });
+  spawnSync("git", ["checkout", "-q", "-b", "side-branch"], { cwd: workdir });
+
+  const { out, status } = runAliasFn(workdir, "gm");
+  assert.equal(status, 0);
+  assert.match(out, /Switched to branch 'trunk'|trunk/);
+
+  const branch = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+    cwd: workdir,
+    encoding: "utf8",
+  });
+  assert.equal(branch.stdout.trim(), "trunk");
+});
+
+test("gm: fails cleanly when origin's default branch can't be determined", () => {
+  const workdir = mkdtempSync(join(tmpdir(), "tbc-work-"));
+  spawnSync("git", ["init", "-q", "-b", "main"], { cwd: workdir });
+
+  const { status } = runAliasFn(workdir, "gm");
+  assert.notEqual(status, 0);
+});
+
+test("rmbranch: deletes the branch locally and on origin, force-pushes current", () => {
+  const { workdir, bareDir } = makeRepoWithRemote();
+  spawnSync("git", ["push", "-q", "origin", "main:doomed"], { cwd: workdir });
+  spawnSync("git", ["fetch", "-q", "origin"], { cwd: workdir });
+  spawnSync("git", ["branch", "doomed", "origin/doomed"], { cwd: workdir });
+
+  const { status } = runAliasFn(workdir, "rmbranch doomed");
+  assert.equal(status, 0);
+
+  const localBranches = spawnSync("git", ["branch"], { cwd: workdir, encoding: "utf8" });
+  assert.doesNotMatch(localBranches.stdout, /doomed/);
+
+  const remoteBranches = spawnSync("git", ["branch"], { cwd: bareDir, encoding: "utf8" });
+  assert.doesNotMatch(remoteBranches.stdout, /doomed/);
+});
+
+test("rmbranch: requires a branch name", () => {
+  const { workdir } = makeRepoWithRemote();
+  const { status, out } = runAliasFn(workdir, "rmbranch");
+  assert.notEqual(status, 0);
+  assert.match(out, /Usage: rmbranch/);
+});
+
+test("curr-branch: prints the current branch name", () => {
+  const { workdir } = makeRepoWithRemote();
+  spawnSync("git", ["checkout", "-q", "-b", "feature-print-me"], { cwd: workdir });
+  const { out, status } = runAliasFn(workdir, "curr-branch");
+  assert.equal(status, 0);
+  assert.equal(out.trim(), "feature-print-me");
+});
+
+// list-aliases.mjs: the sentence-extraction convention is genuinely testable
+// logic (unlike the one-line diff aliases), so it gets unit tests against a
+// synthetic source string rather than the real aliases.sh.
+test("parseAliases: extracts the first sentence, stripping a leading name prefix", () => {
+  const source = `
+# --- Some Group ---
+
+# foo ("mnemonic"): does the first thing. Does a second thing too.
+foo() {
+  true
+}
+`;
+  const groups = parseAliases(source);
+  assert.deepEqual(groups.get("Some Group"), [
+    { name: "foo", summary: "does the first thing." },
+  ]);
+});
+
+test("parseAliases: falls back to the first comment line when there's no period", () => {
+  const source = `
+# --- Some Group ---
+
+# bar does a thing with no terminal punctuation anywhere in this comment
+bar() {
+  true
+}
+`;
+  const groups = parseAliases(source);
+  assert.deepEqual(groups.get("Some Group"), [
+    {
+      name: "bar",
+      summary: "bar does a thing with no terminal punctuation anywhere in this comment",
+    },
+  ]);
+});
+
+test("parseAliases: skips pure border lines but keeps multi-line comment text", () => {
+  const source = `
+# --- Some Group ---
+
+# ---------------------------------------------------------------------------
+# baz <arg> : does the thing. More detail here.
+# ---------------------------------------------------------------------------
+baz() {
+  true
+}
+`;
+  const groups = parseAliases(source);
+  assert.deepEqual(groups.get("Some Group"), [
+    { name: "baz", summary: "does the thing." },
+  ]);
+});
+
+test("parseAliases: handles plain `alias` definitions too, and groups by the nearest header", () => {
+  const source = `
+# --- Group One ---
+
+# one : first alias.
+alias one="echo 1"
+
+# --- Group Two ---
+
+# two : second alias.
+alias two="echo 2"
+`;
+  const groups = parseAliases(source);
+  assert.deepEqual(groups.get("Group One"), [{ name: "one", summary: "first alias." }]);
+  assert.deepEqual(groups.get("Group Two"), [{ name: "two", summary: "second alias." }]);
+});
+
+test("parseAliases: definitions with no doc comment above them are skipped", () => {
+  const source = `
+# --- Some Group ---
+
+undocumented() {
+  true
+}
+`;
+  const groups = parseAliases(source);
+  assert.equal(groups.has("Some Group"), false);
+});
+
+test("galiases: runs against the real aliases.sh and lists every group", () => {
+  const { out, status } = runAliasFn(process.cwd(), "galiases");
+  assert.equal(status, 0);
+  for (const group of [
+    "Repo bootstrap",
+    "Sync",
+    "Diff & inspect",
+    "Cleanup",
+    "CLI wrappers",
+    "Introspection",
+  ]) {
+    assert.match(out, new RegExp(group.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(out, /galiases/);
+  assert.match(out, /rmbranch/);
 });

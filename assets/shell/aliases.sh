@@ -16,8 +16,11 @@
 __DK_ALIAS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 __DK_REPO_ROOT="$(cd "${__DK_ALIAS_DIR}/../.." && pwd)"
 
+# --- Repo bootstrap ---
+
 # ---------------------------------------------------------------------------
-# mkrepo <name> : create a public repo in the org (guards against duplicates).
+# mkrepo <name> ("make repo"): create a public repo in the org (guards
+# against duplicates).
 # ---------------------------------------------------------------------------
 mkrepo() {
     if [ -z "$1" ]; then
@@ -70,10 +73,10 @@ mkrepo() {
 }
 
 # ---------------------------------------------------------------------------
-# addpush [repo-name] : wire up the current directory to an existing Codeberg
-# repo (create it first with mkrepo) and push. init -> remote -> add -> commit
-# -> branch -M main -> push -u. Idempotent: safe to re-run. Defaults repo-name
-# to the current directory's name if omitted.
+# addpush [repo-name] ("add, push"): wire up the current directory to an
+# existing Codeberg repo (create it first with mkrepo) and push. init ->
+# remote -> add -> commit -> branch -M main -> push -u. Idempotent: safe to
+# re-run. Defaults repo-name to the current directory's name if omitted.
 # ---------------------------------------------------------------------------
 addpush() {
     local REPO_NAME="${1:-$(basename "$PWD")}"
@@ -105,10 +108,12 @@ addpush() {
     echo "✅ Pushed to https://codeberg.org/${REPO_OWNER}/${REPO_NAME}"
 }
 
+# --- Sync ---
+
 # ---------------------------------------------------------------------------
-# gp : pull --rebase, then push the current branch. The everyday git sync
-# command. Requires the branch to already track a remote (see gpu/trackify
-# below if it doesn't).
+# gp ("git pull-push"): pull --rebase, then push the current branch. The
+# everyday git sync command. Requires the branch to already track a remote
+# (see gpu/trackify below if it doesn't).
 # ---------------------------------------------------------------------------
 gp() {
     if ! git pull --rebase; then
@@ -133,10 +138,10 @@ gp() {
 }
 
 # ---------------------------------------------------------------------------
-# gpu : first push of a new local branch — sets the upstream tracking branch
-# so `gp` works on it afterward. If origin already has a same-named branch
-# (e.g. someone else pushed it first), just wires up tracking; otherwise
-# pushes and sets tracking in one step.
+# gpu ("git push, set upstream"): first push of a new local branch — sets
+# the upstream tracking branch so `gp` works on it afterward. If origin
+# already has a same-named branch (e.g. someone else pushed it first), just
+# wires up tracking; otherwise pushes and sets tracking in one step.
 # ---------------------------------------------------------------------------
 gpu() {
     local branch
@@ -155,9 +160,10 @@ gpu() {
 }
 
 # ---------------------------------------------------------------------------
-# trackify : set the upstream tracking branch for the current branch to the
-# same-named branch on origin. Does not push — the remote branch must
-# already exist (e.g. pushed from another machine, or created on Codeberg).
+# trackify ("make it track"): set the upstream tracking branch for the
+# current branch to the same-named branch on origin. Does not push — the
+# remote branch must already exist (e.g. pushed from another machine, or
+# created on Codeberg).
 # ---------------------------------------------------------------------------
 trackify() {
     local branch
@@ -171,9 +177,91 @@ trackify() {
     git branch --set-upstream-to="origin/$branch" "$branch"
 }
 
+# --- Diff & inspect ---
+
+# glastdiff ("git last diff"): show the diff introduced by the last commit.
+alias glastdiff="git diff HEAD~1 HEAD"
+
+# gdw ("git diff, whitespace-ignored"): diff ignoring whitespace changes.
+alias gdw="git diff -w"
+
+# gdf ("git diff, fancy" -- best guess at the mnemonic): diff ignoring
+# whitespace, with word-level color highlighting.
+alias gdf="git diff -w --color-words"
+
+# gda ("git diff, all"): word-level diff of both unstaged and staged changes
+# together.
+alias gda="git diff -w --color-words && git diff --staged -w --color-words"
+
+# gdfs ("git diff, fancy, staged"): word-level diff of staged changes only.
+alias gdfs="git diff --staged -w --color-words"
+
+# glf ("git log, files"): log with the files touched by each commit.
+alias glf='git log --pretty=format:"%h %ad %s" --date=short --name-only'
+
+# --- Cleanup ---
+
+# rmlock ("remove lock"): remove a stale git lock file, after a
+# crashed/killed git process.
+alias rmlock="rm -f .git/index.lock"
+
+# gundo ("git undo"): undo the last commit, keeping its changes staged.
+alias gundo="git reset --soft HEAD~1"
+
 # ---------------------------------------------------------------------------
-# Thin wrappers over the @doikayt/typescript-build-config CLI.
+# rmbranch <branch> ("remove branch"): delete a branch both locally and on
+# origin, then force-push the current branch. Errors are logged to
+# ~/.git_death_note.log rather than stopping the cleanup partway through.
 # ---------------------------------------------------------------------------
+rmbranch() {
+    if [[ $# -lt 1 ]]; then
+        echo "❌ Usage: rmbranch <branch-to-delete>"
+        return 1
+    fi
+
+    local BR="$1"
+    local CURRENT_BRANCH
+    local DEATH_NOTE="$HOME/.git_death_note.log"
+
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>>"$DEATH_NOTE")
+
+    echo "📛 Attempting to delete remote branch: $BR"
+    git push origin --delete "$BR" 2>>"$DEATH_NOTE"
+
+    echo "📛 Attempting to delete local branch: $BR"
+    git branch -D "$BR" 2>>"$DEATH_NOTE"
+
+    echo "🚀 Force-pushing current branch '$CURRENT_BRANCH' to origin"
+    git push origin "$CURRENT_BRANCH" --force-with-lease 2>>"$DEATH_NOTE"
+
+    echo "✅ Branch '$BR' removed, and '$CURRENT_BRANCH' force-pushed."
+    echo "📝 Errors (if any) logged to: $DEATH_NOTE"
+}
+
+# curr-branch ("current branch"): print the current branch name.
+curr-branch() {
+    git rev-parse --abbrev-ref HEAD
+}
+
+# ---------------------------------------------------------------------------
+# gm ("git main"): check out the repo's default branch. Queried live from
+# origin rather than assumed as "main" -- these repos are `git init`, not
+# `git clone`, so there's often no local origin/HEAD ref to fall back on.
+# ---------------------------------------------------------------------------
+gm() {
+    local default_branch
+    default_branch=$(git ls-remote --symref origin HEAD 2>/dev/null \
+        | awk '/^ref:/ {sub("refs/heads/", "", $2); print $2}')
+
+    if [ -z "$default_branch" ]; then
+        echo "❌ Could not determine the default branch from origin." >&2
+        return 1
+    fi
+
+    git checkout "$default_branch"
+}
+
+# --- CLI wrappers ---
 
 # Prefer the local repo checkout when this file is being used from a dev clone.
 # That keeps the shell aliases pinned to the code you are actively editing,
@@ -339,4 +427,12 @@ dk-scaffold() {
     fi
 
     echo "✅ Scaffolded ${REPO_OWNER}/${name} (${kind})"
+}
+
+# --- Introspection ---
+
+# galiases ("git aliases"): print every alias/function in this file, grouped,
+# with a one-line summary parsed from each one's own doc comment.
+galiases() {
+    node "${__DK_ALIAS_DIR}/list-aliases.mjs"
 }

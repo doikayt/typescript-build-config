@@ -654,6 +654,7 @@ Installed by [Quick start](#quick-start) step 1 (or manually: add
 | `gp` | Pull with rebase, then push the current branch. The everyday git sync command — requires the branch to already track a remote. |
 | `gpu` | First push of a new local branch: sets it up to track `origin` and pushes (or just wires up tracking if `origin` already has a same-named branch). |
 | `trackify` | Set the upstream tracking branch for the current branch to the same-named branch on `origin`, without pushing. Fails if that remote branch doesn't exist yet. |
+| `galiases` | Print every alias/function in `aliases.sh`, grouped, with a one-line summary parsed from each one's own doc comment — the full, always-current list (diff helpers, cleanup helpers, etc.) lives there instead of being duplicated in this table. |
 
 ## For Maintainers
 
