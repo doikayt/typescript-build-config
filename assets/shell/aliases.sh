@@ -185,8 +185,8 @@ alias glastdiff="git diff HEAD~1 HEAD"
 # gdw ("git diff, whitespace-ignored"): diff ignoring whitespace changes.
 alias gdw="git diff -w"
 
-# gdf ("git diff, fancy" -- best guess at the mnemonic): diff ignoring
-# whitespace, with word-level color highlighting.
+# gdf ("git diff, fancy"): diff ignoring whitespace, with word-level color
+# highlighting.
 alias gdf="git diff -w --color-words"
 
 # gda ("git diff, all"): word-level diff of both unstaged and staged changes

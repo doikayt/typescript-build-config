@@ -418,7 +418,41 @@ foo() {
 `;
   const groups = parseAliases(source);
   assert.deepEqual(groups.get("Some Group"), [
-    { name: "foo", summary: "does the first thing." },
+    { name: "foo", mnemonic: "mnemonic", summary: "does the first thing." },
+  ]);
+});
+
+test("parseAliases: extracts a quoted mnemonic separately from the summary", () => {
+  const source = `
+# --- Sync ---
+
+# gp ("git pull-push"): pull --rebase, then push the current branch.
+gp() {
+  true
+}
+`;
+  const groups = parseAliases(source);
+  assert.deepEqual(groups.get("Sync"), [
+    {
+      name: "gp",
+      mnemonic: "git pull-push",
+      summary: "pull --rebase, then push the current branch.",
+    },
+  ]);
+});
+
+test("parseAliases: mnemonic is null when the comment has no quoted string", () => {
+  const source = `
+# --- Some Group ---
+
+# plain : has no mnemonic at all.
+plain() {
+  true
+}
+`;
+  const groups = parseAliases(source);
+  assert.deepEqual(groups.get("Some Group"), [
+    { name: "plain", mnemonic: null, summary: "has no mnemonic at all." },
   ]);
 });
 
@@ -435,6 +469,7 @@ bar() {
   assert.deepEqual(groups.get("Some Group"), [
     {
       name: "bar",
+      mnemonic: null,
       summary: "bar does a thing with no terminal punctuation anywhere in this comment",
     },
   ]);
@@ -453,7 +488,7 @@ baz() {
 `;
   const groups = parseAliases(source);
   assert.deepEqual(groups.get("Some Group"), [
-    { name: "baz", summary: "does the thing." },
+    { name: "baz", mnemonic: null, summary: "does the thing." },
   ]);
 });
 
@@ -470,8 +505,12 @@ alias one="echo 1"
 alias two="echo 2"
 `;
   const groups = parseAliases(source);
-  assert.deepEqual(groups.get("Group One"), [{ name: "one", summary: "first alias." }]);
-  assert.deepEqual(groups.get("Group Two"), [{ name: "two", summary: "second alias." }]);
+  assert.deepEqual(groups.get("Group One"), [
+    { name: "one", mnemonic: null, summary: "first alias." },
+  ]);
+  assert.deepEqual(groups.get("Group Two"), [
+    { name: "two", mnemonic: null, summary: "second alias." },
+  ]);
 });
 
 test("parseAliases: definitions with no doc comment above them are skipped", () => {
