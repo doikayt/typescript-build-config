@@ -3,6 +3,17 @@
 How team members get API access to Codeberg for `mkrepo` and `dk-scaffold`, and why each
 person generates their own token rather than sharing one.
 
+<!-- TOC:START -->
+- [Codeberg access tokens: one per person](#codeberg-access-tokens-one-per-person)
+  - [Two settings, two jobs](#two-settings-two-jobs)
+  - [There is no "uber token"](#there-is-no-uber-token)
+  - [Why not one shared token](#why-not-one-shared-token)
+  - [Per-person token versus a shared bot token](#per-person-token-versus-a-shared-bot-token)
+  - [Scaling](#scaling)
+  - [Scopes](#scopes)
+  - [Recommended setup guidance](#recommended-setup-guidance)
+<!-- TOC:END -->
+
 ## Two settings, two jobs
 
 - `CODEBERG_TOKEN` is *who you are*. It authenticates API calls (creating repos, listing
@@ -32,7 +43,7 @@ So nothing secret is distributed. What an admin distributes is the *permission*:
   tool configs on several machines. A leak is an account takeover.
 - Removing a departing member means rotating a secret that many people know.
 
-## Per-person token versus a shared bot account
+## Per-person token versus a shared bot token
 
 | | Per-person token | Shared bot token |
 |---|---|---|
@@ -70,7 +81,9 @@ returns 403 and names the missing scope in the response body.
 
 ## Recommended setup guidance
 
-The machine-setup step should walk a new person through it:
+[Onboarding's machine-setup step](onboarding-a-new-user.md#part-4-each-person-on-their-machine)
+should walk a new person through it (today it covers steps 1–3 as manual prose; steps 4–5
+are not yet implemented there):
 
 1. Print the token-creation URL and the scopes to select.
 2. Tell them to save the token in their password manager.

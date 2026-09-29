@@ -11,6 +11,20 @@ token.
 Background on why each person gets their own token is in
 [access-tokens.md](access-tokens.md).
 
+<!-- TOC:START -->
+- [Setting up Codeberg for a team, from scratch](#setting-up-codeberg-for-a-team-from-scratch)
+  - [Who does what](#who-does-what)
+  - [Choose a setup](#choose-a-setup)
+  - [Prerequisites](#prerequisites)
+  - [Part 1: register a Codeberg account (everyone, first)](#part-1-register-a-codeberg-account-everyone-first)
+  - [Part 2: the org owner creates the organization and team](#part-2-the-org-owner-creates-the-organization-and-team)
+  - [Part 3: each person, on Codeberg](#part-3-each-person-on-codeberg)
+  - [Part 4: each person, on their machine](#part-4-each-person-on-their-machine)
+  - [Part 5: continuous integration (optional)](#part-5-continuous-integration-optional)
+  - [Troubleshooting](#troubleshooting)
+  - [Offboarding](#offboarding)
+<!-- TOC:END -->
+
 ## Who does what
 
 | Role | Does |
