@@ -64,15 +64,14 @@ organization is created in Part 2 by the org owner.
    usable until the address is confirmed.
 4. Recommended: turn on two-factor authentication now. Codeberg's guide is at
    <https://docs.codeberg.org/security/2fa/>.
-5. Joining an existing organization: send the org owner your Codeberg username
-   (`<username>`), or the email address to invite, through whatever channel the team
-   already uses (chat or email, for example). The org owner is the person who created the
-   organization in Part 2. Your username and email address are not secret. Your username is
-   the last part of your profile URL, `https://codeberg.org/<username>`. Never send a
-   password or a token. The owner adds you in Part 2, step 3 (by username) or step 4 (by
-   email).
-
-   Creating the organization yourself: skip this step and go to Part 2.
+5. If you are creating the organization yourself, skip this step and continue to Part 2:
+   you are the org owner, so there is no one to contact. Otherwise, send the org owner your
+   Codeberg username (`<username>`), or the email address to invite, through whatever
+   channel the team already uses (chat or email, for example). The org owner is the person
+   who created the organization in Part 2. Your username and email address are not secret.
+   Your username is the last part of your profile URL, `https://codeberg.org/<username>`.
+   Never send a password or a token. The owner adds you in Part 2, step 3 (by username) or
+   step 4 (by email).
 
 Codeberg is a non-profit, volunteer-run service. Its terms ask users to keep resource use
 reasonable, which matters for the CI section below.
@@ -96,11 +95,13 @@ Skip steps 1 and 2 if the organization and a suitable team already exist.
      of the organization. Without it, `mkrepo` fails for that member.
 3. **Add a member.** Open `https://codeberg.org/org/<org>/teams` (the org's **Teams** tab)
    and click **View** on the team's card. On the team page, type the person's `<username>`
-   in **Search users…**, pick them from the list, and click **Invite to team**.
+   in **Search users…**, pick them from the list, and click **Invite to team**. The
+   invitation stays under **Pending invitations** on the team page until the person
+   accepts it.
 4. **Or invite by email.** On the same team page, type an email address in the same box
    and click **Invite to team**. The address may belong to someone with no Codeberg
-   account yet, who is then prompted to create one first. Invitations not yet accepted
-   appear under **Pending invitations** on the team page, where they can be removed.
+   account yet, who is then prompted to create one first. Until accepted, the invitation
+   appears under **Pending invitations**, next to a **Remove** button.
 
 After adding someone by either route, tell them the value of `<org>`. They need it for
 `REPO_OWNER` in Part 4, step 4.
