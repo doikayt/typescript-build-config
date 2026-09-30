@@ -57,8 +57,11 @@ This is the first thing a person who has never used Codeberg must do.
    usable until the address is confirmed.
 4. Recommended: turn on two-factor authentication now. Codeberg's guide is at
    <https://docs.codeberg.org/security/2fa/>.
-5. New members: send the org owner your `<username>`, or give them your email address so
-   they can invite you (Part 2, step 4).
+5. New members: send the org owner your Codeberg username (`<username>`), or the email
+   address to invite, through whatever channel the team already uses (chat or email, for
+   example). Neither is secret. Your username is the last part of your profile URL,
+   `https://codeberg.org/<username>`. Never send a password or a token. The owner adds you
+   in Part 2, step 3 (by username) or step 4 (by email).
 
 Codeberg is a non-profit, volunteer-run service. Its terms ask users to keep resource use
 reasonable, which matters for the CI section below.
