@@ -4,9 +4,11 @@ A complete walkthrough that starts with no Codeberg account and ends with team m
 creating and pushing projects with `dk-scaffold`. It covers creating the organization and
 team, inviting people, and setting up each person's account and machine.
 
-Placeholders used throughout: `<org>` is your organization's name, `<team>` is the team
-name, `<username>` is a person's Codeberg username, and `<token>` is a personal access
-token.
+Placeholders used throughout: 
+    - `<org>` is your organization's name, 
+    - `<team>` is the team name, 
+    - `<username>` is a person's Codeberg username, and 
+    - `<token>` is a personal access token.
 
 Background on why each person gets their own token is in
 [access-tokens.md](access-tokens.md).
@@ -31,9 +33,11 @@ Background on why each person gets their own token is in
 | Org owner | Creates the organization and team (once), then adds each new person |
 | Team member | Registers, adds an SSH key, generates their own token, sets up their machine |
 
-The org owner is a member of the organization's `Owners` team. They are also a team member,
+The org owner is the person who created the organization. Codeberg adds the creator to the
+organization's `Owners` team automatically (Part 2, step 1). They are also a team member,
 so they follow Parts 3 and 4 for themselves too.
-Part 1 is the first step for anyone who has never used Codeberg, whether org owner or team member.
+Part 1 is the first step for anyone who has never used Codeberg, whether org owner or
+team member.
 Repos are always created under an organization, never a personal account. If you work alone,
 create a one-person organization (free) and follow the same steps.
 
@@ -50,7 +54,9 @@ Every person's machine needs:
 
 ## Part 1: register a Codeberg account (everyone, first)
 
-This is the first thing a person who has never used Codeberg must do.
+Everyone does this first, from the org owner to every team member. It is the first thing a
+person who has never used Codeberg must do. It creates a personal account only. The
+organization is created in Part 2 by the org owner.
 
 1. Go to <https://codeberg.org/user/sign_up> (the **Register** page).
 2. Enter a username, an email address and a password.
@@ -58,11 +64,15 @@ This is the first thing a person who has never used Codeberg must do.
    usable until the address is confirmed.
 4. Recommended: turn on two-factor authentication now. Codeberg's guide is at
    <https://docs.codeberg.org/security/2fa/>.
-5. New members: send the org owner your Codeberg username (`<username>`), or the email
-   address to invite, through whatever channel the team already uses (chat or email, for
-   example). Neither is secret. Your username is the last part of your profile URL,
-   `https://codeberg.org/<username>`. Never send a password or a token. The owner adds you
-   in Part 2, step 3 (by username) or step 4 (by email).
+5. Joining an existing organization: send the org owner your Codeberg username
+   (`<username>`), or the email address to invite, through whatever channel the team
+   already uses (chat or email, for example). The org owner is the person who created the
+   organization in Part 2. Your username and email address are not secret. Your username is
+   the last part of your profile URL, `https://codeberg.org/<username>`. Never send a
+   password or a token. The owner adds you in Part 2, step 3 (by username) or step 4 (by
+   email).
+
+   Creating the organization yourself: skip this step and go to Part 2.
 
 Codeberg is a non-profit, volunteer-run service. Its terms ask users to keep resource use
 reasonable, which matters for the CI section below.
@@ -74,7 +84,7 @@ Skip steps 1 and 2 if the organization and a suitable team already exist.
 1. **Create the organization.** Open <https://codeberg.org/org/create> (the `+` menu,
    **New Organization**). Enter `<org>` as the name, choose the visibility, and
    click **Create Organization**. The name becomes the org's URL, and later the value of
-   `REPO_OWNER`. Codeberg creates an `Owners` team containing you automatically.
+   `REPO_OWNER`. Codeberg creates an `Owners` team containing _you_ automatically.
 2. **Create a team for people who create repos.** Open
    `https://codeberg.org/org/<org>/teams/new` (the org's **Teams** page, **New Team**; if
    you don't remember the org's name, see "Finding your organizations and teams" below).
@@ -84,10 +94,13 @@ Skip steps 1 and 2 if the organization and a suitable team already exist.
    - permission: **Write** access. `Administrator Access` is more than `mkrepo` needs.
    - **Create repositories**: tick the box that lets members create repositories on behalf
      of the organization. Without it, `mkrepo` fails for that member.
-3. **Add a member.** Open the team from `https://codeberg.org/org/<org>/teams`, choose
-   **Settings**, and add the person by `<username>`.
-4. **Or invite by email.** The same page can invite by email address, including an address
-   with no Codeberg account yet. The person is prompted to create an account first.
+3. **Add a member.** Open `https://codeberg.org/org/<org>/teams` (the org's **Teams** tab)
+   and click **View** on the team's card. On the team page, type the person's `<username>`
+   in **Search users…**, pick them from the list, and click **Invite to team**.
+4. **Or invite by email.** On the same team page, type an email address in the same box
+   and click **Invite to team**. The address may belong to someone with no Codeberg
+   account yet, who is then prompted to create one first. Invitations not yet accepted
+   appear under **Pending invitations** on the team page, where they can be removed.
 
 After adding someone by either route, tell them the value of `<org>`. They need it for
 `REPO_OWNER` in Part 4, step 4.
@@ -114,9 +127,9 @@ administrator rights on that repository.
      cat ~/.ssh/id_ed25519.pub
      ```
 
-     If `~/.ssh/id_ed25519.pub` already exists, skip `ssh-keygen` and reuse that key: when
-     the file exists, `ssh-keygen` asks whether to overwrite it, and answering yes destroys
-     the old key.
+     If `~/.ssh/id_ed25519.pub` already exists, you may wish to skip `ssh-keygen` and reuse
+     that key: when the file exists, `ssh-keygen` asks whether to overwrite it, and
+     answering yes destroys the old key.
 
    - On Codeberg, open <https://codeberg.org/user/settings/keys> (profile picture,
      **Settings**, **SSH / GPG keys**). Under **Add Key**, paste the whole `cat` output
@@ -158,7 +171,7 @@ you no longer use.
    in the tool's README), then run its installer from the clone:
 
    ```bash
-   git clone <tool-repo-url> typescript-build-config
+   git clone https://codeberg.org/doikayt/typescript-build-config.git
    cd typescript-build-config
    ./assets/shell/install.sh
    exec $SHELL
