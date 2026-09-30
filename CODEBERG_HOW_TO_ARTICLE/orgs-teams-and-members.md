@@ -37,10 +37,10 @@ Account (a person)
 ```
 
 A repo's owner (the `<owner>` in `owner/repo`) is either a **username** or an
-**organization name** — this is exactly the `REPO_OWNER` /
-`CODEBERG_REPO_SCOPE` distinction `aliases.sh` uses: `CODEBERG_REPO_SCOPE=org`
-(the default) creates repos under an organization, `CODEBERG_REPO_SCOPE=user`
-creates them directly under your own account, with no org involved at all.
+**organization name**. Owning repos directly under a user account is possible on
+Codeberg in theory, but our workflow doesn't support it, so there is only one path to
+maintain in code and docs: `REPO_OWNER` in
+[`aliases.sh`](../assets/shell/aliases.sh) must be an organization.
 
 ## Organizations
 
@@ -51,7 +51,7 @@ Anyone can create one, for free. When you create one:
   profile — see [Visibility](#visibility) below).
 - An **Owners** team is created automatically, containing you.
 - You choose whether repository admins are allowed to grant *other* teams access
-  to their repo themselves (Settings → Collaborators on that repo), or whether
+  to their repo themselves (`https://codeberg.org/<org>/<repo>/settings/collaboration`), or whether
   only org owners can do that.
 
 **Only members of the Owners team** can: add/remove members and teams, set a
@@ -130,9 +130,8 @@ the account to already exist.
 
 ## Where this shows up in the tooling
 
-- `REPO_OWNER` (`aliases.sh`) is the org or username repos get created under;
-  `CODEBERG_REPO_SCOPE` picks which of the two API endpoints (`orgs/.../repos`
-  vs `user/repos`) that maps to.
+- `REPO_OWNER` (`aliases.sh`) is the org repos get created under, via the
+  `orgs/<org>/repos` API endpoint.
 - `mkrepo`/`dk-scaffold` need the token's owner to be on a team with **create
   repositories** enabled for the target org — a correctly-scoped token alone
   isn't enough if team permissions don't allow it.

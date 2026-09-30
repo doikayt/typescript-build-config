@@ -14,7 +14,6 @@ Background on why each person gets their own token is in
 <!-- TOC:START -->
 - [Setting up Codeberg for a team, from scratch](#setting-up-codeberg-for-a-team-from-scratch)
   - [Who does what](#who-does-what)
-  - [Choose a setup](#choose-a-setup)
   - [Prerequisites](#prerequisites)
   - [Part 1: register a Codeberg account (everyone, first)](#part-1-register-a-codeberg-account-everyone-first)
   - [Part 2: the org owner creates the organization and team](#part-2-the-org-owner-creates-the-organization-and-team)
@@ -34,13 +33,8 @@ Background on why each person gets their own token is in
 
 The org owner is also a team member, so they follow Parts 3 and 4 for themselves too.
 Part 1 is the first step for anyone who has never used Codeberg, owner or member.
-
-## Choose a setup
-
-- **Organization with a team** (two or more people): follow Parts 1 to 4.
-- **Just you, on a personal account:** follow Parts 1, 3 and 4, and skip Part 2. In Part 4
-  set `REPO_OWNER` to your own username and also set `CODEBERG_REPO_SCOPE=user`, so repos
-  are created under your account instead of an organization.
+Repos are always created under an organization, never a personal account. If you work alone,
+create a one-person organization (free) and follow the same steps.
 
 ## Prerequisites
 
@@ -51,13 +45,13 @@ Every person's machine needs:
 - an OpenSSH client (`ssh`, `ssh-keygen`) and `curl`
 - a web browser
 - a password manager for the token (Bitwarden, for example)
-- an email address they can receive mail at
+- an email address 
 
 ## Part 1: register a Codeberg account (everyone, first)
 
 This is the first thing a person who has never used Codeberg must do.
 
-1. Go to `https://codeberg.org` and click **Register**.
+1. Go to <https://codeberg.org/user/sign_up> (the **Register** page).
 2. Enter a username, an email address and a password.
 3. Open the confirmation email Codeberg sends and click the link. The account is not
    usable until the address is confirmed.
@@ -73,21 +67,30 @@ reasonable, which matters for the CI section below.
 
 Skip steps 1 and 2 if the organization and a suitable team already exist.
 
-1. **Create the organization.** On the dashboard, click the `+` next to your avatar and
-   choose **New Organization**. Enter `<org>` as the name, choose the visibility, and
+1. **Create the organization.** Open <https://codeberg.org/org/create> (the `+` menu,
+   **New Organization**). Enter `<org>` as the name, choose the visibility, and
    click **Create Organization**. The name becomes the org's URL, and later the value of
    `REPO_OWNER`. Codeberg creates an `Owners` team containing you automatically.
-2. **Create a team for people who create repos.** Open the org, go to **Teams**, and click
-   **New Team**. Name it `<team>`, then set:
+2. **Create a team for people who create repos.** Open
+   `https://codeberg.org/org/<org>/teams/new` (the org's **Teams** page, **New Team**; if
+   you don't remember the org's name, see "Finding your organizations and teams" below).
+   Name it `<team>`, then set:
    - repository access: all repositories of the organization, unless you want to add
      repositories to the team one at a time
    - permission: **Write** access. `Administrator Access` is more than `mkrepo` needs.
    - **Create repositories**: tick the box that lets members create repositories on behalf
      of the organization. Without it, `mkrepo` fails for that member.
-3. **Add a member.** Open the team, choose **Settings**, and add the person by
-   `<username>`.
+3. **Add a member.** Open the team from `https://codeberg.org/org/<org>/teams`, choose
+   **Settings**, and add the person by `<username>`.
 4. **Or invite by email.** The same page can invite by email address, including an address
    with no Codeberg account yet. The person is prompted to create an account first.
+
+**Finding your organizations and teams**
+
+- Organizations you own or belong to: <https://codeberg.org/user/settings/organization>
+  (profile picture, **Settings**, **Organizations**).
+- Teams in an organization: `https://codeberg.org/org/<org>/teams`. Click a team to see
+  its members and repositories.
 
 Only members of the `Owners` team can manage teams, add or remove members and set access
 rights. A member who creates a repository in the org becomes a collaborator with
@@ -95,12 +98,24 @@ administrator rights on that repository.
 
 ## Part 3: each person, on Codeberg
 
-1. **Add an SSH key.** Click your profile picture, then **Settings**, then
-   **SSH / GPG keys**. Git pushes authenticate with this key, not with the token. Verifying
-   the key is optional and matters only for signed commits.
-2. **Generate a personal access token.** In **Settings**, open **Applications**. Under
-   **Manage Access Tokens | Generate New Token**, enter a name, select these scopes, and
-   generate the token:
+1. **Add an SSH key.** Git pushes authenticate with this key, not with the token.
+   - On your machine, generate a key if you don't have one (accept the default file
+     location; a passphrase is recommended), then print the public half:
+
+     ```bash
+     ssh-keygen -t ed25519 -C "you@example.com"
+     cat ~/.ssh/id_ed25519.pub
+     ```
+
+   - On Codeberg, open <https://codeberg.org/user/settings/keys> (profile picture,
+     **Settings**, **SSH / GPG keys**). Under **Add Key**, paste the whole `cat` output
+     (one line starting with `ssh-ed25519`), give it a name, and save. Never paste the file
+     without the `.pub` extension: that is the private key.
+   - Verifying the key is optional and matters only for signed commits.
+2. **Generate a personal access token.** Open
+   <https://codeberg.org/user/settings/applications> (profile picture, **Settings**,
+   **Applications**). Under **Manage Access Tokens | Generate New Token**, enter a name,
+   select these scopes, and generate the token:
    - `read:user`
    - `read:repository`
    - `write:repository`
@@ -120,13 +135,7 @@ you no longer use.
    git config --global user.email "you@example.com"
    ```
 
-2. **SSH key**, if the machine has none:
-
-   ```bash
-   ssh-keygen -t ed25519
-   ```
-
-   Paste `~/.ssh/id_ed25519.pub` into Codeberg (Part 3, step 1), then check it:
+2. **Check the SSH key** you added in Part 3, step 1:
 
    ```bash
    ssh -T git@codeberg.org
@@ -152,9 +161,6 @@ you no longer use.
    export CODEBERG_TOKEN=<token>
    export REPO_OWNER=<org>
    ```
-
-   For a personal account, use `REPO_OWNER=<username>` and also
-   `export CODEBERG_REPO_SCOPE=user`.
 
 5. **Check the token.** A valid token with `read:user` returns 200. A 403 means a scope is
    missing, and the response body names it. A 401 means the token is invalid.
@@ -198,7 +204,6 @@ Things to know before relying on it:
 | Symptom | Likely cause |
 |---|---|
 | `mkrepo` fails with a permission error | The team lacks the **Create repositories** box, or the token lacks `write:organization` |
-| `mkrepo` fails for a personal account | `CODEBERG_REPO_SCOPE=user` is not set |
 | 403 from `/user` | The token lacks `read:user` |
 | 401 from any call | The token is wrong, revoked, or was copied incompletely |
 | `ssh -T` fails | The public key is not on the account, or a different key file is in use |

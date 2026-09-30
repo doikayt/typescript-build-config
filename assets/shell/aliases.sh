@@ -3,12 +3,12 @@
 # Source this from your shell rc (see the README, "Team shell aliases").
 
 # --- config (override via env if needed) ---
-# REPO_OWNER is the Codeberg account/org that owns created repos (the "owner" in
-# owner/repo). DOIKAYT_ORG is the old name, still honored for backward compat.
+# REPO_OWNER is the Codeberg organization that owns created repos (the "owner" in
+# owner/repo). It must be an org, not an individual user account. DOIKAYT_ORG is
+# the old name, still honored for backward compat.
 : "${REPO_OWNER:=${DOIKAYT_ORG:-doikayt}}"
 : "${DOIKAYT_TBC:=@doikayt/typescript-build-config}"
 : "${CODEBERG_API:=https://codeberg.org/api/v1}"
-: "${CODEBERG_REPO_SCOPE:=org}"
 
 # Resolve the current checkout reliably even after the caller `cd`s elsewhere.
 # This avoids falling back to the published npm package when a developer is
@@ -54,15 +54,11 @@ mkrepo() {
     fi
 
     echo "🚀 Creating public Codeberg repository '${FULL_REPO_NAME}'..."
-    local create_url="${CODEBERG_API}/orgs/${REPO_OWNER}/repos"
-    if [ "${CODEBERG_REPO_SCOPE}" = "user" ]; then
-        create_url="${CODEBERG_API}/user/repos"
-    fi
     if ! curl --fail --silent --show-error \
         -X POST \
         -H "Authorization: token ${CODEBERG_TOKEN}" \
         -H "Content-Type: application/json" \
-        "${create_url}" \
+        "${CODEBERG_API}/orgs/${REPO_OWNER}/repos" \
         --data "{\"name\":\"${REPO_NAME}\",\"private\":false}" >/dev/null; then
         echo "❌ Failed to create repository."
         return 1
