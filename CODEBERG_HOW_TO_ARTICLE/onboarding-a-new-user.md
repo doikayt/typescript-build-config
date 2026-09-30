@@ -213,24 +213,70 @@ Repos created by `mkrepo` are public.
 
 ## Part 5: continuous integration (optional)
 
-`dk-scaffold` creates and pushes without CI, so this part is optional. It is only needed
-for the scaffolded project's pipeline to run on Codeberg.
+`dk-scaffold` creates and pushes without CI, so this part is optional. Do it only if the
+scaffolded project's pipeline should run on Codeberg, and do it after a full
+`dk-scaffold my-project` (no `--local`, Part 4, step 6), because the request names a
+repository that already exists.
 
-Codeberg provides Woodpecker CI at `https://ci.codeberg.org`. Access is not automatic.
+### One time chore:  request Woodpecker CI access 
 
-1. **Request access** with the Woodpecker CI request form linked from Codeberg's CI
-   documentation (`https://docs.codeberg.org/ci/`). A Codeberg volunteer reviews it against
-   published criteria, so read those first to speed up approval.
-2. **Log in** at `https://ci.codeberg.org` with your Codeberg account once approved.
-3. **Enable the repository** at `https://ci.codeberg.org/repos/add`.
+Codeberg provides Woodpecker CI at <https://ci.codeberg.org>. Access is not automatic: a
+Codeberg volunteer reviews each request. Approval is account-wide. It attaches to the
+account that submits the request and covers that account's later repositories, so each
+person requests access once, not once per repository.
+
+1. **Check the repository first.** Open `https://codeberg.org/<org>/my-project` and
+   confirm it contains these, because Codeberg rejects requests for repositories that lack
+   them:
+   - it is public (`mkrepo` creates public repositories)
+   - a `LICENSE` file (`dk-scaffold` writes an MIT one)
+   - a `README.md` that says what the project does and how it will use CI. Edit the
+     scaffolded README if it does not, then push.
+   - a `.woodpecker.yml` file, the pipeline that runs `npm run ci`
+2. **Submit the request.** Open the Woodpecker CI request form at
+   <https://codeberg.org/Codeberg-e.V./requests/issues/new?template=ISSUE_TEMPLATE%2fWoodpecker-CI.yaml>
+   (linked from <https://docs.codeberg.org/ci/>). It is a Codeberg issue, and it is
+   reviewed against the criteria at <https://codeberg.org/Codeberg-e.V./requests#woodpecker-ci>.
+   Fill it in like this:
+
+   - **Title:** keep the `[CI] ` prefix (an approval bot reads it), then the project name.
+   - **Projects:** one line per repository, in the form
+     `- [my-project](https://codeberg.org/<org>/my-project)`.
+   - **Expected Resource Usage:** `minimal` (under 1 GB RAM, 1 CPU, under 2 minutes) or
+     `medium` (1-3 GB RAM, under 5 minutes). Linters and tests fit `minimal`. `large`
+     requires an explanation.
+   - **I would also like the following users to be added:** teammates who will use CI,
+     one `@<username>` per line. Leave it empty for none.
+   - **Additional Information:** anything else the reviewer needs.
+   - **Other Work:** a link to a profile or project. Helpful for a new account, which
+     Codeberg may otherwise reject as possible spam.
+   - **Statement:** tick all three boxes: a `LICENSE` file is present, CI may be
+     unstable, and you will be added to the
+     [Codeberg-CI organization](https://codeberg.org/Codeberg-CI/).
+
+3. **Wait for approval.** A volunteer reviews the request. Codeberg publishes no
+   turnaround time.
+4. **Log in** at <https://ci.codeberg.org> with your Codeberg account once approved.
+5. **Enable the repository** at <https://ci.codeberg.org/repos/add>, once for each
+   repository. `dk-scaffold` does not do this for you. Repositories owned by an
+   organization can be enabled: this tool's own repository, under the `doikayt`
+   organization, is enabled in Woodpecker this way. What enabling does is drawn in
+   [from-repo-event-to-ci-and-chat.md](from-repo-event-to-ci-and-chat.md).
+6. **Add the release secrets** if the project publishes releases. The release pipeline
+   needs secrets named `NPM` and `CODEBERG_TOKEN` set for the repository in Woodpecker (see
+   the [README](../README.md)). Tests and checks run without them.
 
 Things to know before relying on it:
 
 - Codeberg documents its CI as provided as-is, with no guarantee of availability, and asks
   for reasonable resource use.
+- Repositories using the CI must be public and licensed. Codeberg may remove access
+  without notice otherwise.
 - Woodpecker has limited role-based access control, which Codeberg notes can be awkward for
   projects with team-based permissions. Plan for the person who enables a repository to be
   the one who manages its CI settings.
+- Approved users join the Codeberg-CI organization and can report problems in its feedback
+  repository, <https://codeberg.org/Codeberg-CI/feedback>.
 - Only `linux/amd64` builds are supported.
 
 ## Troubleshooting

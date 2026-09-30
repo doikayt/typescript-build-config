@@ -5,6 +5,31 @@ one place, via [webhooks](https://docs.codeberg.org/advanced/using-webhooks/). T
 walks through what actually happens between "something happened in the repo" and "a
 build ran" / "a message showed up in Discord."
 
+## Before the first event: enabling the repo
+
+A repo runs CI only after someone enables it at <https://ci.codeberg.org/repos/add>. That
+one action is what creates the webhook the flow below starts from.
+
+```text
+  You (an approved Codeberg account)
+          |  click "Enable" at ci.codeberg.org/repos/add
+          v
+  Woodpecker server (ci.codeberg.org)
+          |  calls Codeberg's API as your account
+          v
+  Codeberg repository
+          |  webhook added: target ci.codeberg.org/api/hook,
+          |  with a per-repo secret Woodpecker generated
+          v
+  From here on, every push follows the flow below
+```
+
+- **Approval is per account.** Codeberg's volunteers approve a Codeberg account once. It
+  can then enable any repository it has the rights to, including an organization's.
+- **Enabling is per repository.** Each new repository needs its own click.
+- **`dk-scaffold` does not enable the repo.** It creates the repository and pushes; both
+  the access request and the enable step are manual.
+
 ## The flow
 
 ```text
