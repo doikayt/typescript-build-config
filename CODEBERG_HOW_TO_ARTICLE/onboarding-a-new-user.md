@@ -138,13 +138,17 @@ administrator rights on that repository.
      without the `.pub` extension: that is the private key.
    - Verifying the key is optional and matters only for signed commits.
 2. **Generate a personal access token.** Open
-   <https://codeberg.org/user/settings/applications> (profile picture, **Settings**,
-   **Applications**). Under **Manage Access Tokens | Generate New Token**, enter a name,
-   select these scopes, and generate the token:
-   - `read:user`
-   - `read:repository`
-   - `write:repository`
-   - `write:organization`
+   <https://codeberg.org/user/settings/applications/tokens/new> (profile picture,
+   **Settings**, **Applications**, then the **Generate new token** form). Enter a
+   **Token name**, leave **Repository and organization access** on its default, **All
+   (public, private, and limited)**, set these categories in the dropdowns, leave every
+   other category at **No access**, and click **Generate token**:
+
+   | Category | Access | Also written as |
+   |---|---|---|
+   | `user` | Read | `read:user` |
+   | `repository` | Read and write | `read:repository` and `write:repository` |
+   | `organization` | Read and write | `write:organization` |
 3. **Copy the token immediately** and save it in the password manager. Codeberg shows it
    only once. Suggested item name: `Codeberg token: <purpose>`.
 
@@ -189,6 +193,10 @@ you no longer use.
 
 5. **Check the token.** A valid token with `read:user` returns 200. A 403 means a scope is
    missing, and the response body names it. A 401 means the token is invalid.
+
+   In the command below, `http_code` is a variable `curl` fills in with the HTTP status
+   number of the server's response, such as 200, 401 or 403. `-w '%{http_code}\n'` prints
+   that number, and `-o /dev/null` discards the rest of the response.
 
    ```bash
    curl -s -o /dev/null -w '%{http_code}\n' \

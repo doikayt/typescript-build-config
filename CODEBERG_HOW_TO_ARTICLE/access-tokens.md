@@ -67,12 +67,17 @@ Codeberg's current limits and terms before planning around Codeberg itself.
 
 ## Scopes
 
-Create the token at `https://codeberg.org/user/settings/applications`, under "Access
-tokens". Use the narrowest scopes that work:
+Create the token at <https://codeberg.org/user/settings/applications/tokens/new>. The
+form has one dropdown per category (`user`, `repository`, `organization` and others), each
+set to **No access**, **Read** or **Read and write**. A scope name such as `read:user`
+means the `user` category set to **Read**, and `write:organization` means `organization`
+set to **Read and write**. **Read and write** includes **Read**. Use the narrowest scopes
+that work:
 
 - `read:user`: lets a CLI identify the token's owner (for example `tea login add`)
 - `read:repository`: list and read repos
-- `write:repository`: create and push to repos
+- `write:repository`: update repository files and pull requests through the API (git
+  pushes use SSH keys, not the token)
 - `write:organization`: create repos inside an org
 
 Codeberg shows the token value once, so save it in the password manager immediately.
