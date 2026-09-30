@@ -33,7 +33,7 @@ Background on why each person gets their own token is in
 
 The org owner is a member of the organization's `Owners` team. They are also a team member,
 so they follow Parts 3 and 4 for themselves too.
-Part 1 is the first step for anyone who has never used Codeberg, owner or member.
+Part 1 is the first step for anyone who has never used Codeberg, whether org owner or team member.
 Repos are always created under an organization, never a personal account. If you work alone,
 create a one-person organization (free) and follow the same steps.
 
