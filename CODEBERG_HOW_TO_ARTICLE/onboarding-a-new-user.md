@@ -45,7 +45,7 @@ Every person's machine needs:
 - an OpenSSH client (`ssh`, `ssh-keygen`) and `curl`
 - a web browser
 - a password manager for the token (Bitwarden, for example)
-- an email address 
+- an email address
 
 ## Part 1: register a Codeberg account (everyone, first)
 
@@ -56,7 +56,7 @@ This is the first thing a person who has never used Codeberg must do.
 3. Open the confirmation email Codeberg sends and click the link. The account is not
    usable until the address is confirmed.
 4. Recommended: turn on two-factor authentication now. Codeberg's guide is at
-   `https://docs.codeberg.org/security/2fa`.
+   <https://docs.codeberg.org/security/2fa/>.
 5. New members: send the org owner your `<username>`, or give them your email address so
    they can invite you (Part 2, step 4).
 
@@ -147,7 +147,7 @@ you no longer use.
    in the tool's README), then run its installer from the clone:
 
    ```bash
-   git clone <tool-repo-url>
+   git clone <tool-repo-url> typescript-build-config
    cd typescript-build-config
    ./assets/shell/install.sh
    exec $SHELL
