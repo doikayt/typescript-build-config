@@ -287,6 +287,67 @@ test("does not overwrite an existing config file", async () => {
   );
 });
 
+test("seeds an MIT LICENSE held by the owning org and sets license: MIT", async () => {
+  const dir = makeConsumer({ license: "ISC" });
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+    licenseHolder: "acme-labs",
+    licenseYear: 2031,
+  });
+  const license = readFileSync(join(dir, "LICENSE"), "utf8");
+  assert.match(license, /^MIT License\n/);
+  assert.match(license, /Copyright \(c\) 2031 acme-labs\n/);
+  assert.doesNotMatch(license, /\{\{/);
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.license, "MIT");
+});
+
+test("LICENSE falls back to a neutral holder when no org is known", async () => {
+  const dir = makeConsumer();
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+    licenseHolder: "",
+    licenseYear: 2031,
+  });
+  assert.match(
+    readFileSync(join(dir, "LICENSE"), "utf8"),
+    /Copyright \(c\) 2031 the project contributors\n/,
+  );
+});
+
+test("does not overwrite an existing LICENSE", async () => {
+  const dir = makeConsumer();
+  writeFileSync(join(dir, "LICENSE"), "mine\n");
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+    licenseHolder: "acme-labs",
+  });
+  assert.equal(readFileSync(join(dir, "LICENSE"), "utf8"), "mine\n");
+});
+
+test("a consumer's non-MIT license is kept and no LICENSE is seeded", async () => {
+  const dir = makeConsumer({ license: "Apache-2.0" });
+  await runInit({
+    cwd: dir,
+    prompt: async () => false,
+    resolveDevVersions: fakeVersions,
+    log: silent,
+    licenseHolder: "acme-labs",
+  });
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.equal(pkg.license, "Apache-2.0");
+  assert.ok(!existsSync(join(dir, "LICENSE")));
+});
+
 test("demo declined (default): seeds nothing", async () => {
   const dir = makeConsumer();
   const res = await runInit({

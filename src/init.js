@@ -28,6 +28,17 @@ function seedFile(src, destPath) {
   return "seeded";
 }
 
+// Write an MIT LICENSE from the template when the project has none. The holder
+// is the owning org (REPO_OWNER); without one, a neutral "project contributors".
+function seedLicense(destPath, { holder, year }) {
+  if (existsSync(destPath)) return "skipped";
+  const text = readFileSync(resolve(templatesDir, "LICENSE"), "utf8")
+    .replace("{{YEAR}}", String(year))
+    .replace("{{HOLDER}}", holder);
+  writeFileSync(destPath, text);
+  return "seeded";
+}
+
 // Recursively copy a template directory tree into the project.
 function copyDir(srcDir, destDir) {
   mkdirSync(destDir, { recursive: true });
@@ -83,6 +94,8 @@ export async function runInit({
   promptText,
   resolveDevVersions = resolveVersions,
   log = console.log,
+  licenseHolder = process.env.REPO_OWNER,
+  licenseYear = new Date().getFullYear(),
 } = {}) {
   // One readline interface for all prompts (see createAskYesNo); close it even
   // on error so a leftover interface never keeps the process alive.
@@ -98,6 +111,8 @@ export async function runInit({
       askText,
       resolveDevVersions,
       log,
+      licenseHolder,
+      licenseYear,
     });
   } finally {
     ownAsk?.close();
@@ -110,6 +125,8 @@ async function collectAndScaffold({
   askText,
   resolveDevVersions,
   log,
+  licenseHolder,
+  licenseYear,
 }) {
   const pkgPath = resolve(cwd, "package.json");
   const raw = readFileSync(pkgPath, "utf8");
@@ -146,12 +163,13 @@ async function collectAndScaffold({
   const scripts = canonicalScripts({ ui, library });
   const devDependencies = resolveDevVersions(devDependencyNames({ ui }));
 
-  const fields = packageFields({ library });
+  const fields = { ...packageFields({ library }), license: "MIT" };
   // `npm init -y` seeds these placeholders; treat them as unset so the canonical
-  // `test` script and (for a library) `main` replace them instead of shadowing.
+  // `test` script, `license` and (for a library) `main` replace them instead of
+  // shadowing.
   const replaceDefaults = {
     scripts: { test: 'echo "Error: no test specified" && exit 1' },
-    fields: { main: "index.js" },
+    fields: { main: "index.js", license: "ISC" },
   };
   if (library) {
     // The chosen name is a deliberate publish decision, so it replaces whatever
@@ -175,6 +193,17 @@ async function collectAndScaffold({
   for (const { name } of configs) {
     const result = seedFile(name, resolve(cwd, name));
     (result === "seeded" ? seededConfigs : keptConfigs).push(name);
+  }
+
+  // Codeberg's CI access request requires a LICENSE file. Seed one only when
+  // the project's license is MIT (the canonical one), so a consumer who chose a
+  // different license is never handed a contradicting file.
+  if (JSON.parse(text).license === "MIT") {
+    const result = seedLicense(resolve(cwd, "LICENSE"), {
+      holder: licenseHolder || "the project contributors",
+      year: licenseYear,
+    });
+    (result === "seeded" ? seededConfigs : keptConfigs).push("LICENSE");
   }
 
   const demo = wantDemo
