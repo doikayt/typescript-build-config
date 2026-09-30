@@ -1,6 +1,6 @@
 {
   "name": "@doikayt/typescript-build-config",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "description": "Shared build configuration for TypeScript projects — ESLint, Prettier, tsconfig, and Playwright presets",
   "_comments": {
     "exports": "This block lists the config files that will be extended by files in in src/toplevel - which are copied to consuming project root folder. An example: eslint.config.js imports from '@doikayt/typescript-build-config/eslint'.",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
-    "@doikayt/typescript-build-config": "^0.1.32",
+    "@doikayt/typescript-build-config": "^0.1.33",
     "@doikayt/update-markdown-toc": "^1.4.17",
     "@playwright/test": "^1.40.0"
   },

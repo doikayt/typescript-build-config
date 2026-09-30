@@ -1,5 +1,19 @@
 # @datalackey/typescript-build-config
 
+## 0.1.33
+
+### Patch Changes
+
+- - fix(ci): quote release commit command so the pipeline parses
+  - fix(aliases): replace stale aliases that shadow function names, with a warning
+  - feat(init): seed an MIT LICENSE held by the owning org
+  - feat(glf): colorize output (hash in magenta, message in green)
+  - feat(tools-help): show each command's mnemonic separately from its summary
+  - fix(install): stop suggesting direct sourcing, matches README guidance now
+  - feat: move personal git aliases into aliases.sh, add galiases
+  - feat: move gp/gpu/trackify from personal dotfiles into team aliases.sh
+  - feat: dk-scaffold notes that its prompts are auto-answered
+
 ## 0.1.32
 
 ### Patch Changes
