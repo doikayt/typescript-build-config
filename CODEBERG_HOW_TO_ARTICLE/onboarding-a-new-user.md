@@ -256,7 +256,12 @@ person requests access once, not once per repository.
 
 3. **Wait for approval.** A volunteer reviews the request. Codeberg publishes no
    turnaround time.
-4. **Log in** at <https://ci.codeberg.org> with your Codeberg account once approved.
+4. **Log in** at <https://ci.codeberg.org> with your Codeberg account once approved. On
+   the first login, and again whenever the session expires, Codeberg shows an
+   "Authorize `codeberg-woodpecker`" page. Confirm the address bar shows `codeberg.org` and
+   that the page says it will redirect to `https://ci.codeberg.org/authorize`, then
+   authorize. This is Woodpecker's normal login: it lets the CI server act as your account,
+   which it needs to enable repositories.
 5. **Enable the repository** at <https://ci.codeberg.org/repos/add>, once for each
    repository. `dk-scaffold` does not do this for you. Repositories owned by an
    organization can be enabled: this tool's own repository, under the `doikayt`

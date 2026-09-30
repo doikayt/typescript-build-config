@@ -27,6 +27,10 @@ one action is what creates the webhook the flow below starts from.
 - **Approval is per account.** Codeberg's volunteers approve a Codeberg account once. It
   can then enable any repository it has the rights to, including an organization's.
 - **Enabling is per repository.** Each new repository needs its own click.
+- **Woodpecker numbers each enabled repository.** The number is Woodpecker's own ID, not
+  Codeberg's repository ID, and API calls use it (for example
+  `https://ci.codeberg.org/api/repos/<id>/pipelines`). Look it up in the `id` field of
+  `https://ci.codeberg.org/api/repos/lookup/<org>/<repo>`.
 - **`dk-scaffold` does not enable the repo.** It creates the repository and pushes; both
   the access request and the enable step are manual.
 

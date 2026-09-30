@@ -6,6 +6,7 @@ person generates their own token rather than sharing one.
 <!-- TOC:START -->
 - [Codeberg access tokens: one per person](#codeberg-access-tokens-one-per-person)
   - [Two settings, two jobs](#two-settings-two-jobs)
+  - [How the token is used](#how-the-token-is-used)
   - [There is no "uber token"](#there-is-no-uber-token)
   - [Why not one shared token](#why-not-one-shared-token)
   - [Per-person token versus a shared bot token](#per-person-token-versus-a-shared-bot-token)
@@ -21,6 +22,37 @@ person generates their own token rather than sharing one.
 - `REPO_OWNER` is *where repos go* (an organization, or your own username).
 
 Git pushes do not use the token. They use each person's SSH key.
+
+## How the token is used
+
+Two commands read `CODEBERG_TOKEN` from the shell environment: `mkrepo`, and `dk-scaffold`,
+which calls `mkrepo` to create the repository. Both are defined in
+[`assets/shell/aliases.sh`](../assets/shell/aliases.sh). Nothing else in the tool uses it:
+`dk-new`, `dk-init` and `git push` do not (pushes use the SSH key).
+
+`mkrepo <name>` sends two requests to `https://codeberg.org/api/v1`, each with the header
+`Authorization: token $CODEBERG_TOKEN`:
+
+| Step | Request | What it does | Token category and level |
+|---|---|---|---|
+| 1 | `GET /repos/<org>/<name>` | Checks whether the repository exists; if so, stops with exit code 2 | `repository`, read |
+| 2 | `POST /orgs/<org>/repos` | Creates the public repository in `<org>` | `organization`, write |
+
+The categories follow Forgejo's
+[token scope table](https://forgejo.org/docs/latest/user/token-scope/): `repos/*` routes
+belong to `repository` and `orgs/*` routes to `organization`. The token set in
+[Part 3 of the onboarding guide](onboarding-a-new-user.md#part-3-each-person-on-codeberg)
+also includes `repository` write, which these two requests do not need.
+
+Codeberg checks two separate things before it accepts step 2:
+
+- **The token's scope**: what the API call may attempt (the table above).
+- **The account's team permission**: the token's owner must be on a team in `<org>` with
+  **Create repositories** ticked, as described in
+  [orgs-teams-and-members.md](orgs-teams-and-members.md).
+
+Both must pass. A 401 means the token is invalid. A 403 means a scope is missing, and the
+response body names it. `mkrepo` shows only the HTTP status, not that explanation.
 
 ## There is no "uber token"
 
