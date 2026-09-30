@@ -16,6 +16,19 @@
 __DK_ALIAS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 __DK_REPO_ROOT="$(cd "${__DK_ALIAS_DIR}/../.." && pwd)"
 
+# A leftover alias (for example from an older config still loaded in a running shell)
+# with the same name as one of the functions below turns that definition into a syntax
+# error, because bash expands the alias while parsing `name() {`. Drop any such alias
+# first and say so. Keep this list in step with the functions defined in this file.
+__dk_function_names="mkrepo addpush gp gpu trackify rmbranch curr-branch gm dk-new dk-init dk-scaffold tools-help"
+for __dk_name in $__dk_function_names; do
+    if alias "$__dk_name" >/dev/null 2>&1; then
+        echo "aliases.sh: replacing your existing alias '$__dk_name' with a function" >&2
+        unalias "$__dk_name"
+    fi
+done
+unset __dk_function_names __dk_name
+
 # --- Repo bootstrap ---
 
 # ---------------------------------------------------------------------------

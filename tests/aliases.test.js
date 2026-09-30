@@ -35,6 +35,29 @@ test("aliases target Codeberg and use the API token", () => {
   assert.doesNotMatch(source, /gh repo create/);
 });
 
+test("sourcing replaces stale aliases that share a function's name, with a warning", () => {
+  const script = `
+    shopt -s expand_aliases
+    alias gm="git checkout master"
+    alias mkrepo="echo old"
+    source ${JSON.stringify(ALIASES)}
+    type -t gm
+    type -t mkrepo
+  `;
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8" });
+  assert.equal(res.status, 0, res.stderr);
+  assert.equal(res.stdout.trim().split("\n").join(","), "function,function");
+  assert.match(res.stderr, /replacing your existing alias 'gm'/);
+  assert.match(res.stderr, /replacing your existing alias 'mkrepo'/);
+});
+
+test("sourcing in a clean shell prints no warning", () => {
+  const script = `source ${JSON.stringify(ALIASES)}`;
+  const res = spawnSync(bashExecutable(), ["-c", script], { encoding: "utf8" });
+  assert.equal(res.status, 0, res.stderr);
+  assert.equal(res.stderr, "");
+});
+
 // Run dk-scaffold with every external stubbed to echo a "CALL <cmd>" marker, so
 // we can assert control flow (which side effects fire) without curl, npm, or git.
 // REPO_OWNER/DOIKAYT_ORG/_TBC are cleared so aliases.sh applies its own defaults,
