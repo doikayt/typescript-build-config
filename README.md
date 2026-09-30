@@ -65,7 +65,11 @@ HTTPS, read-only for this repo. Start here instead: [For Maintainers](#for-maint
 
 ```bash
 git clone https://codeberg.org/doikayt/typescript-build-config.git   # HTTPS: no SSH key needed
+#
 ## Alternative using ssh key:    git clone ssh://git@codeberg.org/doikayt/typescript-build-config.git
+#
+#
+#
 cd typescript-build-config
 ./assets/shell/install.sh   # adds `source assets/shell/aliases.sh` to your rc (idempotent)
 exec $SHELL                 # replaces this shell with a fresh one that reloads your rc
