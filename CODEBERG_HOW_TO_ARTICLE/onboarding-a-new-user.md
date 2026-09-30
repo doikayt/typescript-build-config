@@ -31,7 +31,8 @@ Background on why each person gets their own token is in
 | Org owner | Creates the organization and team (once), then adds each new person |
 | Team member | Registers, adds an SSH key, generates their own token, sets up their machine |
 
-The org owner is also a team member, so they follow Parts 3 and 4 for themselves too.
+The org owner is a member of the organization's `Owners` team. They are also a team member,
+so they follow Parts 3 and 4 for themselves too.
 Part 1 is the first step for anyone who has never used Codeberg, owner or member.
 Repos are always created under an organization, never a personal account. If you work alone,
 create a one-person organization (free) and follow the same steps.
@@ -88,6 +89,9 @@ Skip steps 1 and 2 if the organization and a suitable team already exist.
 4. **Or invite by email.** The same page can invite by email address, including an address
    with no Codeberg account yet. The person is prompted to create an account first.
 
+After adding someone by either route, tell them the value of `<org>`. They need it for
+`REPO_OWNER` in Part 4, step 4.
+
 **Finding your organizations and teams**
 
 - Organizations you own or belong to: <https://codeberg.org/user/settings/organization>
@@ -109,6 +113,10 @@ administrator rights on that repository.
      ssh-keygen -t ed25519 -C "you@example.com"
      cat ~/.ssh/id_ed25519.pub
      ```
+
+     If `~/.ssh/id_ed25519.pub` already exists, skip `ssh-keygen` and reuse that key: when
+     the file exists, `ssh-keygen` asks whether to overwrite it, and answering yes destroys
+     the old key.
 
    - On Codeberg, open <https://codeberg.org/user/settings/keys> (profile picture,
      **Settings**, **SSH / GPG keys**). Under **Add Key**, paste the whole `cat` output
