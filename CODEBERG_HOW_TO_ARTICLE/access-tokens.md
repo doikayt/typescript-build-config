@@ -72,7 +72,7 @@ form has one dropdown per category (`user`, `repository`, `organization` and oth
 set to **No access**, **Read** or **Read and write**. A scope name such as `read:user`
 means the `user` category set to **Read**, and `write:organization` means `organization`
 set to **Read and write**. **Read and write** includes **Read**. Use the narrowest scopes
-that work:
+that work, as follows:
 
 - `read:user`: lets a CLI identify the token's owner (for example `tea login add`)
 - `read:repository`: list and read repos

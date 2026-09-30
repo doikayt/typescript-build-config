@@ -97,11 +97,12 @@ Skip steps 1 and 2 if the organization and a suitable team already exist.
    and click **View** on the team's card. On the team page, type the person's `<username>`
    in **Search users…**, pick them from the list, and click **Invite to team**. The
    invitation stays under **Pending invitations** on the team page until the person
-   accepts it.
+   accepts it. Codeberg emails the invitation, and the person accepts by opening that
+   email and clicking the link in it, then clicking **Join**.
 4. **Or invite by email.** On the same team page, type an email address in the same box
-   and click **Invite to team**. The address may belong to someone with no Codeberg
-   account yet, who is then prompted to create one first. Until accepted, the invitation
-   appears under **Pending invitations**, next to a **Remove** button.
+   and click **Invite to team**. The person opens the invitation email and clicks **Join**
+   while logged in to their own Codeberg account. Until accepted, the invitation appears
+   under **Pending invitations**, next to a **Remove** button.
 
 After adding someone by either route, tell them the value of `<org>`. They need it for
 `REPO_OWNER` in Part 4, step 4.
